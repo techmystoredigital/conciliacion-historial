@@ -1,36 +1,41 @@
-# Historial — Conciliación bancaria Mine Store Digital
+# Historial de Conciliacion Bancaria — My Store Digital
 
-Registro automático del procesamiento diario de conciliación bancaria.
-Cada commit corresponde a una ejecución del workflow "Procesar Día" en N8N.
+Bitacora diaria del sistema automatico de conciliacion bancaria.
+Cada dia el sistema procesa cajas Virtualsoft, bancos (Valles + Credil) y resumenes,
+generando archivos paso1/paso2/paso3. Despues, este repo recibe un commit con el
+**reporte.md** y **log.json** del dia.
 
 ## Estructura
 
 ```
-YYYY/MM/DD/
-├── reporte.md   ← resumen humano-legible del día
-├── master.json  ← log estructurado del workflow master
-├── script1.json ← log del Script 1 (Recargas)
-├── script2.json ← log del Script 2 (Bancos)
-└── script3.json ← log del Script 3 (Conciliación)
+YYYY/
+  MM/
+    YYYY-MM-DD/
+      reporte.md   ← qué pasó hoy (humano-legible)
+      log.json     ← stats + errores estructurados
 ```
 
-Los archivos pesados (.xlsx) NO se versionan acá. Quedan en Google Drive
-en la carpeta `HISTORIAL/YYYY-MM-DD/` (links dentro de cada `reporte.md`).
+## Que NO esta aca
 
-## Cómo funciona
+- ❌ Archivos xlsx pesados (esos viven en Drive)
+- ❌ Codigo de los scripts (vive en N8N)
 
-1. La encargada dispara "Procesar Día" desde el HTML o Claude
-2. Los Scripts 1+2+3 procesan los archivos del día
-3. El workflow "Historial Diario" automáticamente:
-   - Hace snapshot de inputs y outputs en Drive
-   - Genera reporte.md + logs JSON
-   - Hace commit + push a este repo
+Los xlsx se mueven a la carpeta `Historial/` del Drive con la fecha-hora del procesamiento.
 
-## Notificaciones
+## Cuando hay errores
 
-Activar "Watch" en este repo → llegan emails automáticos por cada push.
+Si el reporte de un dia dice `Estado: ERROR`, ahi vas a encontrar:
+- Que paso (mensaje exacto del error)
+- En que parte del flujo fallo
+- Que hizo la encargada despues (si arreglo manualmente)
 
-## Acceso
+Esto te da contexto para reparar el bug o documentar el procedimiento.
 
-Por ahora público para facilitar testing.
-Se hará privado cuando el sistema pase a producción definitiva.
+## Operacion
+
+- **Disparador:** N8N de la encargada (workflow `Master_Procesar_Dia`)
+- **Push automatico:** workflow `Historial` (al final del procesamiento)
+- **Notificacion:** GitHub Watch envia email cuando hay commit nuevo
+
+---
+Setup: 2026-05-22
