@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-05-22_12-06-55",
+  "date": "2026-05-22",
+  "status": "OK",
+  "historialSubfolder": {
+    "id": "1mDxfCRPa5ve8aRv_jeHGHYseOVeBf-pN",
+    "name": "2026-05-22_12-06-55"
+  },
+  "movedCount": 1,
+  "moves": [],
+  "copiedCount": 4,
+  "copies": [
+    {
+      "name": "paso3_Recargas Concesionario Yopago.xlsx",
+      "id": "1NSczj8m3LwmNYDD47CJ76ATw6txaMW0N"
+    },
+    {
+      "name": "paso2_Banco coop. Credil (2) (1).xlsx",
+      "id": "1rAYjoDq7ohswV8dNocc_pPMsla62EtrP"
+    },
+    {
+      "name": "paso2_Bancos Coop. valles de lirio  (1) (1).xlsx",
+      "id": "1G40LV1UVEJHfLKsnqmm-Y7LkS9tRROyb"
+    },
+    {
+      "name": "paso1_Recargas Concesionario Yopago.xlsx",
+      "id": "1adw8b6Kr5AsYCCujvGySowlZq4cvfsOx"
+    }
+  ],
+  "scriptResults": {}
+}
