@@ -1,0 +1,51 @@
+{
+  "timestamp": "2026-05-24_18-42-04",
+  "date": "2026-05-24",
+  "status": "OK",
+  "instance": "grecia",
+  "historialSubfolder": {
+    "id": "1fBdlr1Fmypn17d8aMT7ZHw5VxEBQTjuO",
+    "name": "2026-05-24_18-42-04"
+  },
+  "movedCount": 6,
+  "moves": [
+    {
+      "folder": "1_VIRTUALSOFT",
+      "name": "Virtualsoft - 08_05_2026, 3_39_42 PM - Reporte de transferencias de saldo Realizadas.xlsx",
+      "id": "1U3uqvxiy5i-8nOePh7AZEiL3BHSZicOl"
+    },
+    {
+      "folder": "1_VIRTUALSOFT",
+      "name": "Virtualsoft - 08_05_2026, 3_39_09 PM - Reporte de transferencias de saldo Realizadas.xlsx",
+      "id": "1A6KNYCagmXDMpFcLLSk9kgXW7KsPLjfZ"
+    },
+    {
+      "folder": "2a_VALLES",
+      "name": "Bancos Coop. valles de lirio.xlsx",
+      "id": "1hK43-HSQDneteYlwI0rncPBBEAXxxdkl"
+    },
+    {
+      "folder": "2b_CREDIL",
+      "name": "Banco coop. Credil.xlsx",
+      "id": "13jF2hu-_1A7HsSnM-Hz3RmLupBKjubw7"
+    },
+    {
+      "folder": "3a_VALLES",
+      "name": "ResumenMovimientos (53).xlsx",
+      "id": "1_Se7I6WKPA3Ot6-MXVCchShRRHahdK4-"
+    },
+    {
+      "folder": "3b_CREDIL",
+      "name": "ResumenMovimientosCredil (43).xlsx",
+      "id": "1UG6QP1bHEl2yzN2fPxT3jzdF-MaEGHU9"
+    }
+  ],
+  "copiedCount": 1,
+  "copies": [
+    {
+      "name": "Recargas Concesionario Yopago.xlsx",
+      "id": "1p7X7pnBlMOXSDc35qPjRE3hq0sD706bt"
+    }
+  ],
+  "scriptResults": {}
+}
