@@ -1,0 +1,60 @@
+{
+  "timestamp": "2026-05-26_15-06-49",
+  "date": "2026-05-26",
+  "status": "OK",
+  "instance": "grecia",
+  "ts_id": "1lnehDan3D53VtvixRzM6nkN6gwUf3hR7",
+  "copiedCount": 2,
+  "copies": [
+    {
+      "name": "paso2_Banco coop. Credil (1).xlsx",
+      "id": "1mJmvUnMDbS1W7DA3Y9kxO9HwGH7JVpPi"
+    },
+    {
+      "name": "paso2_Bancos Coop. valles de lirio .xlsx",
+      "id": "1_wGwZWNBI9kKkxz4RtpzkFVS7w94gLj-"
+    }
+  ],
+  "deletedCount": 7,
+  "scriptResults": {
+    "script1": {
+      "script1_status": "ok",
+      "script1_paso1_id": null,
+      "script1_paso1_name": null,
+      "script1_error": null,
+      "script1_raw": "{\"error\":\"borrar las cajas del dia anterior y dejar solo las del dia a procesar. Despues re-disparar. [line 17]\"}"
+    },
+    "script2": {
+      "script1_status": "ok",
+      "script1_paso1_id": null,
+      "script1_paso1_name": null,
+      "script1_error": null,
+      "script1_raw": "{\"error\":\"borrar las cajas del dia anterior y dejar solo las del dia a procesar. Despues re-disparar. [line 17]\"}",
+      "script2_status": "ok",
+      "script2_paso2_id": "1hDNnbCezh0XOg3cyJIQdfKxub6NWHeFk",
+      "script2_paso2_name": "paso2_Bancos Coop. valles de lirio .xlsx",
+      "script2_error": null,
+      "script2_raw": "{\"kind\":\"drive#file\",\"id\":\"1hDNnbCezh0XOg3cyJIQdfKxub6NWHeFk\",\"name\":\"paso2_Bancos Coop. valles de lirio .xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"2\",\"webContentLink\":\"https://drive.google.com/uc?id=1hDNnbCezh0XOg3cyJIQdfKxub6NWHeFk&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/1hDNnbCezh0XOg3c"
+    },
+    "script3": {
+      "script1_status": "ok",
+      "script1_paso1_id": null,
+      "script1_paso1_name": null,
+      "script1_error": null,
+      "script1_raw": "{\"error\":\"borrar las cajas del dia anterior y dejar solo las del dia a procesar. Despues re-disparar. [line 17]\"}",
+      "script2_status": "ok",
+      "script2_paso2_id": "1hDNnbCezh0XOg3cyJIQdfKxub6NWHeFk",
+      "script2_paso2_name": "paso2_Bancos Coop. valles de lirio .xlsx",
+      "script2_error": null,
+      "script2_raw": "{\"kind\":\"drive#file\",\"id\":\"1hDNnbCezh0XOg3cyJIQdfKxub6NWHeFk\",\"name\":\"paso2_Bancos Coop. valles de lirio .xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"2\",\"webContentLink\":\"https://drive.google.com/uc?id=1hDNnbCezh0XOg3cyJIQdfKxub6NWHeFk&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/1hDNnbCezh0XOg3c",
+      "script3_status": "ok",
+      "script3_paso3_id": null,
+      "script3_paso3_name": null,
+      "script3_error": null,
+      "script3_raw": "{\"error\":\"No hay archivo paso1_Yopago en OUTPUTS [line 14]\"}",
+      "master_status": "OK_TODOS_LOS_SCRIPTS",
+      "timestamp": "2026-05-26T20:08:10.711Z",
+      "resumen": "Procesamiento completo OK. paso1=null, paso2=paso2_Bancos Coop. valles de lirio .xlsx, paso3=undefined"
+    }
+  }
+}
