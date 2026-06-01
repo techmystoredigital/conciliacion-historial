@@ -1,0 +1,529 @@
+{
+ "name": "Conciliacion_SCRIPT_2_BANCOS",
+ "nodes": [
+  {
+   "id": "f4cfbf6e-02c5-440b-9490-848c1bc1e43f",
+   "name": "Manual Trigger",
+   "type": "n8n-nodes-base.manualTrigger",
+   "typeVersion": 1,
+   "position": [
+    240,
+    300
+   ],
+   "parameters": {}
+  },
+  {
+   "id": "3ac52767-44a8-4b22-8335-06f4c79cf637",
+   "name": "Webhook Trigger",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2,
+   "position": [
+    240,
+    500
+   ],
+   "webhookId": "790909e2-df5b-4bb1-a7a0-a7bdb682cfdc",
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "exec-script2",
+    "responseMode": "lastNode",
+    "options": {}
+   }
+  },
+  {
+   "id": "2dae099d-66f0-4256-a02e-885831c8325b",
+   "name": "Execute Workflow Trigger",
+   "type": "n8n-nodes-base.executeWorkflowTrigger",
+   "typeVersion": 1,
+   "position": [
+    240,
+    150
+   ],
+   "parameters": {}
+  },
+  {
+   "id": "6da703d0-e3bd-4d4d-8638-490d86b53e90",
+   "name": "List descargados",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    520,
+    300
+   ],
+   "parameters": {
+    "method": "GET",
+    "url": "https://www.googleapis.com/drive/v3/files",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "q",
+       "value": "('1KZt98PYd9V6w_zfSpl-fOl6F1v56Vb4t' in parents or '12jatMOkDTNHzIwwPZOlHnWc33uoqcxwM' in parents) and trashed = false"
+      },
+      {
+       "name": "fields",
+       "value": "files(id,name,parents)"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000
+  },
+  {
+   "id": "e81ef361-6736-42ad-b3b2-80cd231a0f6d",
+   "name": "Split descargados",
+   "type": "n8n-nodes-base.splitOut",
+   "typeVersion": 1,
+   "position": [
+    660,
+    300
+   ],
+   "parameters": {
+    "fieldToSplitOut": "files",
+    "options": {}
+   }
+  },
+  {
+   "id": "8644f8ee-42e1-42de-8956-e25318f2ba4d",
+   "name": "List acumulativos",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    520,
+    500
+   ],
+   "parameters": {
+    "method": "GET",
+    "url": "https://www.googleapis.com/drive/v3/files",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "q",
+       "value": "('17Ut-5dL7ci9RZZhX72iD8qejZZdKnNkh' in parents or '177YEDw4l3-RD7Vg7rG9-ApGyey7Kh3tn' in parents) and trashed = false"
+      },
+      {
+       "name": "fields",
+       "value": "files(id,name,parents)"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000
+  },
+  {
+   "id": "156ff39d-bef4-4922-8078-0cade68413a8",
+   "name": "Split acumulativos",
+   "type": "n8n-nodes-base.splitOut",
+   "typeVersion": 1,
+   "position": [
+    660,
+    500
+   ],
+   "parameters": {
+    "fieldToSplitOut": "files",
+    "options": {}
+   }
+  },
+  {
+   "id": "b4bfacea-21a9-4297-be03-600581f36f67",
+   "name": "Emparejar banco-acumulativo",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    800,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "// Emparejar banco-acumulativo v3 (POR PARENT FOLDER - 100% deterministico)\n// Cada archivo lleva su parentId (id de subcarpeta). Mapea Valles<->Valles, Credil<->Credil.\nconst FOLDER_VALLES_DESC = '1KZt98PYd9V6w_zfSpl-fOl6F1v56Vb4t';\nconst FOLDER_CREDIL_DESC = '12jatMOkDTNHzIwwPZOlHnWc33uoqcxwM';\nconst FOLDER_VALLES_ACUM = '17Ut-5dL7ci9RZZhX72iD8qejZZdKnNkh';\nconst FOLDER_CREDIL_ACUM = '177YEDw4l3-RD7Vg7rG9-ApGyey7Kh3tn';\n\nconst dedupById = (arr) => {\n  const seen = new Set();\n  return arr.filter(x => seen.has(x.id) ? false : (seen.add(x.id), true));\n};\nconst descargados = dedupById($('Split descargados').all().map(i => i.json));\nconst acumulativos = dedupById($('Split acumulativos').all().map(i => i.json));\n\nfunction bancoDelArchivo(f, isDesc) {\n  const parents = f.parents || [];\n  if (isDesc) {\n    if (parents.includes(FOLDER_VALLES_DESC)) return 'Valles';\n    if (parents.includes(FOLDER_CREDIL_DESC)) return 'Credil';\n  } else {\n    if (parents.includes(FOLDER_VALLES_ACUM)) return 'Valles';\n    if (parents.includes(FOLDER_CREDIL_ACUM)) return 'Credil';\n  }\n  return null;\n}\n\n// Validar: cada subcarpeta debe tener EXACTAMENTE 1 archivo\nconst descPorBanco = { Valles: [], Credil: [] };\nfor (const d of descargados) {\n  const b = bancoDelArchivo(d, true);\n  if (b) descPorBanco[b].push(d);\n}\nconst acumPorBanco = { Valles: [], Credil: [] };\nfor (const a of acumulativos) {\n  const b = bancoDelArchivo(a, false);\n  if (b) acumPorBanco[b].push(a);\n}\n\n// Reglas: minimo 1 archivo por subcarpeta (descargado) y maximo 1\nconst bancos = ['Valles', 'Credil'];\nconst pares = [];\nconst warnings = [];\n\nfor (const banco of bancos) {\n  const descs = descPorBanco[banco];\n  const acums = acumPorBanco[banco];\n  if (descs.length === 0) {\n    throw new Error(`[CARPETA_${banco.toUpperCase()}_VACIA] No hay archivo de resumen del dia en la subcarpeta de ${banco}. ACCION: subir el archivo Resumen Movimientos del banco ${banco} a la subcarpeta correspondiente.`);\n  }\n  if (descs.length > 1) {\n    throw new Error(`[CARPETA_${banco.toUpperCase()}_DUPLICADA] Hay ${descs.length} archivos en la subcarpeta de ${banco}. Debe haber solo 1 (el del dia actual). ACCION: borrar o mover los archivos viejos.`);\n  }\n  if (acums.length === 0) {\n    throw new Error(`[ACUM_${banco.toUpperCase()}_VACIO] No hay archivo acumulativo del mes para ${banco}. ACCION: subir el archivo Bancos Coop del banco ${banco} a la subcarpeta correspondiente.`);\n  }\n  if (acums.length > 1) {\n    throw new Error(`[ACUM_${banco.toUpperCase()}_DUPLICADO] Hay ${acums.length} acumulativos en la subcarpeta de ${banco}. Debe haber solo 1.`);\n  }\n  pares.push({\n    descargado: descs[0],\n    acumulativo: acums[0],\n    banco: banco,\n  });\n}\n\nif (pares.length === 0) {\n  throw new Error('No se pudo emparejar ningun banco. Revisar que los archivos esten en sus subcarpetas.');\n}\n\nreturn pares.map(p => ({ json: {\n  desc_id: p.descargado.id,\n  desc_name: p.descargado.name,\n  acum_id: p.acumulativo.id,\n  acum_name: p.acumulativo.name,\n  banco: p.banco,\n}}));\n"
+   }
+  },
+  {
+   "id": "faa8b6ee-88e2-49b0-9f58-ea01557f6590",
+   "name": "Loop pares",
+   "type": "n8n-nodes-base.splitInBatches",
+   "typeVersion": 3,
+   "position": [
+    1080,
+    400
+   ],
+   "parameters": {
+    "batchSize": 1,
+    "options": {}
+   }
+  },
+  {
+   "id": "4851f184-060d-4780-8dbe-ccbf21e257be",
+   "name": "Download descargado",
+   "type": "n8n-nodes-base.googleDrive",
+   "typeVersion": 3,
+   "position": [
+    1360,
+    300
+   ],
+   "parameters": {
+    "operation": "download",
+    "fileId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "={{ $json.desc_id }}"
+    },
+    "options": {}
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000
+  },
+  {
+   "id": "036ae234-ad75-4698-a85e-97e4084a2b5b",
+   "name": "Aggregate descargado",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1640,
+    300
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "// === VALIDACION_ROBUSTA_XLSX v2 ===\nfunction _validarXLSX(buf, nombreArchivo) {\n  const nombre = nombreArchivo || 'archivo';\n  if (!buf || buf.length === 0) {\n    throw new Error(`[XLSX_VACIO] El archivo \"${nombre}\" llego vacio (0 bytes). Re-subir al Drive correctamente.`);\n  }\n  if (buf.length < 500) {\n    throw new Error(`[XLSX_PEQUENO] El archivo \"${nombre}\" es demasiado pequeno (${buf.length} bytes). Un xlsx valido tiene minimo ~5KB. Re-subir al Drive.`);\n  }\n  // Magic bytes iniciales: zip empieza con PK\\x03\\x04 (50 4B 03 04)\n  const b0 = buf[0], b1 = buf[1], b2 = buf[2], b3 = buf[3];\n  const esZip = b0 === 0x50 && b1 === 0x4B && (b2 === 0x03 || b2 === 0x05) && (b3 === 0x04 || b3 === 0x06);\n  if (!esZip) {\n    const hex = [b0,b1,b2,b3].map(b => (b||0).toString(16).padStart(2,'0')).join(' ');\n    let pista = '';\n    if (b0 === 0xD0 && b1 === 0xCF) pista = ' (archivo .xls antiguo, no .xlsx)';\n    else if (b0 === 0x3C) pista = ' (HTML/XML)';\n    else if (b0 === 0x7B) pista = ' (JSON)';\n    else if (b0 === 0xEF && b1 === 0xBB) pista = ' (texto con BOM UTF-8)';\n    throw new Error(`[XLSX_FORMATO_INCORRECTO] El archivo \"${nombre}\" NO es un xlsx. Bytes iniciales: ${hex}${pista}. ACCION: re-subir al Drive como .xlsx.`);\n  }\n  // End of Central Directory marker (PK\\x05\\x06 = 50 4B 05 06) en los ultimos ~22-65kb del zip\n  // Buscar hacia atras desde el final\n  const maxSearch = Math.min(buf.length, 65557); // EOCD puede estar precedido por hasta 64K de comentario\n  let eocdEncontrado = false;\n  for (let i = buf.length - 22; i >= Math.max(0, buf.length - maxSearch); i--) {\n    if (buf[i] === 0x50 && buf[i+1] === 0x4B && buf[i+2] === 0x05 && buf[i+3] === 0x06) {\n      eocdEncontrado = true;\n      break;\n    }\n  }\n  if (!eocdEncontrado) {\n    throw new Error(`[XLSX_TRUNCADO] El archivo \"${nombre}\" (${buf.length} bytes) es un zip pero esta TRUNCADO o CORRUPTO (falta el marcador End-of-Central-Directory). Causa probable: el archivo se subio al Drive incompleto o se daño en la descarga. ACCION: re-subir el archivo al Drive desde el sistema fuente.`);\n  }\n}\n\nasync function _cargarXLSXSeguro(wb, buf, nombreArchivo) {\n  try {\n    await wb.xlsx.load(buf);\n  } catch (e) {\n    const msg = String(e?.message || e);\n    if (msg.includes('central directory') || msg.includes('Corrupted zip') || msg.includes('invalid signature')) {\n      throw new Error(`[XLSX_CORRUPTO] El archivo \"${nombreArchivo}\" no se pudo abrir (${msg.slice(0, 100)}). Causa: zip corrupto. ACCION: re-subir el archivo al Drive.`);\n    }\n    throw e;\n  }\n}\n// === FIN VALIDACION ===\n\n// Parse XLSX descargado con exceljs.\n// Lee TODAS las filas (descargado completo, sin separadora). Output: 1 item con {data: [filas]}.\nconst ExcelJS = require('exceljs');\n\nconst item = $input.first();\nif (!item || !item.binary || !item.binary.data) {\n  throw new Error('Sin binary data del descargado');\n}\nconst buf = await this.helpers.getBinaryDataBuffer(0, 'data');\n_validarXLSX(buf, (item.binary?.data?.fileName || 'banco_dia'));\n\nconst wb = new ExcelJS.Workbook();\nawait wb.xlsx.load(buf);\nconst ws = wb.worksheets[0];\nif (!ws) throw new Error('No hay worksheet en el descargado');\n\nconst rowCount = ws.rowCount || 0;\n// VALIDACION_VACIOS — Bloque hardening:\nif (rowCount < 2) {\n  throw new Error(`Archivo vacio o solo headers en pestana '${ws.name || 'desconocida'}' (rowCount=${rowCount}). Verifica que el XLSX tenga datos.`);\n}\n\nif (rowCount < 1) return [{ json: { data: [] } }];\n\n// Leer headers (fila 1)\nconst headerRow = ws.getRow(1);\nconst headers = [];\nconst colCount = ws.columnCount || 1;\nfor (let c = 1; c <= colCount; c++) {\n  const v = headerRow.getCell(c).value;\n  headers[c - 1] = (v == null) ? '' : String(v).trim();\n}\n// BLINDAJE 2026-05-29: si el encabezado de 'valor' quedo en blanco (defecto del export\n// del banco), inferirlo. En los extractos, 'valor' va inmediatamente antes de 'saldo'.\nfunction _normH(s){ return String(s||'').trim().toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,''); }\nconst _tieneValor = headers.some(h => { const n=_normH(h); return n==='valor' || n==='monto'; });\nif (!_tieneValor) {\n  const _idxSaldo = headers.findIndex(h => _normH(h) === 'saldo');\n  if (_idxSaldo > 0 && (!headers[_idxSaldo-1] || String(headers[_idxSaldo-1]).trim() === '')) {\n    headers[_idxSaldo-1] = 'valor';\n  }\n}\n\n// Leer filas 2..N como objetos {header: value}\nconst data = [];\nfor (let r = 2; r <= rowCount; r++) {\n  const row = ws.getRow(r);\n  const obj = {};\n  let allEmpty = true;\n  for (let c = 1; c <= colCount; c++) {\n    const h = headers[c - 1];\n    if (!h) continue;\n    let v = row.getCell(c).value;\n    // exceljs devuelve {result, formula} para celdas con formula — extraer result\n    if (v && typeof v === 'object' && 'result' in v) v = v.result;\n    if (v && typeof v === 'object' && 'richText' in v) v = v.richText.map(r => r.text).join('');\n    if (v && v instanceof Date) v = v.toISOString().slice(0, 10);\n    obj[h] = (v == null) ? '' : v;\n    if (String(v ?? '').trim() !== '') allEmpty = false;\n  }\n  if (!allEmpty) data.push(obj);\n}\n\nreturn [{ json: { data, headers, rowCount: data.length } }];\n"
+   }
+  },
+  {
+   "id": "f8310287-d353-4688-9f46-23e09edeff8b",
+   "name": "Download acumulativo",
+   "type": "n8n-nodes-base.googleDrive",
+   "typeVersion": 3,
+   "position": [
+    1360,
+    500
+   ],
+   "parameters": {
+    "operation": "download",
+    "fileId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "={{ $('Loop pares').item.json.acum_id }}"
+    },
+    "options": {}
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000
+  },
+  {
+   "id": "14b201db-6dae-4f43-ae2c-01ec3dfaa5b8",
+   "name": "Aggregate acumulativo",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1640,
+    500
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "// === VALIDACION_ROBUSTA_XLSX v2 ===\nfunction _validarXLSX(buf, nombreArchivo) {\n  const nombre = nombreArchivo || 'archivo';\n  if (!buf || buf.length === 0) {\n    throw new Error(`[XLSX_VACIO] El archivo \"${nombre}\" llego vacio (0 bytes). Re-subir al Drive correctamente.`);\n  }\n  if (buf.length < 500) {\n    throw new Error(`[XLSX_PEQUENO] El archivo \"${nombre}\" es demasiado pequeno (${buf.length} bytes). Un xlsx valido tiene minimo ~5KB. Re-subir al Drive.`);\n  }\n  // Magic bytes iniciales: zip empieza con PK\\x03\\x04 (50 4B 03 04)\n  const b0 = buf[0], b1 = buf[1], b2 = buf[2], b3 = buf[3];\n  const esZip = b0 === 0x50 && b1 === 0x4B && (b2 === 0x03 || b2 === 0x05) && (b3 === 0x04 || b3 === 0x06);\n  if (!esZip) {\n    const hex = [b0,b1,b2,b3].map(b => (b||0).toString(16).padStart(2,'0')).join(' ');\n    let pista = '';\n    if (b0 === 0xD0 && b1 === 0xCF) pista = ' (archivo .xls antiguo, no .xlsx)';\n    else if (b0 === 0x3C) pista = ' (HTML/XML)';\n    else if (b0 === 0x7B) pista = ' (JSON)';\n    else if (b0 === 0xEF && b1 === 0xBB) pista = ' (texto con BOM UTF-8)';\n    throw new Error(`[XLSX_FORMATO_INCORRECTO] El archivo \"${nombre}\" NO es un xlsx. Bytes iniciales: ${hex}${pista}. ACCION: re-subir al Drive como .xlsx.`);\n  }\n  // End of Central Directory marker (PK\\x05\\x06 = 50 4B 05 06) en los ultimos ~22-65kb del zip\n  // Buscar hacia atras desde el final\n  const maxSearch = Math.min(buf.length, 65557); // EOCD puede estar precedido por hasta 64K de comentario\n  let eocdEncontrado = false;\n  for (let i = buf.length - 22; i >= Math.max(0, buf.length - maxSearch); i--) {\n    if (buf[i] === 0x50 && buf[i+1] === 0x4B && buf[i+2] === 0x05 && buf[i+3] === 0x06) {\n      eocdEncontrado = true;\n      break;\n    }\n  }\n  if (!eocdEncontrado) {\n    throw new Error(`[XLSX_TRUNCADO] El archivo \"${nombre}\" (${buf.length} bytes) es un zip pero esta TRUNCADO o CORRUPTO (falta el marcador End-of-Central-Directory). Causa probable: el archivo se subio al Drive incompleto o se daño en la descarga. ACCION: re-subir el archivo al Drive desde el sistema fuente.`);\n  }\n}\n\nasync function _cargarXLSXSeguro(wb, buf, nombreArchivo) {\n  try {\n    await wb.xlsx.load(buf);\n  } catch (e) {\n    const msg = String(e?.message || e);\n    if (msg.includes('central directory') || msg.includes('Corrupted zip') || msg.includes('invalid signature')) {\n      throw new Error(`[XLSX_CORRUPTO] El archivo \"${nombreArchivo}\" no se pudo abrir (${msg.slice(0, 100)}). Causa: zip corrupto. ACCION: re-subir el archivo al Drive.`);\n    }\n    throw e;\n  }\n}\n// === FIN VALIDACION ===\n\n// Aggregate acumulativo (fix formato): leer solo headers y meta,\n// preservar binary para que Write pueda reusar el archivo original\nconst ExcelJS = require('exceljs');\n\nconst item = $input.first();\nif (!item || !item.binary || !item.binary.data) {\n  throw new Error('Sin binary data del acumulativo');\n}\nconst buf = await this.helpers.getBinaryDataBuffer(0, 'data');\n_validarXLSX(buf, (item.binary?.data?.fileName || 'banco_acumulativo'));\n\nconst wb = new ExcelJS.Workbook();\nawait wb.xlsx.load(buf);\nconst ws = wb.worksheets[0];\nif (!ws) throw new Error('No hay worksheet en acumulativo');\n\nconst rowCount = ws.rowCount || 0;\nif (rowCount < 2) {\n  throw new Error(`Archivo vacio o solo headers (rowCount=${rowCount}).`);\n}\n\n// Headers\nconst headerRow = ws.getRow(1);\nconst headers = [];\nconst colCount = ws.columnCount || 1;\nfor (let c = 1; c <= colCount; c++) {\n  const v = headerRow.getCell(c).value;\n  headers[c - 1] = (v == null) ? '' : String(v).trim();\n}\n// BLINDAJE 2026-05-29: si el encabezado de 'valor' quedo en blanco (defecto del export\n// del banco), inferirlo. En los extractos, 'valor' va inmediatamente antes de 'saldo'.\nfunction _normH(s){ return String(s||'').trim().toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,''); }\nconst _tieneValor = headers.some(h => { const n=_normH(h); return n==='valor' || n==='monto'; });\nif (!_tieneValor) {\n  const _idxSaldo = headers.findIndex(h => _normH(h) === 'saldo');\n  if (_idxSaldo > 0 && (!headers[_idxSaldo-1] || String(headers[_idxSaldo-1]).trim() === '')) {\n    headers[_idxSaldo-1] = 'valor';\n  }\n}\n\n// Para identificar el doc de corte (lo necesita Merge), tomamos las primeras N filas\n// (todas las \"nuevas\" hasta la separadora salmon o hasta 100 filas)\nconst data = [];\nlet separadoraEncontrada = false;\nlet separadoraRowIdx = -1;\nfor (let r = 2; r <= rowCount; r++) {\n  const row = ws.getRow(r);\n  const obj = {};\n  let allEmpty = true;\n  for (let c = 1; c <= colCount; c++) {\n    const h = headers[c - 1];\n    if (!h) continue;\n    let v = row.getCell(c).value;\n    if (v && typeof v === 'object' && 'result' in v) v = v.result;\n    if (v && typeof v === 'object' && 'richText' in v) v = v.richText.map(r => r.text).join('');\n    if (v && v instanceof Date) v = v.toISOString().slice(0, 10);\n    obj[h] = (v == null) ? '' : v;\n    if (String(v ?? '').trim() !== '') allEmpty = false;\n  }\n  if (allEmpty && !separadoraEncontrada) {\n    separadoraEncontrada = true;\n    separadoraRowIdx = r;\n    obj.__SEPARADORA__ = true;\n    data.push(obj);\n  } else if (!allEmpty) {\n    data.push(obj);\n  }\n}\n\n// FIX FORMATO: pasamos binary adelante para que Write reuse el archivo\nreturn [{\n  json: {\n    data,\n    headers,\n    rowCount: data.length,\n    hasSeparadora: separadoraEncontrada,\n    separadoraRowIdx,\n  },\n  binary: item.binary\n}];"
+   }
+  },
+  {
+   "id": "a368f082-7dd8-4fe4-a9a8-508553735595",
+   "name": "Merge banco logic",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2200,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "// Merge banco logic v3 (FIX BUG FECHAS + MATCH ROBUSTO por doc+fecha+valor+secuencia)\nfunction norm(s) {\n  return String(s || '').trim().toLowerCase()\n    .normalize('NFD').replace(/[̀-ͯ]/g, '');\n}\n\nfunction findKey(obj, ...candidates) {\n  const keys = Object.keys(obj || {});\n  for (const c of candidates) {\n    const target = norm(c);\n    if (!target) continue;  // ignorar candidatos vacios\n    const f = keys.find(k => norm(k) === target);\n    if (f) return f;\n  }\n  for (const c of candidates) {\n    const target = norm(c);\n    if (!target) continue;  // FIX: nunca hacer includes('') que matchea todo\n    const f = keys.find(k => norm(k).includes(target));\n    if (f) return f;\n  }\n  return null;\n}\n\nfunction normValor(v) {\n  if (v === null || v === undefined || v === '') return '';\n  const s = String(v).replace(/[^0-9.\\-]/g, '');\n  if (s === '') return '';\n  return Math.round(parseFloat(s) * 100);  // centavos\n}\n\nconst descRows = $('Aggregate descargado').first().json.data || [];\nconst acumData = $('Aggregate acumulativo').first().json;\nconst acumRows = acumData.data || [];\n\nif (acumRows.length === 0) throw new Error('Acumulativo vacio');\nif (descRows.length === 0) throw new Error('Descargado vacio');\n\n// === DICCIONARIO DE FORMATOS (2026-05-31) ===\n// Sinonimos de columnas de banco. Si el banco RENOMBRA una columna, agregar el nuevo\n// nombre a la lista correspondiente AQUI (un solo lugar). El match exacto va primero,\n// asi que los archivos actuales no cambian de comportamiento.\nconst SINONIMOS = {\n  documento: ['documento', 'doc', 'numero documento', 'nro documento', 'comprobante', 'referencia'],\n  fecha:     ['fecha', 'dia'],\n  valor:     ['valor', 'monto', 'importe', 'credito', 'abono', 'haber', 'deposito'],\n};\n// === FIN DICCIONARIO ===\nconst acumKeyDoc = findKey(acumRows[0], ...SINONIMOS.documento);\nconst acumKeyFecha = findKey(acumRows[0], ...SINONIMOS.fecha);\nconst acumKeyValor = findKey(acumRows[0], ...SINONIMOS.valor);\nconst descKeyDoc = findKey(descRows[0], ...SINONIMOS.documento);\nconst descKeyFecha = findKey(descRows[0], ...SINONIMOS.fecha);\nconst descKeyValor = findKey(descRows[0], ...SINONIMOS.valor);\n\nif (!acumKeyDoc || !acumKeyFecha) throw new Error('[HEADERS_ACUM] No se encontraron columnas Documento/Fecha en el acumulativo');\nif (!descKeyDoc || !descKeyFecha) throw new Error('[HEADERS_DESC] No se encontraron columnas Documento/Fecha en el descargado');\nif (!acumKeyValor) throw new Error('[HEADERS_ACUM] Falta columna Valor/Monto en el acumulativo');\nif (!descKeyValor) throw new Error('[HEADERS_DESC] Falta columna Valor/Monto en el descargado');\n\n// El \"corte\" = primera fila del acumulativo (la mas reciente registrada)\nconst ultimaFila = acumRows[0];\nconst docCorte = String(ultimaFila[acumKeyDoc] || '').trim();\nconst fechaCorte = String(ultimaFila[acumKeyFecha] || '').trim();\nconst valorCorte = normValor(ultimaFila[acumKeyValor]);\n\n// Buscar match por (doc + fecha + valor) con verificacion de secuencia de 3 filas siguientes\nlet matchIdx = -1;\nconst candidatos = [];\nfor (let i = 0; i < descRows.length; i++) {\n  const r = descRows[i];\n  const docR = String(r[descKeyDoc] || '').trim();\n  const fechaR = String(r[descKeyFecha] || '').trim();\n  const valorR = normValor(r[descKeyValor]);\n  if (docR === docCorte && fechaR === fechaCorte && valorR === valorCorte) {\n    candidatos.push(i);\n    // Verificar secuencia: las siguientes 3 filas deben coincidir tambien\n    let seqOK = true;\n    let seqVerificadas = 0;\n    for (let k = 1; k <= 3; k++) {\n      const acumK = acumRows[k];\n      const descK = descRows[i + k];\n      if (!acumK || !descK) break;  // sin mas filas, aceptamos\n      const dA = String(acumK[acumKeyDoc] || '').trim();\n      const fA = String(acumK[acumKeyFecha] || '').trim();\n      const vA = normValor(acumK[acumKeyValor]);\n      const dD = String(descK[descKeyDoc] || '').trim();\n      const fD = String(descK[descKeyFecha] || '').trim();\n      const vD = normValor(descK[descKeyValor]);\n      if (dA !== dD || fA !== fD || vA !== vD) {\n        seqOK = false;\n        break;\n      }\n      seqVerificadas++;\n    }\n    if (seqOK) { matchIdx = i; break; }\n  }\n}\n\nif (matchIdx === -1) {\n  if (candidatos.length === 0) {\n    throw new Error('[CORTE_NO_ENCONTRADO] El corte del acumulativo (doc=' + docCorte + ', fecha=' + fechaCorte + ', valor=' + valorCorte + ') no aparece en el archivo descargado. POSIBLES CAUSAS: (1) El archivo descargado es de otro periodo, (2) datos del banco corrompidos. ACCION: revisar que los archivos sean del mismo periodo y banco.');\n  } else {\n    throw new Error('[SECUENCIA_INVALIDA] Se encontro el corte ' + candidatos.length + ' vez(es) en el descargado pero ninguna coincidencia paso la verificacion de secuencia (3 filas siguientes no coinciden). POSIBLES CAUSAS: archivo descargado con datos faltantes/duplicados, o desfase entre archivos. ACCION: revisar manualmente antes de re-procesar.');\n  }\n}\n\n// Filas nuevas = las que estan ARRIBA del match\nconst filasNuevasDesc = descRows.slice(0, matchIdx);\n\n// FIX BUG FECHAS: filtrar headers vacios antes de mapear\nconst acumHeadersRaw = acumData.headers || Object.keys(acumRows[0] || {}).filter(k => k !== '__SEPARADORA__');\nconst acumHeaders = acumHeadersRaw.filter(h => h && String(h).trim() !== '');\n\nconst filasNuevasMapeadas = filasNuevasDesc.map(rDesc => {\n  const out = {};\n  for (const h of acumHeaders) {\n    const dKey = findKey(rDesc, h);\n    out[h] = dKey ? rDesc[dKey] : '';\n  }\n  return out;\n});\n\nreturn [{\n  json: {\n    filas_nuevas: filasNuevasMapeadas,\n    headers: acumHeaders,\n    total_nuevas: filasNuevasMapeadas.length,\n    match_idx: matchIdx,\n    candidatos_evaluados: candidatos.length,\n    corte_doc: docCorte,\n    corte_fecha: fechaCorte,\n    corte_valor: valorCorte,\n  },\n  binary: $('Aggregate acumulativo').first().binary\n}];\n"
+   }
+  },
+  {
+   "id": "f339d594-991d-44e9-bf8a-220c612ecaf3",
+   "name": "Write banco XLSX",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2480,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "// === VALIDACION_ROBUSTA_XLSX v2 ===\nfunction _validarXLSX(buf, nombreArchivo) {\n  const nombre = nombreArchivo || 'archivo';\n  if (!buf || buf.length === 0) {\n    throw new Error(`[XLSX_VACIO] El archivo \"${nombre}\" llego vacio (0 bytes). Re-subir al Drive correctamente.`);\n  }\n  if (buf.length < 500) {\n    throw new Error(`[XLSX_PEQUENO] El archivo \"${nombre}\" es demasiado pequeno (${buf.length} bytes). Un xlsx valido tiene minimo ~5KB. Re-subir al Drive.`);\n  }\n  // Magic bytes iniciales: zip empieza con PK\\x03\\x04 (50 4B 03 04)\n  const b0 = buf[0], b1 = buf[1], b2 = buf[2], b3 = buf[3];\n  const esZip = b0 === 0x50 && b1 === 0x4B && (b2 === 0x03 || b2 === 0x05) && (b3 === 0x04 || b3 === 0x06);\n  if (!esZip) {\n    const hex = [b0,b1,b2,b3].map(b => (b||0).toString(16).padStart(2,'0')).join(' ');\n    let pista = '';\n    if (b0 === 0xD0 && b1 === 0xCF) pista = ' (archivo .xls antiguo, no .xlsx)';\n    else if (b0 === 0x3C) pista = ' (HTML/XML)';\n    else if (b0 === 0x7B) pista = ' (JSON)';\n    else if (b0 === 0xEF && b1 === 0xBB) pista = ' (texto con BOM UTF-8)';\n    throw new Error(`[XLSX_FORMATO_INCORRECTO] El archivo \"${nombre}\" NO es un xlsx. Bytes iniciales: ${hex}${pista}. ACCION: re-subir al Drive como .xlsx.`);\n  }\n  // End of Central Directory marker (PK\\x05\\x06 = 50 4B 05 06) en los ultimos ~22-65kb del zip\n  // Buscar hacia atras desde el final\n  const maxSearch = Math.min(buf.length, 65557); // EOCD puede estar precedido por hasta 64K de comentario\n  let eocdEncontrado = false;\n  for (let i = buf.length - 22; i >= Math.max(0, buf.length - maxSearch); i--) {\n    if (buf[i] === 0x50 && buf[i+1] === 0x4B && buf[i+2] === 0x05 && buf[i+3] === 0x06) {\n      eocdEncontrado = true;\n      break;\n    }\n  }\n  if (!eocdEncontrado) {\n    throw new Error(`[XLSX_TRUNCADO] El archivo \"${nombre}\" (${buf.length} bytes) es un zip pero esta TRUNCADO o CORRUPTO (falta el marcador End-of-Central-Directory). Causa probable: el archivo se subio al Drive incompleto o se daño en la descarga. ACCION: re-subir el archivo al Drive desde el sistema fuente.`);\n  }\n}\n\nasync function _cargarXLSXSeguro(wb, buf, nombreArchivo) {\n  try {\n    await wb.xlsx.load(buf);\n  } catch (e) {\n    const msg = String(e?.message || e);\n    if (msg.includes('central directory') || msg.includes('Corrupted zip') || msg.includes('invalid signature')) {\n      throw new Error(`[XLSX_CORRUPTO] El archivo \"${nombreArchivo}\" no se pudo abrir (${msg.slice(0, 100)}). Causa: zip corrupto. ACCION: re-subir el archivo al Drive.`);\n    }\n    throw e;\n  }\n}\n// === FIN VALIDACION ===\n\n// Write banco XLSX (fix formato + separadora salmon): carga el acumulativo original,\n// inserta filas nuevas en posicion 2 Y crea una fila separadora salmon (FFFAE2D5)\n// inmediatamente despues de las filas nuevas (necesaria para que Script 3 distinga\n// lo nuevo del historico).\nconst ExcelJS = require('exceljs');\n\nconst item = $input.first();\nif (!item || !item.binary || !item.binary.data) throw new Error('Sin binary del acumulativo original');\nconst buf = await this.helpers.getBinaryDataBuffer(0, 'data');\n_validarXLSX(buf, (item.binary?.data?.fileName || 'banco'));\n\nconst wb = new ExcelJS.Workbook();\nawait wb.xlsx.load(buf);\nconst ws = wb.worksheets[0];\nif (!ws) throw new Error('Sin worksheet');\n\nconst data = item.json;\nconst filasNuevas = data.filas_nuevas || [];\nconst headers = data.headers || [];\nconst COLOR_SALMON = 'FFFAE2D5';\n\nif (filasNuevas.length === 0) {\n  const nCols = ws.columnCount || headers.length || 1;\n  let fila2Vacia = true;\n  for (let c = 1; c <= nCols; c++) {\n    const v = ws.getRow(2).getCell(c).value;\n    if (v != null && String(v).trim() !== '') { fila2Vacia = false; break; }\n  }\n  if (!fila2Vacia) {\n    ws.insertRow(2, []);\n    for (let c = 1; c <= nCols; c++) {\n      ws.getRow(2).getCell(c).fill = {\n        type: 'pattern',\n        pattern: 'solid',\n        fgColor: { argb: COLOR_SALMON }\n      };\n    }\n  }\n  const out = await wb.xlsx.writeBuffer();\n  const b64 = Buffer.from(out).toString('base64');\n  return [{\n    json: { ok: true, rowCount: 0, sin_cambios: true, separadora_creada: !fila2Vacia },\n    binary: {\n      data: {\n        data: b64,\n        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n        fileName: 'paso2_banco_actualizado.xlsx',\n        fileExtension: 'xlsx',\n      }\n    }\n  }];\n}\n\nconst valoresAInsertar = filasNuevas.map(fila =>\n  headers.map(h => fila[h] ?? '')\n);\n\nconst filaSeparadoraVacia = headers.map(() => null);\nconst bloqueCompleto = [...valoresAInsertar, filaSeparadoraVacia];\n\nws.insertRows(2, bloqueCompleto);\n\nconst filaSeparadoraIdx = 2 + valoresAInsertar.length;\nconst nCols = ws.columnCount || headers.length || 1;\nfor (let c = 1; c <= nCols; c++) {\n  ws.getRow(filaSeparadoraIdx).getCell(c).fill = {\n    type: 'pattern',\n    pattern: 'solid',\n    fgColor: { argb: COLOR_SALMON }\n  };\n}\n\nconst out = await wb.xlsx.writeBuffer();\nconst b64 = Buffer.from(out).toString('base64');\n\nreturn [{\n  json: {\n    ok: true,\n    rowCount: filasNuevas.length,\n    pestanas: wb.worksheets.length,\n    separadora_fila: filaSeparadoraIdx,\n    color_separadora: COLOR_SALMON,\n  },\n  binary: {\n    data: {\n      data: b64,\n      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n      fileName: 'paso2_banco_actualizado.xlsx',\n      fileExtension: 'xlsx',\n    }\n  }\n}];\n"
+   }
+  },
+  {
+   "id": "fdbf2720-dde6-4cec-8090-32367cdfc923",
+   "name": "Upload paso2 to OUTPUTS",
+   "type": "n8n-nodes-base.googleDrive",
+   "typeVersion": 3,
+   "position": [
+    2760,
+    400
+   ],
+   "parameters": {
+    "operation": "upload",
+    "name": "=paso2_{{ $('Loop pares').item.json.acum_name }}",
+    "driveId": {
+     "__rl": true,
+     "mode": "list",
+     "value": "My Drive"
+    },
+    "folderId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq"
+    },
+    "options": {}
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000
+  },
+  {
+   "id": "70682a26-fa02-4ecb-abde-27ed1daf5f8e",
+   "name": "Note Script 2",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    220,
+    50
+   ],
+   "parameters": {
+    "content": "## SCRIPT 2 v3 — BANCOS (con exceljs)\n\nREQUIERE exceljs instalado en el contenedor N8N.\n\n1. Lista descargados y acumulativos\n2. Empareja por keyword (valles/credil/pichincha) + fallback 1:1\n3. Loop sobre cada par:\n   - Descarga ambos\n   - Parse exceljs: 1 SOLO item con array (no infla N items)\n   - Merge logic con headers normalizados\n   - Write XLSX con exceljs preservando separadora salmon FFFAE2D5\n   - Sube a OUTPUTS con paso2_<nombre original>\n\nBENEFICIO RAM: ~10x menos peak por archivo vs version Spreadsheet File.",
+    "height": 280,
+    "width": 700,
+    "color": 5
+   }
+  }
+ ],
+ "connections": {
+  "Manual Trigger": {
+   "main": [
+    [
+     {
+      "node": "List descargados",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Webhook Trigger": {
+   "main": [
+    [
+     {
+      "node": "List descargados",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Execute Workflow Trigger": {
+   "main": [
+    [
+     {
+      "node": "List descargados",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "List descargados": {
+   "main": [
+    [
+     {
+      "node": "Split descargados",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Split descargados": {
+   "main": [
+    [
+     {
+      "node": "List acumulativos",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "List acumulativos": {
+   "main": [
+    [
+     {
+      "node": "Split acumulativos",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Split acumulativos": {
+   "main": [
+    [
+     {
+      "node": "Emparejar banco-acumulativo",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Emparejar banco-acumulativo": {
+   "main": [
+    [
+     {
+      "node": "Loop pares",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Loop pares": {
+   "main": [
+    [],
+    [
+     {
+      "node": "Download descargado",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Download descargado": {
+   "main": [
+    [
+     {
+      "node": "Aggregate descargado",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Aggregate descargado": {
+   "main": [
+    [
+     {
+      "node": "Download acumulativo",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Download acumulativo": {
+   "main": [
+    [
+     {
+      "node": "Aggregate acumulativo",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Aggregate acumulativo": {
+   "main": [
+    [
+     {
+      "node": "Merge banco logic",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Merge banco logic": {
+   "main": [
+    [
+     {
+      "node": "Write banco XLSX",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Write banco XLSX": {
+   "main": [
+    [
+     {
+      "node": "Upload paso2 to OUTPUTS",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Upload paso2 to OUTPUTS": {
+   "main": [
+    [
+     {
+      "node": "Loop pares",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1",
+  "callerPolicy": "workflowsFromSameOwner",
+  "availableInMCP": false,
+  "executionTimeout": 900,
+  "saveDataSuccessExecution": "all",
+  "saveExecutionProgress": false,
+  "errorWorkflow": "8UTMsuxK9WKmf34J",
+  "saveDataErrorExecution": "all"
+ }
+}
