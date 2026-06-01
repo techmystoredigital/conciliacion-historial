@@ -1,0 +1,624 @@
+{
+ "name": "Conciliacion_HISTORIAL_PRE",
+ "nodes": [
+  {
+   "id": "n1",
+   "name": "Webhook",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2,
+   "position": [
+    100,
+    400
+   ],
+   "webhookId": "ae1aeadc-1dea-48c4-9da1-7a89865b233d",
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "historial-pre",
+    "responseMode": "responseNode",
+    "options": {}
+   }
+  },
+  {
+   "id": "n2",
+   "name": "Setup PRE",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    320,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst tz = 'America/Bogota';\nconst now = new Date();\nconst fmt = new Intl.DateTimeFormat('en-CA', {\n  timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit',\n  hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false\n}).formatToParts(now);\nconst g = (t) => fmt.find(p => p.type === t).value;\nconst yyyy = g('year'), mm = g('month'), dd = g('day');\nconst tstamp = `${yyyy}-${mm}-${dd}_${g('hour')}-${g('minute')}-${g('second')}`;\nreturn [{ json: {\n  tstamp, yyyy, mm, dd,\n  historial_root: '11G2g89t9dyLWt0kFF4X7GUNx4SqrE8OL',\n  source_1_virtualsoft: '12zjruSVCy7ZSP6XrcToed2N0NKfx6L6c',\n  source_2a_valles:     '17Ut-5dL7ci9RZZhX72iD8qejZZdKnNkh',\n  source_2b_credil:     '177YEDw4l3-RD7Vg7rG9-ApGyey7Kh3tn',\n  source_3a_valles:     '1KZt98PYd9V6w_zfSpl-fOl6F1v56Vb4t',\n  source_3b_credil:     '12jatMOkDTNHzIwwPZOlHnWc33uoqcxwM',\n  source_yopago:        '1nd2P5MG-eTDPHpeTzWIqlJpzo6k8rap6',\n} }];\n"
+   }
+  },
+  {
+   "id": "n3",
+   "name": "Create timestamp folder",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    540,
+    400
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "https://www.googleapis.com/drive/v3/files",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "options": {},
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "supportsAllDrives",
+       "value": "true"
+      },
+      {
+       "name": "fields",
+       "value": "id,name,parents"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ name: $json.tstamp, mimeType: \"application/vnd.google-apps.folder\", parents: [$json.historial_root] }) }}"
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "n4",
+   "name": "Plan top folders",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    760,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst ts_id = $json.id;\nreturn [\n  { json: { name: '1_VIRTUALSOFT_Cajas',     parents: [ts_id], _key: 'CAJAS' } },\n  { json: { name: '2_BANCOS_COOP',           parents: [ts_id], _key: 'BANCOS_PADRE' } },\n  { json: { name: '3_RESUMEN_MOVIMIENTOS',   parents: [ts_id], _key: 'RESUM_PADRE' } },\n  { json: { name: '4_RECARGAS_YOPAGO',       parents: [ts_id], _key: 'YOPAGO' } },\n];\n"
+   }
+  },
+  {
+   "id": "n5",
+   "name": "Create top folders",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    980,
+    400
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "https://www.googleapis.com/drive/v3/files",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "options": {},
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "supportsAllDrives",
+       "value": "true"
+      },
+      {
+       "name": "fields",
+       "value": "id,name,parents"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ name: $json.name, mimeType: \"application/vnd.google-apps.folder\", parents: $json.parents }) }}"
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "n6",
+   "name": "Plan sub folders",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1200,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst topItems = $('Create top folders').all();\nconst topPlan = $('Plan top folders').all();\nconst map = {};\nfor (let i = 0; i < topItems.length; i++) map[topPlan[i].json._key] = topItems[i].json.id;\nconst banc = map.BANCOS_PADRE, resum = map.RESUM_PADRE;\nreturn [\n  { json: { name: '2a_Banco_Valles_del_Lirio',   parents: [banc], _key: 'B2A' } },\n  { json: { name: '2b_Banco_Credil',             parents: [banc], _key: 'B2B' } },\n  { json: { name: '3a_Resumen_Valles_del_Lirio', parents: [resum], _key: 'R3A' } },\n  { json: { name: '3b_Resumen_Credil',           parents: [resum], _key: 'R3B' } },\n];\n"
+   }
+  },
+  {
+   "id": "n7",
+   "name": "Create sub folders",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1420,
+    400
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "https://www.googleapis.com/drive/v3/files",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "options": {},
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "supportsAllDrives",
+       "value": "true"
+      },
+      {
+       "name": "fields",
+       "value": "id,name,parents"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ name: $json.name, mimeType: \"application/vnd.google-apps.folder\", parents: $json.parents }) }}"
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "n8",
+   "name": "Build copy plan",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1640,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst setup = $('Setup PRE').first().json;\nconst topItems = $('Create top folders').all();\nconst topPlan = $('Plan top folders').all();\nconst subItems = $('Create sub folders').all();\nconst subPlan = $('Plan sub folders').all();\nconst m = {};\nfor (let i = 0; i < topItems.length; i++) m[topPlan[i].json._key] = topItems[i].json.id;\nfor (let i = 0; i < subItems.length; i++) m[subPlan[i].json._key] = subItems[i].json.id;\nreturn [\n  { json: { srcKey: '1_VIRTUALSOFT', srcId: setup.source_1_virtualsoft, targetId: m.CAJAS  } },\n  { json: { srcKey: '2a_VALLES',     srcId: setup.source_2a_valles,     targetId: m.B2A    } },\n  { json: { srcKey: '2b_CREDIL',     srcId: setup.source_2b_credil,     targetId: m.B2B    } },\n  { json: { srcKey: '3a_VALLES',     srcId: setup.source_3a_valles,     targetId: m.R3A    } },\n  { json: { srcKey: '3b_CREDIL',     srcId: setup.source_3b_credil,     targetId: m.R3B    } },\n  { json: { srcKey: 'YOPAGO',        srcId: setup.source_yopago,        targetId: m.YOPAGO } },\n];\n"
+   }
+  },
+  {
+   "id": "n9",
+   "name": "List source",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1860,
+    400
+   ],
+   "parameters": {
+    "method": "GET",
+    "url": "https://www.googleapis.com/drive/v3/files",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "options": {},
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "q",
+       "value": "='{{ $json.srcId }}' in parents and trashed=false"
+      },
+      {
+       "name": "fields",
+       "value": "files(id,name,mimeType)"
+      },
+      {
+       "name": "pageSize",
+       "value": "200"
+      },
+      {
+       "name": "supportsAllDrives",
+       "value": "true"
+      }
+     ]
+    }
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "n10",
+   "name": "Flatten files",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2080,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst items = $input.all();\nconst planItems = $('Build copy plan').all();\nconst out = [];\nfor (let i = 0; i < items.length; i++) {\n  const plan = planItems[i].json;\n  const files = items[i].json.files || [];\n  for (const f of files) {\n    if (f.mimeType === 'application/vnd.google-apps.folder') continue;\n    out.push({ json: { fileId: f.id, fileName: f.name, srcId: plan.srcId, srcKey: plan.srcKey, targetId: plan.targetId } });\n  }\n}\nif (out.length === 0) return [{ json: { _empty: true, fileId:'NOOP', srcId:'NOOP', targetId:'NOOP' } }];\nreturn out;\n"
+   }
+  },
+  {
+   "id": "n11",
+   "name": "Copy to historial",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    2300,
+    400
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.fileId }}/copy",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "options": {
+     "response": {
+      "response": {
+       "neverError": true
+      }
+     }
+    },
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "supportsAllDrives",
+       "value": "true"
+      },
+      {
+       "name": "fields",
+       "value": "id,name,parents"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ name: $json.fileName, parents: [$json.targetId] }) }}"
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "n12",
+   "name": "PRE summary",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2520,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst tsCreate = $('Create timestamp folder').first().json;\nconst copied = $('Copy to historial').all().map(i => i.json).filter(j => !j._empty);\nreturn [{ json: { ts_id: tsCreate.id, ts_name: tsCreate.name, copiedCount: copied.length } }];\n"
+   }
+  },
+  {
+   "id": "n13",
+   "name": "Respond",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1,
+   "position": [
+    2740,
+    400
+   ],
+   "parameters": {
+    "respondWith": "allIncomingItems"
+   }
+  },
+  {
+   "id": "d0fecf79-4802-4088-a597-c870fbaf8358",
+   "name": "List OUTPUTS to clean",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    540,
+    600
+   ],
+   "parameters": {
+    "method": "GET",
+    "url": "https://www.googleapis.com/drive/v3/files",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "q",
+       "value": "'1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq' in parents and trashed=false"
+      },
+      {
+       "name": "fields",
+       "value": "files(id,name,mimeType)"
+      },
+      {
+       "name": "pageSize",
+       "value": "200"
+      },
+      {
+       "name": "supportsAllDrives",
+       "value": "true"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "faabd0ab-d9d9-4da7-8f35-027b6506cfd3",
+   "name": "Flatten OUTPUTS",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    760,
+    600
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst files = $json.files || [];\nconst out = [];\nfor (const f of files) {\n  if (f.mimeType === 'application/vnd.google-apps.folder') continue;\n  out.push({ json: { fileId: f.id, fileName: f.name } });\n}\nif (out.length === 0) return [{ json: { _empty: true, fileId: 'NOOP' } }];\nreturn out;\n"
+   }
+  },
+  {
+   "id": "899b0b8a-b857-4ff4-89a8-cb13e2650c3c",
+   "name": "Delete OUTPUTS file",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    980,
+    600
+   ],
+   "parameters": {
+    "method": "DELETE",
+    "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.fileId }}",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "supportsAllDrives",
+       "value": "true"
+      }
+     ]
+    },
+    "options": {
+     "response": {
+      "response": {
+       "neverError": true
+      }
+     }
+    }
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "75fda605-db8c-4b54-b1f3-2e356d2e4523",
+   "name": "Continue after cleanup",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1200,
+    600
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\n// Colapsar al item original del Setup PRE para continuar el flujo normal.\nreturn [$('Setup PRE').first()];\n"
+   }
+  }
+ ],
+ "connections": {
+  "Webhook": {
+   "main": [
+    [
+     {
+      "node": "Setup PRE",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Setup PRE": {
+   "main": [
+    [
+     {
+      "node": "List OUTPUTS to clean",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Create timestamp folder": {
+   "main": [
+    [
+     {
+      "node": "Plan top folders",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Plan top folders": {
+   "main": [
+    [
+     {
+      "node": "Create top folders",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Create top folders": {
+   "main": [
+    [
+     {
+      "node": "Plan sub folders",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Plan sub folders": {
+   "main": [
+    [
+     {
+      "node": "Create sub folders",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Create sub folders": {
+   "main": [
+    [
+     {
+      "node": "Build copy plan",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build copy plan": {
+   "main": [
+    [
+     {
+      "node": "List source",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "List source": {
+   "main": [
+    [
+     {
+      "node": "Flatten files",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Flatten files": {
+   "main": [
+    [
+     {
+      "node": "Copy to historial",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Copy to historial": {
+   "main": [
+    [
+     {
+      "node": "PRE summary",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "PRE summary": {
+   "main": [
+    [
+     {
+      "node": "Respond",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "List OUTPUTS to clean": {
+   "main": [
+    [
+     {
+      "node": "Flatten OUTPUTS",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Flatten OUTPUTS": {
+   "main": [
+    [
+     {
+      "node": "Delete OUTPUTS file",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Delete OUTPUTS file": {
+   "main": [
+    [
+     {
+      "node": "Continue after cleanup",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Continue after cleanup": {
+   "main": [
+    [
+     {
+      "node": "Create timestamp folder",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1",
+  "saveDataSuccessExecution": "all",
+  "saveDataErrorExecution": "all",
+  "callerPolicy": "workflowsFromSameOwner",
+  "availableInMCP": false
+ }
+}
