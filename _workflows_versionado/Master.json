@@ -1,0 +1,417 @@
+{
+ "name": "Conciliacion_MASTER_(Procesar_Dia_1+2+3)",
+ "nodes": [
+  {
+   "id": "0cc674d4-a533-4eb7-a37c-a9e18bd47258",
+   "name": "Webhook MASTER",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2,
+   "position": [
+    240,
+    400
+   ],
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "exec-master-procesar",
+    "responseMode": "onReceived",
+    "responseData": "={{ JSON.stringify({status:'disparado',ts: new Date().toISOString(), msg:'MASTER iniciado en background. Verificar OUTPUTS en 2-5 min.'}) }}",
+    "options": {}
+   },
+   "webhookId": "9aad28c8-37d7-4d97-b845-4c805469a92b"
+  },
+  {
+   "id": "cb873e1b-c84c-4b20-9653-e43bed249811",
+   "name": "Llamar Script 1",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    520,
+    400
+   ],
+   "parameters": {
+    "source": "database",
+    "workflowId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "YoPXdHOs5rJVYNsc"
+    },
+    "workflowInputs": {
+     "mappingMode": "defineBelow",
+     "value": {}
+    },
+    "options": {}
+   },
+   "onError": "continueRegularOutput"
+  },
+  {
+   "id": "0b7f79d3-7a9f-4965-be70-853df0cd5d73",
+   "name": "Capturar resultado 1",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    800,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst inputData = $input.first().json;\nconst inputBinary = $input.first().binary;\n// Un Script 1 exitoso devuelve el file object del paso1 con id + name.\n// Si fallo (throw capturado), no hay id -> es error.\nconst hasFileId = !!(inputData && inputData.id);\nconst errMsg = (inputData && (inputData.error?.message || inputData.error || inputData.message)) || null;\nconst wasError = !hasFileId;\nreturn [{\n  json: {\n    script1_status: wasError ? 'error' : 'ok',\n    script1_paso1_id: inputData?.id || null,\n    script1_paso1_name: inputData?.name || null,\n    script1_error: wasError ? (errMsg ? String(errMsg).substring(0, 400) : 'Script 1 no genero el archivo paso1') : null,\n    script1_raw: JSON.stringify(inputData).substring(0, 500),\n  },\n  binary: inputBinary,\n}];\n"
+   }
+  },
+  {
+   "id": "221a9c03-ebe5-4509-90ec-f156fce80101",
+   "name": "Llamar Script 2",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    1080,
+    400
+   ],
+   "parameters": {
+    "source": "database",
+    "workflowId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "Xu9MXh1tdsQPRkzm"
+    },
+    "workflowInputs": {
+     "mappingMode": "defineBelow",
+     "value": {}
+    },
+    "options": {}
+   },
+   "onError": "continueRegularOutput"
+  },
+  {
+   "id": "90a18cab-eace-4a09-b4a7-e562c031cb8b",
+   "name": "Capturar resultado 2",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1360,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst inputData = $input.first().json;\nconst hasFileId = !!(inputData && inputData.id);\nconst errMsg = (inputData && (inputData.error?.message || inputData.error || inputData.message)) || null;\nconst wasError = !hasFileId;\nconst prev = $('Capturar resultado 1').first().json;\nreturn [{\n  json: {\n    ...prev,\n    script2_status: wasError ? 'error' : 'ok',\n    script2_paso2_id: inputData?.id || null,\n    script2_paso2_name: inputData?.name || null,\n    script2_error: wasError ? (errMsg ? String(errMsg).substring(0, 400) : 'Script 2 no genero paso2') : null,\n    script2_raw: JSON.stringify(inputData).substring(0, 500),\n  }\n}];\n"
+   }
+  },
+  {
+   "id": "ab762711-115e-4c0b-8a64-90c53619ab86",
+   "name": "Llamar Script 3",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    1640,
+    400
+   ],
+   "parameters": {
+    "source": "database",
+    "workflowId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "ChL7MLiByGI7cIhE"
+    },
+    "workflowInputs": {
+     "mappingMode": "defineBelow",
+     "value": {}
+    },
+    "options": {}
+   },
+   "onError": "continueRegularOutput"
+  },
+  {
+   "id": "028ba2a0-57e2-440c-8147-e427d35ec4f6",
+   "name": "Capturar resultado 3 + resumen",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1920,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst inputData = $input.first().json;\nconst hasFileId = !!(inputData && inputData.id);\nconst errMsg = (inputData && (inputData.error?.message || inputData.error || inputData.message)) || null;\nconst wasError = !hasFileId;\nconst prev = $('Capturar resultado 2').first().json;\nconst allOk = (prev.script1_status === 'ok' && prev.script2_status === 'ok' && !wasError);\nreturn [{\n  json: {\n    ...prev,\n    script3_status: wasError ? 'error' : 'ok',\n    script3_paso3_id: inputData?.id || null,\n    script3_paso3_name: inputData?.name || null,\n    script3_error: wasError ? (errMsg ? String(errMsg).substring(0, 400) : 'Script 3 no genero paso3') : null,\n    script3_raw: JSON.stringify(inputData).substring(0, 500),\n    master_status: allOk ? 'OK_TODOS_LOS_SCRIPTS' : 'ERROR_EN_ALGUN_SCRIPT',\n    timestamp: new Date().toISOString(),\n    resumen: allOk\n      ? `Procesamiento completo OK. paso1=${prev.script1_paso1_name}, paso2=${prev.script2_paso2_name}, paso3=${inputData?.name}`\n      : `Falla detectada. script1=${prev.script1_status}, script2=${prev.script2_status}, script3=${wasError ? 'error' : 'ok'}`,\n  }\n}];\n"
+   }
+  },
+  {
+   "id": "b0dad54d-1138-4464-b23d-95e7d7799e7f",
+   "name": "Note MASTER",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    220,
+    50
+   ],
+   "parameters": {
+    "content": "## WORKFLOW MASTER\n\nWebhook: POST /webhook/exec-master-procesar\nBody: {} (vacio)\n\nLlama Scripts 1, 2, 3 en cadena.\nSi alguno falla, sigue para reportar pero marca master_status=ERROR.\nDevuelve resumen consolidado con paso1/2/3 ids+nombres.\n\nPara llamarlo desde la botonera:\n  fetch('/webhook/exec-master-procesar', {method:'POST',body:'{}'})",
+    "height": 240,
+    "width": 700,
+    "color": 5
+   }
+  },
+  {
+   "id": "9e67a12b-5065-49ac-9459-01070e3bbf24",
+   "name": "Check Anti-Doble Disparo",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    490,
+    400
+   ],
+   "parameters": {
+    "jsCode": "// Anti-doble disparo del MASTER usando staticData\nconst LOCK_MIN = 4;\nconst staticData = $getWorkflowStaticData('global');\nconst ahora = Date.now();\nconst ultimoDisparo = staticData.ultimoDisparoMASTER || 0;\nconst minutosDesde = ultimoDisparo > 0 ? (ahora - ultimoDisparo) / 1000 / 60 : 999;\nconst esDoble = ultimoDisparo > 0 && minutosDesde < LOCK_MIN;\n\nif (esDoble) {\n  return [{\n    json: {\n      es_doble: true,\n      minutos_desde_ultimo: Math.round(minutosDesde * 10) / 10,\n      lock_min: LOCK_MIN,\n      mensaje: 'MASTER ya disparado hace ' + Math.round(minutosDesde * 10) / 10 + ' min. Lock activo hasta ' + LOCK_MIN + ' min. Saltado.',\n      timestamp_ultimo_disparo: new Date(ultimoDisparo).toISOString(),\n      timestamp_actual: new Date(ahora).toISOString()\n    }\n  }];\n}\n\n// Pasa el check - actualizar timestamp\nstaticData.ultimoDisparoMASTER = ahora;\n\nreturn [{\n  json: {\n    es_doble: false,\n    mensaje: 'OK proceder con MASTER',\n    timestamp_disparo: new Date(ahora).toISOString(),\n    minutos_desde_ultimo: minutosDesde === 999 ? 'primera_ejecucion' : Math.round(minutosDesde * 10) / 10\n  }\n}];"
+   }
+  },
+  {
+   "id": "8be8f372-fbbc-4fc1-859d-ea5ddb4f523a",
+   "name": "Es doble disparo?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    740,
+    400
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "strict"
+     },
+     "conditions": [
+      {
+       "id": "44aace84-384b-443c-b268-081d955c5c15",
+       "leftValue": "={{ $json.es_doble }}",
+       "rightValue": true,
+       "operator": {
+        "type": "boolean",
+        "operation": "true"
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "8451fc39-bc9e-49f5-bb76-22bd21f2d54c",
+   "name": "Log doble disparo bloqueado",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    990,
+    300
+   ],
+   "parameters": {
+    "jsCode": "// Log a Bitacora cuando se evita un doble disparo\nconst data = $('Check Anti-Doble Disparo').first().json;\nreturn [{\n  json: {\n    workflow: 'master_orquestador',\n    accion: 'anti_doble_disparo_bloqueado',\n    detalle: JSON.stringify({\n      minutos_desde_ultimo: data.minutos_desde_ultimo,\n      lock_min: data.lock_min,\n      timestamp_ultimo_disparo: data.timestamp_ultimo_disparo\n    }),\n    timestamp: new Date().toISOString()\n  }\n}];"
+   }
+  },
+  {
+   "id": "a139acd9-6ae5-4ac2-bfab-28059bc99bb2",
+   "name": "Llamar Historial PRE",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    820,
+    300
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "https://n8n-n8n-encargada.4043xj.easypanel.host/webhook/historial-pre",
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({}) }}",
+    "options": {
+     "timeout": 180000,
+     "response": {
+      "response": {
+       "neverError": true
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "e39827a9-d45e-42c7-b3e9-3b412125506b",
+   "name": "Llamar Historial POST",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    2200,
+    400
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "https://n8n-n8n-encargada.4043xj.easypanel.host/webhook/historial-post",
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({\n  ts_id: $('Llamar Historial PRE').first().json.ts_id,\n  ts_name: $('Llamar Historial PRE').first().json.ts_name,\n  scriptResults: {\n    script1: $('Capturar resultado 1').first().json,\n    script2: $('Capturar resultado 2').first().json,\n    script3: $json,\n  }\n}) }}",
+    "options": {
+     "timeout": 180000,
+     "response": {
+      "response": {
+       "neverError": true
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "8a20e8c2-10d4-497c-9c8d-974a7b6bf62f",
+   "name": "Inject fechas",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    300,
+    520
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\n// Pasa las fechas elegidas (control manual) desde el body del webhook -> Script 1.\n// Si no vienen fechas, manda array vacio y Script 1 usa el modo AUTO (filtro por Yopago).\nconst body = ($('Webhook MASTER').first().json.body) || {};\nlet fechas = [];\nif (Array.isArray(body.fechas_a_procesar)) {\n  fechas = body.fechas_a_procesar.map(f => String(f).trim()).filter(Boolean);\n}\nreturn [{ json: { fechas_a_procesar: fechas, _historial_pre: $input.first().json } }];\n"
+   }
+  }
+ ],
+ "connections": {
+  "Webhook MASTER": {
+   "main": [
+    [
+     {
+      "node": "Check Anti-Doble Disparo",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Llamar Script 1": {
+   "main": [
+    [
+     {
+      "node": "Capturar resultado 1",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Capturar resultado 1": {
+   "main": [
+    [
+     {
+      "node": "Llamar Script 2",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Llamar Script 2": {
+   "main": [
+    [
+     {
+      "node": "Capturar resultado 2",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Capturar resultado 2": {
+   "main": [
+    [
+     {
+      "node": "Llamar Script 3",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Llamar Script 3": {
+   "main": [
+    [
+     {
+      "node": "Capturar resultado 3 + resumen",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Check Anti-Doble Disparo": {
+   "main": [
+    [
+     {
+      "node": "Es doble disparo?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Es doble disparo?": {
+   "main": [
+    [
+     {
+      "node": "Log doble disparo bloqueado",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Llamar Historial PRE",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Capturar resultado 3 + resumen": {
+   "main": [
+    [
+     {
+      "node": "Llamar Historial POST",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Llamar Historial PRE": {
+   "main": [
+    [
+     {
+      "node": "Inject fechas",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Inject fechas": {
+   "main": [
+    [
+     {
+      "node": "Llamar Script 1",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1",
+  "callerPolicy": "workflowsFromSameOwner",
+  "availableInMCP": false,
+  "executionTimeout": 1800,
+  "saveExecutionProgress": true,
+  "saveDataSuccessExecution": "all",
+  "errorWorkflow": "8UTMsuxK9WKmf34J",
+  "saveDataErrorExecution": "all"
+ }
+}
