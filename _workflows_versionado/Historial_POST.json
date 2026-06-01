@@ -1,0 +1,696 @@
+{
+ "name": "Conciliacion_HISTORIAL_POST",
+ "nodes": [
+  {
+   "id": "n1",
+   "name": "Webhook",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2,
+   "position": [
+    100,
+    400
+   ],
+   "webhookId": "bf6bb1e9-ba0a-43a6-b715-c03341d85833",
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "historial-post",
+    "responseMode": "responseNode",
+    "options": {}
+   }
+  },
+  {
+   "id": "n2",
+   "name": "Setup POST",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    320,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst tz = 'America/Bogota';\nconst now = new Date();\nconst fmt = new Intl.DateTimeFormat('en-CA', {\n  timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit',\n  hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false\n}).formatToParts(now);\nconst g = (t) => fmt.find(p => p.type === t).value;\nconst yyyy = g('year'), mm = g('month'), dd = g('day');\nconst input = $json.body || {};\nconst ts_id = input.ts_id;\nconst ts_name = input.ts_name || `${yyyy}-${mm}-${dd}`;\nconst scriptResults = input.scriptResults || {};\nreturn [{ json: {\n  ts_id, ts_name, scriptResults, yyyy, mm, dd,\n  gh_path: `${yyyy}/${mm}/${yyyy}-${mm}-${dd}`,\n  outputs_src: '1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq',\n  input_folders: [\n    '12zjruSVCy7ZSP6XrcToed2N0NKfx6L6c',\n    '17Ut-5dL7ci9RZZhX72iD8qejZZdKnNkh',\n    '177YEDw4l3-RD7Vg7rG9-ApGyey7Kh3tn',\n    '1KZt98PYd9V6w_zfSpl-fOl6F1v56Vb4t',\n    '12jatMOkDTNHzIwwPZOlHnWc33uoqcxwM',\n      '1nd2P5MG-eTDPHpeTzWIqlJpzo6k8rap6',\n  ],\n} }];\n"
+   }
+  },
+  {
+   "id": "n3",
+   "name": "Create OUTPUTS subfolder",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    540,
+    400
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "https://www.googleapis.com/drive/v3/files",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "options": {},
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "supportsAllDrives",
+       "value": "true"
+      },
+      {
+       "name": "fields",
+       "value": "id,name,parents"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ name: \"OUTPUTS\", mimeType: \"application/vnd.google-apps.folder\", parents: [$json.ts_id] }) }}"
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "n4",
+   "name": "List OUTPUTS source",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    760,
+    400
+   ],
+   "parameters": {
+    "method": "GET",
+    "url": "https://www.googleapis.com/drive/v3/files",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "options": {},
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "q",
+       "value": "='1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq' in parents and trashed=false"
+      },
+      {
+       "name": "orderBy",
+       "value": "createdTime desc"
+      },
+      {
+       "name": "fields",
+       "value": "files(id,name,createdTime)"
+      },
+      {
+       "name": "pageSize",
+       "value": "200"
+      },
+      {
+       "name": "supportsAllDrives",
+       "value": "true"
+      }
+     ]
+    }
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "n5",
+   "name": "Select pasos",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    980,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst files = $json.files || [];\nconst seen = {};\nfor (const f of files) {\n  if (f.name.startsWith('paso1_') && !seen.paso1) seen.paso1 = f;\n  else if (f.name.startsWith('paso2_')) {\n    const isV = /valles|lirio/i.test(f.name);\n    const k = isV ? 'paso2_valles' : 'paso2_credil';\n    if (!seen[k]) seen[k] = f;\n  }\n  else if (f.name.startsWith('paso3_') && !seen.paso3) seen.paso3 = f;\n}\nconst outputsTargetId = $('Create OUTPUTS subfolder').first().json.id;\nconst out = [];\nfor (const [key, f] of Object.entries(seen)) {\n  out.push({ json: { key, sourceId: f.id, sourceName: f.name, targetId: outputsTargetId } });\n}\nif (out.length === 0) return [{ json: { _empty: true, targetId: outputsTargetId } }];\nreturn out;\n"
+   }
+  },
+  {
+   "id": "n6",
+   "name": "Copy paso outputs",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1200,
+    400
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.sourceId }}/copy",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "options": {
+     "response": {
+      "response": {
+       "neverError": true
+      }
+     }
+    },
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "supportsAllDrives",
+       "value": "true"
+      },
+      {
+       "name": "fields",
+       "value": "id,name,parents"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ name: $json.sourceName, parents: [$json.targetId] }) }}"
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "n7",
+   "name": "Plan delete",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1420,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\n// NO BORRAR SI FALLA (2026-05-31): si algun script fallo, NO borrar los inputs.\n// Se apunta a una carpeta inexistente para que el flujo siga (NOOP) sin borrar nada real.\nconst setup = $('Setup POST').first().json;\nconst sr = setup.scriptResults || {};\nconst s3 = sr.script3 || {};\nconst huboError = (s3.script1_status==='error' || s3.script2_status==='error' || s3.script3_status==='error'\n  || (sr.script1 && sr.script1.script1_status==='error')\n  || (sr.script2 && sr.script2.script2_status==='error'));\nif (huboError) {\n  return [{ json: { srcId: 'NO_BORRAR_POR_ERROR', _skip_delete: true } }];\n}\nreturn (setup.input_folders || []).map(srcId => ({ json: { srcId } }));\n"
+   }
+  },
+  {
+   "id": "n8",
+   "name": "List inputs to delete",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1640,
+    400
+   ],
+   "parameters": {
+    "method": "GET",
+    "url": "https://www.googleapis.com/drive/v3/files",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "options": {},
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "q",
+       "value": "='{{ $json.srcId }}' in parents and trashed=false"
+      },
+      {
+       "name": "fields",
+       "value": "files(id,name,mimeType)"
+      },
+      {
+       "name": "pageSize",
+       "value": "200"
+      },
+      {
+       "name": "supportsAllDrives",
+       "value": "true"
+      }
+     ]
+    }
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "n9",
+   "name": "Flatten delete",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1860,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst items = $input.all();\nconst out = [];\nfor (const it of items) {\n  const files = it.json.files || [];\n  for (const f of files) {\n    if (f.mimeType === 'application/vnd.google-apps.folder') continue;\n    out.push({ json: { fileId: f.id, fileName: f.name } });\n  }\n}\nif (out.length === 0) return [{ json: { _empty: true, fileId: 'NOOP' } }];\nreturn out;\n"
+   }
+  },
+  {
+   "id": "n10",
+   "name": "Delete input files",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    2080,
+    400
+   ],
+   "parameters": {
+    "method": "DELETE",
+    "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.fileId }}",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "options": {
+     "response": {
+      "response": {
+       "neverError": true
+      }
+     }
+    },
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "supportsAllDrives",
+       "value": "true"
+      }
+     ]
+    }
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "n11",
+   "name": "Generate reporte",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2300,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst setup = $('Setup POST').first().json;\nconst copies = $('Copy paso outputs').all().map(i => i.json).filter(j => !j._empty);\nconst deletes = $('Delete input files').all().map(i => i.json).filter(j => !j._empty);\nconst sr = setup.scriptResults || {};\n\n// El script3 acumula todos los status previos.\nconst s3obj = sr.script3 || {};\nconst s1 = s3obj.script1_status || sr.script1?.script1_status || 'desconocido';\nconst s2 = s3obj.script2_status || sr.script2?.script2_status || 'desconocido';\nconst s3 = s3obj.script3_status || 'desconocido';\n\nconst errores = [];\nif (s1 === 'error') errores.push(`Script 1 (Recargas): ${s3obj.script1_error || sr.script1?.script1_error || 'fallo sin detalle'}`);\nif (s2 === 'error') errores.push(`Script 2 (Bancos): ${s3obj.script2_error || sr.script2?.script2_error || 'fallo sin detalle'}`);\nif (s3 === 'error') errores.push(`Script 3 (Conciliacion): ${s3obj.script3_error || 'fallo sin detalle'}`);\n\nconst hayError = errores.length > 0;\nconst estadoTxt = hayError ? '❌ ERROR' : '✅ OK';\nconst statusJson = hayError ? 'ERROR' : 'OK';\n\nlet md = `# Reporte de Procesamiento — ${setup.yyyy}-${setup.mm}-${setup.dd}\\n\\n`;\nmd += `**Fecha y hora (Bogota):** ${setup.ts_name.replace('_', ' ')}\\n\\n`;\nmd += `**Estado:** ${estadoTxt}\\n\\n`;\nmd += `**Carpeta historial:** \\`${setup.ts_name}\\`\\n\\n`;\n\nif (hayError) {\n  md += `## ⚠️ Errores detectados\\n\\n`;\n  for (const e of errores) md += `- ${e}\\n`;\n  md += `\\n`;\n  md += `**Estado de los scripts:** Script1=${s1}, Script2=${s2}, Script3=${s3}\\n\\n`;\n  md += `> ⚠️ Los archivos de input **NO se borraron** (quedan en sus carpetas para que corrijas y vuelvas a procesar). Revisá el archivo del script que falló y reprocesá.\\n\\n`;\n}\n\nmd += `## Resumen\\n\\n`;\nmd += `- Outputs copiados al historial: **${copies.length}**\\n`;\nmd += `- Archivos eliminados de input: **${deletes.length}**\\n\\n`;\n\nif (copies.length > 0) {\n  md += `## Outputs generados\\n\\n`;\n  for (const c of copies) md += `- \\`${c.name}\\`\\n`;\n  md += `\\n`;\n}\n\nif (Object.keys(sr).length > 0) {\n  md += `## Detalle tecnico de Scripts\\n\\n`;\n  md += '```json\\n' + JSON.stringify(sr, null, 2) + '\\n```\\n\\n';\n}\nmd += `---\\n_Generado por Conciliacion_HISTORIAL_POST_\\n`;\n\nconst logJson = {\n  timestamp: setup.ts_name,\n  date: `${setup.yyyy}-${setup.mm}-${setup.dd}`,\n  status: statusJson,\n  errores: errores,\n  scriptStatus: { script1: s1, script2: s2, script3: s3 },\n  ts_id: setup.ts_id,\n  copiedCount: copies.length,\n  copies: copies.map(c => ({ name: c.name, id: c.id })),\n  deletedCount: deletes.length,\n  scriptResults: sr,\n};\n\nreturn [{ json: {\n  reporteMd: md,\n  reporteB64: Buffer.from(md, 'utf-8').toString('base64'),\n  logJson: JSON.stringify(logJson, null, 2),\n  logB64: Buffer.from(JSON.stringify(logJson, null, 2), 'utf-8').toString('base64'),\n  ghReportePath: `${setup.gh_path}/reporte.md`,\n  ghLogPath: `${setup.gh_path}/log.json`,\n  ts_name: setup.ts_name,\n  date: `${setup.yyyy}-${setup.mm}-${setup.dd}`,\n  status: statusJson,\n}}];\n"
+   }
+  },
+  {
+   "id": "n12",
+   "name": "GH GET reporte sha",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    2520,
+    300
+   ],
+   "parameters": {
+    "method": "GET",
+    "url": "=https://api.github.com/repos/techmystoredigital/conciliacion-historial/contents/{{ $json.ghReportePath }}",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "Authorization",
+       "value": "Bearer REDACTED"
+      },
+      {
+       "name": "Accept",
+       "value": "application/vnd.github+json"
+      },
+      {
+       "name": "X-GitHub-Api-Version",
+       "value": "2022-11-28"
+      },
+      {
+       "name": "User-Agent",
+       "value": "n8n-historial"
+      }
+     ]
+    },
+    "options": {
+     "response": {
+      "response": {
+       "neverError": true
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "n13",
+   "name": "GH PUT reporte",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    2740,
+    300
+   ],
+   "parameters": {
+    "method": "PUT",
+    "url": "=https://api.github.com/repos/techmystoredigital/conciliacion-historial/contents/{{ $('Generate reporte').first().json.ghReportePath }}",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "Authorization",
+       "value": "Bearer REDACTED"
+      },
+      {
+       "name": "Accept",
+       "value": "application/vnd.github+json"
+      },
+      {
+       "name": "X-GitHub-Api-Version",
+       "value": "2022-11-28"
+      },
+      {
+       "name": "User-Agent",
+       "value": "n8n-historial"
+      }
+     ]
+    },
+    "options": {
+     "response": {
+      "response": {
+       "neverError": true
+      }
+     }
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify(Object.assign({ message: 'reporte ' + $('Generate reporte').first().json.date + ' (grecia)', content: $('Generate reporte').first().json.reporteB64 },$json.sha ? { sha: $json.sha } : {})) }}"
+   }
+  },
+  {
+   "id": "n14",
+   "name": "GH GET log sha",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    2520,
+    500
+   ],
+   "parameters": {
+    "method": "GET",
+    "url": "=https://api.github.com/repos/techmystoredigital/conciliacion-historial/contents/{{ $('Generate reporte').first().json.ghLogPath }}",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "Authorization",
+       "value": "Bearer REDACTED"
+      },
+      {
+       "name": "Accept",
+       "value": "application/vnd.github+json"
+      },
+      {
+       "name": "X-GitHub-Api-Version",
+       "value": "2022-11-28"
+      },
+      {
+       "name": "User-Agent",
+       "value": "n8n-historial"
+      }
+     ]
+    },
+    "options": {
+     "response": {
+      "response": {
+       "neverError": true
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "n15",
+   "name": "GH PUT log",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    2740,
+    500
+   ],
+   "parameters": {
+    "method": "PUT",
+    "url": "=https://api.github.com/repos/techmystoredigital/conciliacion-historial/contents/{{ $('Generate reporte').first().json.ghLogPath }}",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "Authorization",
+       "value": "Bearer REDACTED"
+      },
+      {
+       "name": "Accept",
+       "value": "application/vnd.github+json"
+      },
+      {
+       "name": "X-GitHub-Api-Version",
+       "value": "2022-11-28"
+      },
+      {
+       "name": "User-Agent",
+       "value": "n8n-historial"
+      }
+     ]
+    },
+    "options": {
+     "response": {
+      "response": {
+       "neverError": true
+      }
+     }
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify(Object.assign({ message: 'log ' + $('Generate reporte').first().json.date + ' (grecia)', content: $('Generate reporte').first().json.logB64 },$json.sha ? { sha: $json.sha } : {})) }}"
+   }
+  },
+  {
+   "id": "n16",
+   "name": "Final summary",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2960,
+    400
+   ],
+   "parameters": {
+    "language": "javaScript",
+    "jsCode": "\nconst setup = $('Setup POST').first().json;\nconst ghR = $('GH PUT reporte').first().json;\nconst ghL = $('GH PUT log').first().json;\nreturn [{ json: {\n  ts_name: setup.ts_name, ts_id: setup.ts_id,\n  copiedCount: $('Copy paso outputs').all().filter(i => !i.json._empty).length,\n  deletedCount: $('Delete input files').all().filter(i => !i.json._empty).length,\n  github: {\n    reporteCommit: ghR.commit?.sha?.slice(0,10) || null, reporteUrl: ghR.content?.html_url || null,\n    logCommit: ghL.commit?.sha?.slice(0,10) || null, logUrl: ghL.content?.html_url || null,\n  },\n}}];\n"
+   }
+  },
+  {
+   "id": "n17",
+   "name": "Respond",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1,
+   "position": [
+    3180,
+    400
+   ],
+   "parameters": {
+    "respondWith": "allIncomingItems"
+   }
+  }
+ ],
+ "connections": {
+  "Webhook": {
+   "main": [
+    [
+     {
+      "node": "Setup POST",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Setup POST": {
+   "main": [
+    [
+     {
+      "node": "Create OUTPUTS subfolder",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Create OUTPUTS subfolder": {
+   "main": [
+    [
+     {
+      "node": "List OUTPUTS source",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "List OUTPUTS source": {
+   "main": [
+    [
+     {
+      "node": "Select pasos",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Select pasos": {
+   "main": [
+    [
+     {
+      "node": "Copy paso outputs",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Copy paso outputs": {
+   "main": [
+    [
+     {
+      "node": "Plan delete",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Plan delete": {
+   "main": [
+    [
+     {
+      "node": "List inputs to delete",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "List inputs to delete": {
+   "main": [
+    [
+     {
+      "node": "Flatten delete",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Flatten delete": {
+   "main": [
+    [
+     {
+      "node": "Delete input files",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Delete input files": {
+   "main": [
+    [
+     {
+      "node": "Generate reporte",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Generate reporte": {
+   "main": [
+    [
+     {
+      "node": "GH GET reporte sha",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "GH GET reporte sha": {
+   "main": [
+    [
+     {
+      "node": "GH PUT reporte",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "GH PUT reporte": {
+   "main": [
+    [
+     {
+      "node": "GH GET log sha",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "GH GET log sha": {
+   "main": [
+    [
+     {
+      "node": "GH PUT log",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "GH PUT log": {
+   "main": [
+    [
+     {
+      "node": "Final summary",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Final summary": {
+   "main": [
+    [
+     {
+      "node": "Respond",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1",
+  "saveDataSuccessExecution": "all",
+  "saveDataErrorExecution": "all",
+  "callerPolicy": "workflowsFromSameOwner",
+  "availableInMCP": false
+ }
+}
