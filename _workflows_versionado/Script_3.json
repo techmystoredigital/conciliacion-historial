@@ -362,6 +362,7 @@
     1200,
     600
    ],
+   "continueOnFail": true,
    "parameters": {
     "jsCode": "// Prep amarillo: arma 1 item por banco con movimientos conciliados (a marcar en paso2)\nconst conc = $('Cruzar y conciliar').first().json;\nconst amarillo = conc._amarillo || [];\nconst bancos = ($('Separar paso1 y paso2').first().json.bancos) || [];\nfunction nb(n){ n=String(n).toLowerCase(); if(n.includes('valles')||n.includes('lirio'))return 'Valles de lirio'; if(n.includes('credil'))return 'Coop Credil'; if(n.includes('pichincha'))return 'Pichincha'; return ''; }\nconst byBanco={};\nfor(const m of amarillo){ (byBanco[m.banco]=byBanco[m.banco]||[]).push(m); }\nconst out=[];\nfor(const b of bancos){ const lab=nb(b.name); const movs=byBanco[lab]||[]; if(movs.length>0) out.push({json:{ id:b.id, name:b.name, banco:lab, movs }}); }\nreturn out;"
    }
@@ -375,6 +376,7 @@
     1400,
     600
    ],
+   "continueOnFail": true,
    "parameters": {
     "operation": "download",
     "fileId": {
@@ -400,6 +402,7 @@
     1600,
     600
    ],
+   "continueOnFail": true,
    "parameters": {
     "jsCode": "// Marcar amarillo paso2 (2026-06-02): para cada banco con movimientos conciliados, pinta\n// en AMARILLO (FFFFFF00) la celda del 'valor' del movimiento de origen, identificado por\n// doc + fecha + valor (clave unica; el numero de documento solo NO es unico). Preserva los\n// amarillos historicos y NO pinta de mas. Modo: Run Once for All Items.\nconst ExcelJS = require('exceljs');\nconst AM = 'FFFFFF00';\n\nfunction _num(v){ const n = parseFloat(String(v == null ? '' : v).replace(/[^0-9.\\-]/g, '')); return isNaN(n) ? null : Math.round(n * 100) / 100; }\nfunction _fch(v){ return String(v == null ? '' : v).trim().replace(/\\//g, '-'); }\nfunction _h(s){ return String(s || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }\n\nconst items = $input.all();\nconst prep = $('Prep amarillo').all(); // tras el Download, los movs/id vienen de Prep (mismo orden 1:1)\nconst out = [];\nfor (let i = 0; i < items.length; i++) {\n  const info = (prep[i] && prep[i].json) || items[i].json || {};\n  const movs = info.movs || [];\n  const buf = await this.helpers.getBinaryDataBuffer(i, 'data');\n  const wb = new ExcelJS.Workbook();\n  await wb.xlsx.load(buf);\n  const ws = wb.worksheets[0];\n\n  // detectar columnas por encabezado (fila 1)\n  let colDoc = 0, colFecha = 0, colValor = 0;\n  const maxC = ws.columnCount || 26;\n  for (let c = 1; c <= maxC; c++) {\n    const h = _h(ws.getRow(1).getCell(c).value);\n    if (!colDoc && (h === 'documento' || h === 'doc')) colDoc = c;\n    if (!colFecha && h === 'fecha') colFecha = c;\n    if (!colValor && (h === 'valor' || h === 'monto')) colValor = c;\n  }\n  if (!colValor) colValor = colDoc ? colDoc + 1 : 7;\n  if (!colDoc) colDoc = 2;\n  if (!colFecha) colFecha = 1;\n\n  const keys = new Set(movs.map(m => `${String(m.doc).trim()}|${_fch(m.fecha)}|${_num(m.valor)}`));\n  let marcadas = 0;\n  const total = ws.rowCount;\n  for (let r = 2; r <= total; r++) {\n    const row = ws.getRow(r);\n    const k = `${String(row.getCell(colDoc).value || '').trim()}|${_fch(row.getCell(colFecha).value)}|${_num(row.getCell(colValor).value)}`;\n    if (keys.has(k)) {\n      row.getCell(colValor).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: AM }, bgColor: { argb: AM } };\n      marcadas++;\n    }\n  }\n\n  const b64 = Buffer.from(await wb.xlsx.writeBuffer()).toString('base64');\n  out.push({\n    json: { fileId: info.id, name: info.name, banco: info.banco, movimientos: movs.length, marcadas },\n    binary: { data: { data: b64, mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', fileName: info.name || 'paso2.xlsx', fileExtension: 'xlsx' } },\n  });\n}\nreturn out;\n"
    }
@@ -413,6 +416,7 @@
     1800,
     600
    ],
+   "continueOnFail": true,
    "parameters": {
     "method": "PATCH",
     "url": "=https://www.googleapis.com/upload/drive/v3/files/{{ $json.fileId }}?uploadType=media",
