@@ -1,10 +1,10 @@
 # Reporte de Procesamiento — 2026-06-02
 
-**Fecha y hora (Bogota):** 2026-06-02 09-54-26
+**Fecha y hora (Bogota):** 2026-06-02 10-11-00
 
 **Estado:** ✅ OK
 
-**Carpeta historial:** `2026-06-02_09-54-26`
+**Carpeta historial:** `2026-06-02_10-11-00`
 
 ## Resumen
 
@@ -14,8 +14,8 @@
 ## Outputs generados
 
 - `paso3_Recargas Concesionario Yopago.xlsx`
-- `paso2_Banco coop. Credil (3).xlsx`
-- `paso2_Bancos Coop. valles de lirio  (2).xlsx`
+- `paso2_Banco coop. Credil (4).xlsx`
+- `paso2_Bancos Coop. valles de lirio  (3).xlsx`
 - `paso1_Recargas Concesionario Yopago.xlsx`
 
 ## Detalle tecnico de Scripts
@@ -24,42 +24,42 @@
 {
   "script1": {
     "script1_status": "ok",
-    "script1_paso1_id": "18gHOKxhBbfvkk1bQCFTZAVAbL1MegCXX",
+    "script1_paso1_id": "1jxhEt1B9PtxUSOSD6METZt_qlR44Fb6v",
     "script1_paso1_name": "paso1_Recargas Concesionario Yopago.xlsx",
     "script1_error": null,
-    "script1_raw": "{\"kind\":\"drive#file\",\"id\":\"18gHOKxhBbfvkk1bQCFTZAVAbL1MegCXX\",\"name\":\"paso1_Recargas Concesionario Yopago.xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"3\",\"webContentLink\":\"https://drive.google.com/uc?id=18gHOKxhBbfvkk1bQCFTZAVAbL1MegCXX&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/18gHOKxhBbfvkk1b"
+    "script1_raw": "{\"kind\":\"drive#file\",\"id\":\"1jxhEt1B9PtxUSOSD6METZt_qlR44Fb6v\",\"name\":\"paso1_Recargas Concesionario Yopago.xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"2\",\"webContentLink\":\"https://drive.google.com/uc?id=1jxhEt1B9PtxUSOSD6METZt_qlR44Fb6v&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/1jxhEt1B9PtxUSOS"
   },
   "script2": {
     "script1_status": "ok",
-    "script1_paso1_id": "18gHOKxhBbfvkk1bQCFTZAVAbL1MegCXX",
+    "script1_paso1_id": "1jxhEt1B9PtxUSOSD6METZt_qlR44Fb6v",
     "script1_paso1_name": "paso1_Recargas Concesionario Yopago.xlsx",
     "script1_error": null,
-    "script1_raw": "{\"kind\":\"drive#file\",\"id\":\"18gHOKxhBbfvkk1bQCFTZAVAbL1MegCXX\",\"name\":\"paso1_Recargas Concesionario Yopago.xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"3\",\"webContentLink\":\"https://drive.google.com/uc?id=18gHOKxhBbfvkk1bQCFTZAVAbL1MegCXX&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/18gHOKxhBbfvkk1b",
+    "script1_raw": "{\"kind\":\"drive#file\",\"id\":\"1jxhEt1B9PtxUSOSD6METZt_qlR44Fb6v\",\"name\":\"paso1_Recargas Concesionario Yopago.xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"2\",\"webContentLink\":\"https://drive.google.com/uc?id=1jxhEt1B9PtxUSOSD6METZt_qlR44Fb6v&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/1jxhEt1B9PtxUSOS",
     "script2_status": "ok",
-    "script2_paso2_id": "1DWL0_VjCUKDjUeL-zHLA1vzvYydsktTA",
-    "script2_paso2_name": "paso2_Bancos Coop. valles de lirio  (2).xlsx",
+    "script2_paso2_id": "11T4TFiWhIYsCsbrXNm9pNe-a-woY5T5C",
+    "script2_paso2_name": "paso2_Bancos Coop. valles de lirio  (3).xlsx",
     "script2_error": null,
-    "script2_raw": "{\"kind\":\"drive#file\",\"id\":\"1DWL0_VjCUKDjUeL-zHLA1vzvYydsktTA\",\"name\":\"paso2_Bancos Coop. valles de lirio  (2).xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"2\",\"webContentLink\":\"https://drive.google.com/uc?id=1DWL0_VjCUKDjUeL-zHLA1vzvYydsktTA&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/1DWL0_VjCUKD"
+    "script2_raw": "{\"kind\":\"drive#file\",\"id\":\"11T4TFiWhIYsCsbrXNm9pNe-a-woY5T5C\",\"name\":\"paso2_Bancos Coop. valles de lirio  (3).xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"2\",\"webContentLink\":\"https://drive.google.com/uc?id=11T4TFiWhIYsCsbrXNm9pNe-a-woY5T5C&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/11T4TFiWhIYs"
   },
   "script3": {
     "script1_status": "ok",
-    "script1_paso1_id": "18gHOKxhBbfvkk1bQCFTZAVAbL1MegCXX",
+    "script1_paso1_id": "1jxhEt1B9PtxUSOSD6METZt_qlR44Fb6v",
     "script1_paso1_name": "paso1_Recargas Concesionario Yopago.xlsx",
     "script1_error": null,
-    "script1_raw": "{\"kind\":\"drive#file\",\"id\":\"18gHOKxhBbfvkk1bQCFTZAVAbL1MegCXX\",\"name\":\"paso1_Recargas Concesionario Yopago.xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"3\",\"webContentLink\":\"https://drive.google.com/uc?id=18gHOKxhBbfvkk1bQCFTZAVAbL1MegCXX&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/18gHOKxhBbfvkk1b",
+    "script1_raw": "{\"kind\":\"drive#file\",\"id\":\"1jxhEt1B9PtxUSOSD6METZt_qlR44Fb6v\",\"name\":\"paso1_Recargas Concesionario Yopago.xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"2\",\"webContentLink\":\"https://drive.google.com/uc?id=1jxhEt1B9PtxUSOSD6METZt_qlR44Fb6v&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/1jxhEt1B9PtxUSOS",
     "script2_status": "ok",
-    "script2_paso2_id": "1DWL0_VjCUKDjUeL-zHLA1vzvYydsktTA",
-    "script2_paso2_name": "paso2_Bancos Coop. valles de lirio  (2).xlsx",
+    "script2_paso2_id": "11T4TFiWhIYsCsbrXNm9pNe-a-woY5T5C",
+    "script2_paso2_name": "paso2_Bancos Coop. valles de lirio  (3).xlsx",
     "script2_error": null,
-    "script2_raw": "{\"kind\":\"drive#file\",\"id\":\"1DWL0_VjCUKDjUeL-zHLA1vzvYydsktTA\",\"name\":\"paso2_Bancos Coop. valles de lirio  (2).xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"2\",\"webContentLink\":\"https://drive.google.com/uc?id=1DWL0_VjCUKDjUeL-zHLA1vzvYydsktTA&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/1DWL0_VjCUKD",
+    "script2_raw": "{\"kind\":\"drive#file\",\"id\":\"11T4TFiWhIYsCsbrXNm9pNe-a-woY5T5C\",\"name\":\"paso2_Bancos Coop. valles de lirio  (3).xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"2\",\"webContentLink\":\"https://drive.google.com/uc?id=11T4TFiWhIYsCsbrXNm9pNe-a-woY5T5C&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/11T4TFiWhIYs",
     "script3_status": "ok",
-    "script3_paso3_id": "1FF0kfP-M0hQB0AUCdCPDiMfpQdcuiY-v",
+    "script3_paso3_id": "1cQAnu2pZ4nVaV-fT7ND_hZeVvMOEcHHf",
     "script3_paso3_name": "paso3_Recargas Concesionario Yopago.xlsx",
     "script3_error": null,
-    "script3_raw": "{\"kind\":\"drive#file\",\"id\":\"1FF0kfP-M0hQB0AUCdCPDiMfpQdcuiY-v\",\"name\":\"paso3_Recargas Concesionario Yopago.xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"2\",\"webContentLink\":\"https://drive.google.com/uc?id=1FF0kfP-M0hQB0AUCdCPDiMfpQdcuiY-v&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/1FF0kfP-M0hQB0AU",
+    "script3_raw": "{\"kind\":\"drive#file\",\"id\":\"1cQAnu2pZ4nVaV-fT7ND_hZeVvMOEcHHf\",\"name\":\"paso3_Recargas Concesionario Yopago.xlsx\",\"mimeType\":\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\"starred\":false,\"trashed\":false,\"explicitlyTrashed\":false,\"parents\":[\"1qulBT2VmQn1XL6cK1kednqiTSWzcO0Dq\"],\"spaces\":[\"drive\"],\"version\":\"2\",\"webContentLink\":\"https://drive.google.com/uc?id=1cQAnu2pZ4nVaV-fT7ND_hZeVvMOEcHHf&export=download\",\"webViewLink\":\"https://docs.google.com/spreadsheets/d/1cQAnu2pZ4nVaV-f",
     "master_status": "OK_TODOS_LOS_SCRIPTS",
-    "timestamp": "2026-06-02T14:56:15.992Z",
-    "resumen": "Procesamiento completo OK. paso1=paso1_Recargas Concesionario Yopago.xlsx, paso2=paso2_Bancos Coop. valles de lirio  (2).xlsx, paso3=paso3_Recargas Concesionario Yopago.xlsx"
+    "timestamp": "2026-06-02T15:12:55.207Z",
+    "resumen": "Procesamiento completo OK. paso1=paso1_Recargas Concesionario Yopago.xlsx, paso2=paso2_Bancos Coop. valles de lirio  (3).xlsx, paso3=paso3_Recargas Concesionario Yopago.xlsx"
   }
 }
 ```
