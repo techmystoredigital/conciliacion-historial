@@ -286,7 +286,7 @@
    ],
    "parameters": {
     "language": "javaScript",
-    "jsCode": "// Cruzar y conciliar v2 (UNICIDAD BILATERAL + filtro debito correcto + col D banco)\n//\n// Reglas:\n//  - Solo procesar creditos (col 'debito' = '+'). Descartar debitos ('-').\n//  - Conciliar SOLO si el valor es UNICO: aparece exactamente 1 vez sumando todos los bancos\n//    Y exactamente 1 vez en las recargas pendientes del Yopago.\n//  - Cuando es unico: escribir col D (Banco) con el banco identificado + col E (Confirmado) = 'Si'.\n//  - Cuando NO es unico (ambiguo): dejar las celdas vacias para revision manual / WhatsApp.\n//  - ID Agencia = 226796 -> col E = 'Ecuabet' (recarga interna, no se cruza con banco).\n\nconst yopagoData = $('Aggregate Yopago').first().json.data?.[0] || {filas:[], headers:[]};\nconst yopagoFilas = yopagoData.filas || [];\nconst yopagoHeaders = yopagoData.headers || [];\nconst bancos = $('Aggregate todos los bancos').first().json.data || [];\n\nconst ID_INTERNA = '226796';\n\n// Mapea nombre de archivo a etiqueta de banco final (segun listas del Yopago)\nfunction nombreBanco(nombreArchivo) {\n  const n = String(nombreArchivo || '').toLowerCase();\n  if (n.includes('valles') || n.includes('lirio')) return 'Valles de lirio';\n  if (n.includes('credil')) return 'Coop Credil';\n  if (n.includes('pichincha')) return 'Pichincha';\n  return '';\n}\n\n// Indexar movimientos de banco por VALOR (solo creditos, ignorar reversos)\nconst bancoPorValor = {};\nlet totalMovsLeidos = 0, totalMovsCreditos = 0;\nfor (const b of bancos) {\n  const bancoLabel = nombreBanco(b.banco_name);\n  for (const mov of (b.movs || [])) {\n    totalMovsLeidos++;\n    // Usar el header (mov.debito) no un indice fijo - FIX BUG\n    const debito = String(mov['debito'] || mov.Debito || mov.DEBITO || '').trim();\n    const trans = String(mov['transaccion'] || mov.Transaccion || '').toUpperCase();\n    if (debito === '-') continue;          // descartar debitos\n    if (trans.includes('REVERSO')) continue;\n    const valor = parseFloat(String(mov['valor'] || mov.Valor || '0').replace(/[^0-9.\\-]/g, ''));\n    if (!valor || valor <= 0) continue;\n    const doc = String(mov['documento'] || mov.Documento || '');\n    const fecha = String(mov['fecha'] || mov.Fecha || '');\n    if (!bancoPorValor[valor]) bancoPorValor[valor] = [];\n    bancoPorValor[valor].push({ doc, banco: bancoLabel, fecha });\n    totalMovsCreditos++;\n  }\n}\n\n// Contar recargas PENDIENTES del Yopago por valor (las que aun no tienen Confirmado)\nconst recargasPendientesPorValor = {};\nfor (const fila of yopagoFilas) {\n  const conf = String(fila.Confirmado || fila.confirmado || '').trim();\n  if (conf) continue; // ya conciliada, no la contamos\n  const id_ag = String(fila['ID Agencia'] || fila.ID || fila.id || '').trim();\n  if (!id_ag) continue;\n  if (id_ag === ID_INTERNA) continue; // Ecuabet, no se cruza con banco\n  const valor = parseFloat(String(fila['Valor Recarga'] || fila.Valor || fila.valor || '0').replace(/[^0-9.\\-]/g, ''));\n  if (!valor || valor <= 0) continue;\n  recargasPendientesPorValor[valor] = (recargasPendientesPorValor[valor] || 0) + 1;\n}\n\n// Stats para el informe\nlet conciliadasUnicas = 0;\nlet marcadasEcuabet = 0;\nlet ambiguas_multiplesBancos = 0;\nlet ambiguas_multiplesRecargas = 0;\nlet sinMatch = 0;\n\nconst out = yopagoFilas.map(fila => {\n  const conf = String(fila.Confirmado || fila.confirmado || '').trim();\n  if (conf) return { ...fila };  // no tocar filas ya marcadas\n\n  const id_ag = String(fila['ID Agencia'] || fila.ID || fila.id || '').trim();\n  const valor = parseFloat(String(fila['Valor Recarga'] || fila.Valor || fila.valor || '0').replace(/[^0-9.\\-]/g, ''));\n\n  if (!id_ag || !valor) return { ...fila };\n\n  // Caso especial: Ecuabet interno\n  if (id_ag === ID_INTERNA) {\n    marcadasEcuabet++;\n    return { ...fila, Confirmado: 'Ecuabet' };\n  }\n\n  // Buscar movimientos de banco con ese valor\n  const movsConEseValor = bancoPorValor[valor] || [];\n  const totalMovs = movsConEseValor.length;\n  const totalRecargas = recargasPendientesPorValor[valor] || 0;\n\n  if (totalMovs === 0) {\n    sinMatch++;\n    return { ...fila };  // sin match: queda vacia\n  }\n  if (totalMovs > 1) {\n    ambiguas_multiplesBancos++;\n    return { ...fila };  // ambiguo: 2+ pagos del mismo valor en bancos, dejar para revision manual\n  }\n  if (totalRecargas > 1) {\n    ambiguas_multiplesRecargas++;\n    return { ...fila };  // ambiguo: 2+ recargas del mismo valor en yopago, no sabemos a cual asignar\n  }\n\n  // UNICO: 1 pago banco + 1 recarga yopago con ese valor\n  const m = movsConEseValor[0];\n  conciliadasUnicas++;\n  return { ...fila, Banco: m.banco, Confirmado: 'Si' };\n});\n\n// Devolver con stats para auditar\nconst yopagoBinary = $('Read Yopago mes actual').first().binary;\nreturn [{\n  json: {\n    filas: out,\n    headers: yopagoHeaders,\n    total: out.length,\n    _stats: {\n      movsLeidos: totalMovsLeidos,\n      movsCreditos: totalMovsCreditos,\n      conciliadasUnicas,\n      marcadasEcuabet,\n      ambiguas_multiplesBancos,\n      ambiguas_multiplesRecargas,\n      sinMatch,\n    }\n  },\n  binary: yopagoBinary\n}];\n"
+    "jsCode": "// Cruzar y conciliar v3 (UNICIDAD BILATERAL + col D banco + _amarillo para marcar paso2)\n//\n// Reglas:\n//  - Solo procesar creditos (col 'debito' = '+'). Descartar debitos ('-').\n//  - Conciliar SOLO si el valor es UNICO: 1 vez en bancos Y 1 vez en recargas pendientes.\n//  - Cuando es unico: col D (Banco) = banco identificado + col E (Confirmado) = 'Si',\n//    y se anota el movimiento de banco (banco+doc+fecha+valor) en _amarillo para marcarlo\n//    en amarillo en el paso2 (de donde salio el valor).\n//  - Ambiguo: dejar vacio para revision manual.\n//  - ID Agencia = 226796 -> col E = 'Ecuabet'.\n\nconst yopagoData = $('Aggregate Yopago').first().json.data?.[0] || {filas:[], headers:[]};\nconst yopagoFilas = yopagoData.filas || [];\nconst yopagoHeaders = yopagoData.headers || [];\nconst bancos = $('Aggregate todos los bancos').first().json.data || [];\n\nconst ID_INTERNA = '226796';\n\nfunction nombreBanco(nombreArchivo) {\n  const n = String(nombreArchivo || '').toLowerCase();\n  if (n.includes('valles') || n.includes('lirio')) return 'Valles de lirio';\n  if (n.includes('credil')) return 'Coop Credil';\n  if (n.includes('pichincha')) return 'Pichincha';\n  return '';\n}\n\n// Indexar movimientos de banco por VALOR (solo creditos, ignorar reversos)\nconst bancoPorValor = {};\nlet totalMovsLeidos = 0, totalMovsCreditos = 0;\nfor (const b of bancos) {\n  const bancoLabel = nombreBanco(b.banco_name);\n  for (const mov of (b.movs || [])) {\n    totalMovsLeidos++;\n    const debito = String(mov['debito'] || mov.Debito || mov.DEBITO || '').trim();\n    const trans = String(mov['transaccion'] || mov.Transaccion || '').toUpperCase();\n    if (debito === '-') continue;\n    if (trans.includes('REVERSO')) continue;\n    const valor = parseFloat(String(mov['valor'] || mov.Valor || '0').replace(/[^0-9.\\-]/g, ''));\n    if (!valor || valor <= 0) continue;\n    const doc = String(mov['documento'] || mov.Documento || '');\n    const fecha = String(mov['fecha'] || mov.Fecha || '');\n    if (!bancoPorValor[valor]) bancoPorValor[valor] = [];\n    bancoPorValor[valor].push({ doc, banco: bancoLabel, fecha, valor });\n    totalMovsCreditos++;\n  }\n}\n\n// Contar recargas PENDIENTES del Yopago por valor (las que aun no tienen Confirmado)\nconst recargasPendientesPorValor = {};\nfor (const fila of yopagoFilas) {\n  const conf = String(fila.Confirmado || fila.confirmado || '').trim();\n  if (conf) continue;\n  const id_ag = String(fila['ID Agencia'] || fila.ID || fila.id || '').trim();\n  if (!id_ag) continue;\n  if (id_ag === ID_INTERNA) continue;\n  const valor = parseFloat(String(fila['Valor Recarga'] || fila.Valor || fila.valor || '0').replace(/[^0-9.\\-]/g, ''));\n  if (!valor || valor <= 0) continue;\n  recargasPendientesPorValor[valor] = (recargasPendientesPorValor[valor] || 0) + 1;\n}\n\nlet conciliadasUnicas = 0, marcadasEcuabet = 0, ambiguas_multiplesBancos = 0, ambiguas_multiplesRecargas = 0, sinMatch = 0;\nconst _amarillo = []; // movimientos de banco conciliados, a marcar amarillo en paso2\n\nconst out = yopagoFilas.map(fila => {\n  const conf = String(fila.Confirmado || fila.confirmado || '').trim();\n  if (conf) return { ...fila };\n\n  const id_ag = String(fila['ID Agencia'] || fila.ID || fila.id || '').trim();\n  const valor = parseFloat(String(fila['Valor Recarga'] || fila.Valor || fila.valor || '0').replace(/[^0-9.\\-]/g, ''));\n  if (!id_ag || !valor) return { ...fila };\n\n  if (id_ag === ID_INTERNA) { marcadasEcuabet++; return { ...fila, Confirmado: 'Ecuabet' }; }\n\n  const movsConEseValor = bancoPorValor[valor] || [];\n  const totalMovs = movsConEseValor.length;\n  const totalRecargas = recargasPendientesPorValor[valor] || 0;\n\n  if (totalMovs === 0) { sinMatch++; return { ...fila }; }\n  if (totalMovs > 1) { ambiguas_multiplesBancos++; return { ...fila }; }\n  if (totalRecargas > 1) { ambiguas_multiplesRecargas++; return { ...fila }; }\n\n  // UNICO: 1 pago banco + 1 recarga yopago con ese valor\n  const m = movsConEseValor[0];\n  conciliadasUnicas++;\n  _amarillo.push({ banco: m.banco, doc: m.doc, fecha: m.fecha, valor: m.valor });\n  return { ...fila, Banco: m.banco, Confirmado: 'Si' };\n});\n\nconst yopagoBinary = $('Read Yopago mes actual').first().binary;\nreturn [{\n  json: {\n    filas: out,\n    headers: yopagoHeaders,\n    total: out.length,\n    _amarillo,\n    _stats: {\n      movsLeidos: totalMovsLeidos, movsCreditos: totalMovsCreditos,\n      conciliadasUnicas, marcadasEcuabet, ambiguas_multiplesBancos,\n      ambiguas_multiplesRecargas, sinMatch,\n    }\n  },\n  binary: yopagoBinary\n}];\n"
    }
   },
   {
@@ -300,7 +300,7 @@
    ],
    "parameters": {
     "language": "javaScript",
-    "jsCode": "// === VALIDACION_ROBUSTA_XLSX v2 ===\nfunction _validarXLSX(buf, nombreArchivo) {\n  const nombre = nombreArchivo || 'archivo';\n  if (!buf || buf.length === 0) throw new Error(`[XLSX_VACIO] El archivo \"${nombre}\" llego vacio (0 bytes). Re-subir al Drive correctamente.`);\n  if (buf.length < 500) throw new Error(`[XLSX_PEQUENO] El archivo \"${nombre}\" es demasiado pequeno (${buf.length} bytes). Re-subir al Drive.`);\n  const b0 = buf[0], b1 = buf[1], b2 = buf[2], b3 = buf[3];\n  const esZip = b0 === 0x50 && b1 === 0x4B && (b2 === 0x03 || b2 === 0x05) && (b3 === 0x04 || b3 === 0x06);\n  if (!esZip) {\n    const hex = [b0,b1,b2,b3].map(b => (b||0).toString(16).padStart(2,'0')).join(' ');\n    throw new Error(`[XLSX_FORMATO_INCORRECTO] El archivo \"${nombre}\" NO es un xlsx. Bytes iniciales: ${hex}. ACCION: re-subir al Drive como .xlsx.`);\n  }\n  const maxSearch = Math.min(buf.length, 65557);\n  let eocd = false;\n  for (let i = buf.length - 22; i >= Math.max(0, buf.length - maxSearch); i--) {\n    if (buf[i] === 0x50 && buf[i+1] === 0x4B && buf[i+2] === 0x05 && buf[i+3] === 0x06) { eocd = true; break; }\n  }\n  if (!eocd) throw new Error(`[XLSX_TRUNCADO] El archivo \"${nombre}\" (${buf.length} bytes) es un zip TRUNCADO o CORRUPTO. ACCION: re-subir el archivo al Drive.`);\n}\n// === FIN VALIDACION ===\n\n// === FIX DROPDOWNS 2026-06-02 (exceljs PURO, sin jszip que esta bloqueado en el sandbox). ===\nfunction _fixDropdowns(ws, lastRow, srcWs) {\n  try {\n    const src = (srcWs || ws);\n    const srcModel = (src.dataValidations && src.dataValidations.model) || {};\n    const cols = {};\n    for (const addr of Object.keys(srcModel)) {\n      const mm = addr.match(/^([A-Z]+)(\\d+)$/);\n      if (!mm) continue;\n      const col = mm[1], row = parseInt(mm[2], 10), v = srcModel[addr];\n      if (!cols[col]) cols[col] = { v: v, minRow: row, maxRow: row };\n      else { if (row > cols[col].maxRow) cols[col].maxRow = row; if (row < cols[col].minRow) cols[col].minRow = row; }\n    }\n    if (Object.keys(cols).length === 0) return false;\n    ws.dataValidations.model = {};\n    for (const col of Object.keys(cols)) {\n      const info = cols[col];\n      const start = info.minRow || 2;\n      const end = Math.max(info.maxRow, lastRow || 0);\n      ws.dataValidations.add(`${col}${start}:${col}${end}`, {\n        type: info.v.type || 'list',\n        allowBlank: info.v.allowBlank !== false,\n        showErrorMessage: info.v.showErrorMessage !== false,\n        formulae: info.v.formulae,\n      });\n    }\n    return true;\n  } catch (e) { return false; }\n}\n// === FIN FIX DROPDOWNS ===\n\n// Write Yopago final: carga paso1 + escribe col D (Banco) y col E (Confirmado) de las conciliadas.\nconst ExcelJS = require('exceljs');\nconst item = $input.first();\nif (!item || !item.binary || !item.binary.data) throw new Error('Sin binary del paso1 (origen)');\nconst buf = await this.helpers.getBinaryDataBuffer(0, 'data');\n_validarXLSX(buf, (item.binary?.data?.fileName || 'paso1_origen'));\n\nconst wb = new ExcelJS.Workbook();\nawait wb.xlsx.load(buf);\n\nconst data = item.json;\nconst filas = data.filas || [];\nconst headers = data.headers || [];\nif (filas.length === 0) throw new Error('No hay filas para escribir paso3');\n\nconst meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];\nconst ahora = new Date();\nconst sheetName = meses[ahora.getMonth()] + ' ' + ahora.getFullYear();\nconst monthRegex = /^(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\\s+\\d{4}$/i;\nfunction pickSheet(wb, preferred) {\n  let ws = wb.getWorksheet(preferred);\n  if (ws) return ws;\n  const monthSheets = wb.worksheets.filter(w => monthRegex.test(w.name));\n  if (monthSheets.length > 0) return monthSheets[monthSheets.length - 1];\n  const visible = wb.worksheets.filter(w => !w.name.startsWith('_'));\n  if (visible.length > 0) return visible[visible.length - 1];\n  return wb.worksheets[wb.worksheets.length - 1];\n}\nconst ws = pickSheet(wb, sheetName);\n\n// Detectar columnas Confirmado (E) y Banco (D) por header\nfunction colByHeader(pred, fallback) {\n  for (let i = 0; i < headers.length; i++) { if (pred(String(headers[i]).toLowerCase())) return i + 1; }\n  return fallback;\n}\nconst colConfirmado = colByHeader(h => h === 'confirmado' || h.includes('confirma'), 5);\nconst colBanco = colByHeader(h => h === 'banco' || h.includes('banco'), 4);\n\nlet updatedConf = 0, updatedBanco = 0;\nfor (const fila of filas) {\n  const rowNum = fila.__rowNum__;\n  if (!rowNum) continue;\n  const conf = fila.Confirmado || fila.confirmado || '';\n  if (!conf) continue;\n  const row = ws.getRow(rowNum);\n  // col E (Confirmado): solo si esta vacia (preserva cambios manuales)\n  const exE = row.getCell(colConfirmado).value;\n  if (exE == null || String(exE).trim() === '') { row.getCell(colConfirmado).value = conf; updatedConf++; }\n  // col D (Banco): FIX 2026-06-02 - escribir el banco identificado en la conciliacion, si esta vacia\n  const banco = fila.Banco || fila.banco || '';\n  if (banco) {\n    const exD = row.getCell(colBanco).value;\n    if (exD == null || String(exD).trim() === '') { row.getCell(colBanco).value = banco; updatedBanco++; }\n  }\n  row.commit();\n}\n\n// FIX DROPDOWNS 2026-06-02: re-emitir listas desplegables limpias (paso1 ya las trae limpias).\nconst _dvOk = _fixDropdowns(ws, ws.rowCount);\n\nconst out = await wb.xlsx.writeBuffer();\nconst b64 = Buffer.from(out).toString('base64');\n\nreturn [{\n  json: { ok: true, rowCount: filas.length, updatedConf, updatedBanco, sheetName: ws.name, pestanas: wb.worksheets.length, colConfirmado, colBanco, dropdowns_restauradas: _dvOk, fallbackUsed: ws.name !== sheetName },\n  binary: {\n    data: {\n      data: b64,\n      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n      fileName: 'paso3_Recargas Concesionario Yopago.xlsx',\n      fileExtension: 'xlsx',\n    }\n  }\n}];\n"
+    "jsCode": "// === VALIDACION_ROBUSTA_XLSX v2 ===\nfunction _validarXLSX(buf, nombreArchivo) {\n  const nombre = nombreArchivo || 'archivo';\n  if (!buf || buf.length === 0) throw new Error(`[XLSX_VACIO] El archivo \"${nombre}\" llego vacio (0 bytes). Re-subir al Drive correctamente.`);\n  if (buf.length < 500) throw new Error(`[XLSX_PEQUENO] El archivo \"${nombre}\" es demasiado pequeno (${buf.length} bytes). Re-subir al Drive.`);\n  const b0 = buf[0], b1 = buf[1], b2 = buf[2], b3 = buf[3];\n  const esZip = b0 === 0x50 && b1 === 0x4B && (b2 === 0x03 || b2 === 0x05) && (b3 === 0x04 || b3 === 0x06);\n  if (!esZip) {\n    const hex = [b0,b1,b2,b3].map(b => (b||0).toString(16).padStart(2,'0')).join(' ');\n    throw new Error(`[XLSX_FORMATO_INCORRECTO] El archivo \"${nombre}\" NO es un xlsx. Bytes iniciales: ${hex}. ACCION: re-subir al Drive como .xlsx.`);\n  }\n  const maxSearch = Math.min(buf.length, 65557);\n  let eocd = false;\n  for (let i = buf.length - 22; i >= Math.max(0, buf.length - maxSearch); i--) {\n    if (buf[i] === 0x50 && buf[i+1] === 0x4B && buf[i+2] === 0x05 && buf[i+3] === 0x06) { eocd = true; break; }\n  }\n  if (!eocd) throw new Error(`[XLSX_TRUNCADO] El archivo \"${nombre}\" (${buf.length} bytes) es un zip TRUNCADO o CORRUPTO. ACCION: re-subir el archivo al Drive.`);\n}\n// === FIN VALIDACION ===\n\n// === FIX DROPDOWNS 2026-06-02 (exceljs PURO, sin jszip que esta bloqueado en el sandbox). ===\nfunction _fixDropdowns(ws, lastRow, srcWs) {\n  try {\n    const src = (srcWs || ws);\n    const srcModel = (src.dataValidations && src.dataValidations.model) || {};\n    const cols = {};\n    for (const addr of Object.keys(srcModel)) {\n      const mm = addr.match(/^([A-Z]+)(\\d+)$/);\n      if (!mm) continue;\n      const col = mm[1], row = parseInt(mm[2], 10), v = srcModel[addr];\n      if (!cols[col]) cols[col] = { v: v, minRow: row, maxRow: row };\n      else { if (row > cols[col].maxRow) cols[col].maxRow = row; if (row < cols[col].minRow) cols[col].minRow = row; }\n    }\n    if (Object.keys(cols).length === 0) return false;\n    ws.dataValidations.model = {};\n    for (const col of Object.keys(cols)) {\n      const info = cols[col];\n      const start = info.minRow || 2;\n      const end = Math.max(info.maxRow, lastRow || 0);\n      ws.dataValidations.add(`${col}${start}:${col}${end}`, {\n        type: info.v.type || 'list',\n        allowBlank: info.v.allowBlank !== false,\n        showErrorMessage: info.v.showErrorMessage !== false,\n        formulae: info.v.formulae,\n      });\n    }\n    return true;\n  } catch (e) { return false; }\n}\n// === FIN FIX DROPDOWNS ===\n\n// === VERDE CONCILIADO 2026-06-02: las filas con col E = \"Si\" se pintan de verde (FFB7E1CD,\n// el MISMO verde que ya trae el archivo en su paleta). Se hace con una regla de formato\n// condicional tipo 'expression' (exceljs la serializa bien; containsText la rompe). Match\n// EXACTO a \"Si\" (no pinta \"Comisiones\"/\"Ecuabet\"/etc). Idempotente. ===\nfunction _aplicarVerdeConciliado(ws, lastRow) {\n  try {\n    const VERDE = 'FFB7E1CD';\n    const keep = (ws.conditionalFormattings || []).map(cf => {\n      cf.rules = (cf.rules || []).filter(r => !(r.type === 'expression' && (r.formulae || []).some(f => String(f).replace(/\\s/g, '').includes('=\"Si\"'))));\n      return cf;\n    }).filter(cf => (cf.rules || []).length > 0);\n    ws.conditionalFormattings = keep;\n    ws.addConditionalFormatting({\n      ref: `D2:E${lastRow}`,\n      rules: [{ type: 'expression', priority: 1, formulae: ['$E2=\"Si\"'],\n        style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: VERDE }, fgColor: { argb: VERDE } } } }],\n    });\n    return true;\n  } catch (e) { return false; }\n}\n// === FIN VERDE ===\n\n// Write Yopago final: carga paso1 + escribe col D (Banco) y col E (Confirmado) de las conciliadas.\nconst ExcelJS = require('exceljs');\nconst item = $input.first();\nif (!item || !item.binary || !item.binary.data) throw new Error('Sin binary del paso1 (origen)');\nconst buf = await this.helpers.getBinaryDataBuffer(0, 'data');\n_validarXLSX(buf, (item.binary?.data?.fileName || 'paso1_origen'));\n\nconst wb = new ExcelJS.Workbook();\nawait wb.xlsx.load(buf);\n\nconst data = item.json;\nconst filas = data.filas || [];\nconst headers = data.headers || [];\nif (filas.length === 0) throw new Error('No hay filas para escribir paso3');\n\nconst meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];\nconst ahora = new Date();\nconst sheetName = meses[ahora.getMonth()] + ' ' + ahora.getFullYear();\nconst monthRegex = /^(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\\s+\\d{4}$/i;\nfunction pickSheet(wb, preferred) {\n  let ws = wb.getWorksheet(preferred);\n  if (ws) return ws;\n  const monthSheets = wb.worksheets.filter(w => monthRegex.test(w.name));\n  if (monthSheets.length > 0) return monthSheets[monthSheets.length - 1];\n  const visible = wb.worksheets.filter(w => !w.name.startsWith('_'));\n  if (visible.length > 0) return visible[visible.length - 1];\n  return wb.worksheets[wb.worksheets.length - 1];\n}\nconst ws = pickSheet(wb, sheetName);\n\n// Detectar columnas Confirmado (E) y Banco (D) por header\nfunction colByHeader(pred, fallback) {\n  for (let i = 0; i < headers.length; i++) { if (pred(String(headers[i]).toLowerCase())) return i + 1; }\n  return fallback;\n}\nconst colConfirmado = colByHeader(h => h === 'confirmado' || h.includes('confirma'), 5);\nconst colBanco = colByHeader(h => h === 'banco' || h.includes('banco'), 4);\n\nlet updatedConf = 0, updatedBanco = 0;\nfor (const fila of filas) {\n  const rowNum = fila.__rowNum__;\n  if (!rowNum) continue;\n  const conf = fila.Confirmado || fila.confirmado || '';\n  if (!conf) continue;\n  const row = ws.getRow(rowNum);\n  // col E (Confirmado): solo si esta vacia (preserva cambios manuales)\n  const exE = row.getCell(colConfirmado).value;\n  if (exE == null || String(exE).trim() === '') { row.getCell(colConfirmado).value = conf; updatedConf++; }\n  // col D (Banco): FIX 2026-06-02 - escribir el banco identificado en la conciliacion, si esta vacia\n  const banco = fila.Banco || fila.banco || '';\n  if (banco) {\n    const exD = row.getCell(colBanco).value;\n    if (exD == null || String(exD).trim() === '') { row.getCell(colBanco).value = banco; updatedBanco++; }\n  }\n  row.commit();\n}\n\n// FIX DROPDOWNS 2026-06-02: re-emitir listas desplegables limpias (paso1 ya las trae limpias).\nconst _dvOk = _fixDropdowns(ws, ws.rowCount);\n// VERDE CONCILIADO 2026-06-02: pintar verde las filas con E=\"Si\".\nconst _verdeOk = _aplicarVerdeConciliado(ws, ws.rowCount);\n\nconst out = await wb.xlsx.writeBuffer();\nconst b64 = Buffer.from(out).toString('base64');\n\nreturn [{\n  json: { ok: true, rowCount: filas.length, updatedConf, updatedBanco, sheetName: ws.name, pestanas: wb.worksheets.length, colConfirmado, colBanco, dropdowns_restauradas: _dvOk, verde_aplicado: _verdeOk, fallbackUsed: ws.name !== sheetName },\n  binary: {\n    data: {\n      data: b64,\n      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n      fileName: 'paso3_Recargas Concesionario Yopago.xlsx',\n      fileExtension: 'xlsx',\n    }\n  }\n}];\n"
    }
   },
   {
@@ -351,6 +351,83 @@
     "height": 280,
     "width": 700,
     "color": 6
+   }
+  },
+  {
+   "id": "am1",
+   "name": "Prep amarillo",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1200,
+    600
+   ],
+   "parameters": {
+    "jsCode": "// Prep amarillo: arma 1 item por banco con movimientos conciliados (a marcar en paso2)\nconst conc = $('Cruzar y conciliar').first().json;\nconst amarillo = conc._amarillo || [];\nconst bancos = ($('Separar paso1 y paso2').first().json.bancos) || [];\nfunction nb(n){ n=String(n).toLowerCase(); if(n.includes('valles')||n.includes('lirio'))return 'Valles de lirio'; if(n.includes('credil'))return 'Coop Credil'; if(n.includes('pichincha'))return 'Pichincha'; return ''; }\nconst byBanco={};\nfor(const m of amarillo){ (byBanco[m.banco]=byBanco[m.banco]||[]).push(m); }\nconst out=[];\nfor(const b of bancos){ const lab=nb(b.name); const movs=byBanco[lab]||[]; if(movs.length>0) out.push({json:{ id:b.id, name:b.name, banco:lab, movs }}); }\nreturn out;"
+   }
+  },
+  {
+   "id": "am2",
+   "name": "Download paso2 amarillo",
+   "type": "n8n-nodes-base.googleDrive",
+   "typeVersion": 3,
+   "position": [
+    1400,
+    600
+   ],
+   "parameters": {
+    "operation": "download",
+    "fileId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "={{ $json.id }}"
+    },
+    "options": {}
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
+  },
+  {
+   "id": "am3",
+   "name": "Marcar amarillo",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1600,
+    600
+   ],
+   "parameters": {
+    "jsCode": "// Marcar amarillo paso2 (2026-06-02): para cada banco con movimientos conciliados, pinta\n// en AMARILLO (FFFFFF00) la celda del 'valor' del movimiento de origen, identificado por\n// doc + fecha + valor (clave unica; el numero de documento solo NO es unico). Preserva los\n// amarillos historicos y NO pinta de mas. Modo: Run Once for All Items.\nconst ExcelJS = require('exceljs');\nconst AM = 'FFFFFF00';\n\nfunction _num(v){ const n = parseFloat(String(v == null ? '' : v).replace(/[^0-9.\\-]/g, '')); return isNaN(n) ? null : Math.round(n * 100) / 100; }\nfunction _fch(v){ return String(v == null ? '' : v).trim().replace(/\\//g, '-'); }\nfunction _h(s){ return String(s || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }\n\nconst items = $input.all();\nconst prep = $('Prep amarillo').all(); // tras el Download, los movs/id vienen de Prep (mismo orden 1:1)\nconst out = [];\nfor (let i = 0; i < items.length; i++) {\n  const info = (prep[i] && prep[i].json) || items[i].json || {};\n  const movs = info.movs || [];\n  const buf = await this.helpers.getBinaryDataBuffer(i, 'data');\n  const wb = new ExcelJS.Workbook();\n  await wb.xlsx.load(buf);\n  const ws = wb.worksheets[0];\n\n  // detectar columnas por encabezado (fila 1)\n  let colDoc = 0, colFecha = 0, colValor = 0;\n  const maxC = ws.columnCount || 26;\n  for (let c = 1; c <= maxC; c++) {\n    const h = _h(ws.getRow(1).getCell(c).value);\n    if (!colDoc && (h === 'documento' || h === 'doc')) colDoc = c;\n    if (!colFecha && h === 'fecha') colFecha = c;\n    if (!colValor && (h === 'valor' || h === 'monto')) colValor = c;\n  }\n  if (!colValor) colValor = colDoc ? colDoc + 1 : 7;\n  if (!colDoc) colDoc = 2;\n  if (!colFecha) colFecha = 1;\n\n  const keys = new Set(movs.map(m => `${String(m.doc).trim()}|${_fch(m.fecha)}|${_num(m.valor)}`));\n  let marcadas = 0;\n  const total = ws.rowCount;\n  for (let r = 2; r <= total; r++) {\n    const row = ws.getRow(r);\n    const k = `${String(row.getCell(colDoc).value || '').trim()}|${_fch(row.getCell(colFecha).value)}|${_num(row.getCell(colValor).value)}`;\n    if (keys.has(k)) {\n      row.getCell(colValor).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: AM }, bgColor: { argb: AM } };\n      marcadas++;\n    }\n  }\n\n  const b64 = Buffer.from(await wb.xlsx.writeBuffer()).toString('base64');\n  out.push({\n    json: { fileId: info.id, name: info.name, banco: info.banco, movimientos: movs.length, marcadas },\n    binary: { data: { data: b64, mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', fileName: info.name || 'paso2.xlsx', fileExtension: 'xlsx' } },\n  });\n}\nreturn out;\n"
+   }
+  },
+  {
+   "id": "am4",
+   "name": "Patch paso2 amarillo",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1800,
+    600
+   ],
+   "parameters": {
+    "method": "PATCH",
+    "url": "=https://www.googleapis.com/upload/drive/v3/files/{{ $json.fileId }}?uploadType=media",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "sendBody": true,
+    "contentType": "binaryData",
+    "inputDataFieldName": "data",
+    "options": {}
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
    }
   }
  ],
@@ -554,6 +631,50 @@
     [
      {
       "node": "Upload paso3 to OUTPUTS",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Upload paso3 to OUTPUTS": {
+   "main": [
+    [
+     {
+      "node": "Prep amarillo",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Prep amarillo": {
+   "main": [
+    [
+     {
+      "node": "Download paso2 amarillo",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Download paso2 amarillo": {
+   "main": [
+    [
+     {
+      "node": "Marcar amarillo",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Marcar amarillo": {
+   "main": [
+    [
+     {
+      "node": "Patch paso2 amarillo",
       "type": "main",
       "index": 0
      }
