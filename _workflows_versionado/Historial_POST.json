@@ -506,6 +506,47 @@
    "parameters": {
     "respondWith": "allIncomingItems"
    }
+  },
+  {
+   "id": "pt1",
+   "name": "Build puntero",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1640,
+    520
+   ],
+   "parameters": {
+    "jsCode": "const su = $('Setup POST').first().json;\nconst outId = $('Create OUTPUTS subfolder').first().json.id;\nlet paso3Id = null;\nfor (const it of $('Copy paso outputs').all()) { const j = it.json||{}; if (String(j.name||'').startsWith('paso3_')) { paso3Id = j.id; break; } }\nconst puntero = { fecha_proceso: su.ts_name, historial_id: su.ts_id, outputs_id: outId, paso3_id: paso3Id, mapeo_id: '1lx9lNn17jj7KxJ3O3GYWZduMxHKQ8EI4' };\nreturn [{ json: { puntero } }];"
+   }
+  },
+  {
+   "id": "pt2",
+   "name": "PATCH puntero",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    1840,
+    520
+   ],
+   "onError": "continueRegularOutput",
+   "continueOnFail": true,
+   "parameters": {
+    "method": "PATCH",
+    "url": "https://www.googleapis.com/upload/drive/v3/files/1XrSvG6a5wlVwg0vNgmfVhwSFXc0V9DGp?uploadType=media&supportsAllDrives=true",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "googleDriveOAuth2Api",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify($json.puntero) }}",
+    "options": {}
+   },
+   "credentials": {
+    "googleDriveOAuth2Api": {
+     "id": "u82XQCSIPvN6Um8o",
+     "name": "Drive Grecia OAuth"
+    }
+   }
   }
  ],
  "connections": {
@@ -675,6 +716,28 @@
    ]
   },
   "Final summary": {
+   "main": [
+    [
+     {
+      "node": "Build puntero",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build puntero": {
+   "main": [
+    [
+     {
+      "node": "PATCH puntero",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "PATCH puntero": {
    "main": [
     [
      {
