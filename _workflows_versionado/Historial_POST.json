@@ -70,7 +70,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n4",
@@ -118,7 +121,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n5",
@@ -178,7 +184,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n7",
@@ -236,7 +245,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n9",
@@ -288,7 +300,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n11",
@@ -344,7 +359,10 @@
       }
      }
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n13",
@@ -390,7 +408,10 @@
     "contentType": "json",
     "specifyBody": "json",
     "jsonBody": "={{ JSON.stringify(Object.assign({ message: 'reporte ' + $('Generate reporte').first().json.date + ' (grecia)', content: $('Generate reporte').first().json.reporteB64 },$json.sha ? { sha: $json.sha } : {})) }}"
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n14",
@@ -432,7 +453,10 @@
       }
      }
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n15",
@@ -478,7 +502,10 @@
     "contentType": "json",
     "specifyBody": "json",
     "jsonBody": "={{ JSON.stringify(Object.assign({ message: 'log ' + $('Generate reporte').first().json.date + ' (grecia)', content: $('Generate reporte').first().json.logB64 },$json.sha ? { sha: $json.sha } : {})) }}"
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n16",
@@ -546,7 +573,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   }
  ],
  "connections": {

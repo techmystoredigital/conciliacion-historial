@@ -70,7 +70,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n4",
@@ -124,7 +127,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n6",
@@ -178,7 +184,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n8",
@@ -236,7 +245,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n10",
@@ -296,7 +308,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "n12",
@@ -367,7 +382,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "faabd0ab-d9d9-4da7-8f35-027b6506cfd3",
@@ -419,7 +437,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "75fda605-db8c-4b54-b1f3-2e356d2e4523",

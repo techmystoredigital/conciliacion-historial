@@ -377,7 +377,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "5d04efaa-8be4-4ddb-b90e-a98253de7701",
@@ -448,7 +451,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "dcbb83eb-4f13-4174-af1d-a49d51036dc3",

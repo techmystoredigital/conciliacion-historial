@@ -391,7 +391,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "am3",
@@ -432,7 +435,10 @@
      "id": "u82XQCSIPvN6Um8o",
      "name": "Drive Grecia OAuth"
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   }
  ],
  "connections": {

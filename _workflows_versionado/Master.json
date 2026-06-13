@@ -231,7 +231,10 @@
       }
      }
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "e39827a9-d45e-42c7-b3e9-3b412125506b",
@@ -257,7 +260,10 @@
       }
      }
     }
-   }
+   },
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2500
   },
   {
    "id": "8a20e8c2-10d4-497c-9c8d-974a7b6bf62f",
