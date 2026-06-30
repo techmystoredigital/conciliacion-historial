@@ -156,10 +156,10 @@
         <span><i class="violet"></i> Dólar (TRM) de la fecha</span>
       </div>
       <div class="legend ref">
-        <span style="color:#FF6470"><i class="rl" style="border-color:#FF4D5E"></i> Lo que ganaba antes (~$350)</span>
-        <span style="color:#4FE894"><i class="rl" style="border-color:#35E07A"></i> 1.ª oferta ($500)</span>
-        <span style="color:#3FE6CE"><i class="rl" style="border-color:#1FE0C4"></i> Acuerdo si faltaran comida y transporte ($1.000 − $800.000)</span>
-        <span style="color:#7FB6FF"><i class="rl" style="border-color:#5AA0FF"></i> Acuerdo pleno ($1.000)</span>
+        <span style="color:#FF7DA1"><i class="rl" style="border-color:#FF5C8A"></i> Lo que ganaba antes (~$350)</span>
+        <span style="color:#CBA0FF"><i class="rl" style="border-color:#C084FC"></i> 1.ª oferta ($500)</span>
+        <span style="color:#5AC8FA"><i class="rl" style="border-color:#38BDF8"></i> Acuerdo si faltaran comida y transporte ($1.000 − $800.000)</span>
+        <span style="color:#E2E8F0"><i class="rl" style="border-color:#F1F5F9"></i> Acuerdo pleno ($1.000)</span>
       </div>
     </div>
     <p class="undernote">Estadía: arriendo ≈$900.000 + comida ≈$600.000 + transporte ≈$200.000 =
@@ -167,7 +167,7 @@
       $700 el jefe solo cubría el arriendo; en la oferta actual todo sale de mi bolsillo. Cada total se calcula
       a la TRM de su fecha. Los dos primeros eran remotos desde Popayán (sin estadía).</p>
     <p class="undernote">Las <b>líneas horizontales</b> marcan, a la altura del ahorro, distintos escenarios de
-      referencia. La clave: incluso en el peor caso (la línea aguamarina —el acuerdo de $1.000 si por un
+      referencia. La clave: incluso en el peor caso (la línea azul cielo —el acuerdo de $1.000 si por un
       malentendido no entraran comida ni transporte, pero la estadía/arriendo <b>sí</b> estaba clara—) yo
       debería ahorrar ≈$2.840.000. La <b>oferta actual deja solo ≈$1.300.000</b>: por debajo de todas las
       líneas, casi al nivel de lo que ganaba antes de mudarme.</p>
@@ -260,7 +260,8 @@
 
   // glow filters
   var defs=el("defs");
-  [["gCyan","#19E3D4",.8],["gAmber","#FFC24B",.75],["gRed","#FF5A6E",.85],["gGreen","#43E58A",.8],["gViolet","#9B8CFF",.8],["gBlue","#5AA0FF",.85],["gAqua","#1FE0C4",.85]].forEach(function(f){
+  [["gCyan","#19E3D4",.8],["gAmber","#FFC24B",.75],["gRed","#FF5A6E",.85],["gGreen","#43E58A",.8],["gViolet","#9B8CFF",.8],
+   ["gPink","#FF5C8A",.95],["gPurple","#C084FC",.95],["gSky","#38BDF8",.95],["gWhite","#FFFFFF",.8]].forEach(function(f){
     var fl=el("filter",{id:f[0],x:"-60%",y:"-60%",width:"220%",height:"220%"});
     fl.appendChild(el("feDropShadow",{dx:0,dy:0,stdDeviation:3.4,"flood-color":f[1],"flood-opacity":f[2]}));
     defs.appendChild(fl);
@@ -332,17 +333,19 @@
 
   // ---- líneas de referencia (a la altura del ahorro) ----
   var refs=[
-    {v:1298500, color:"#FF4D5E", glow:"url(#gRed)",  label:"Antes ≈$350"},
-    {v:1820000, color:"#35E07A", glow:"url(#gGreen)",label:"1.ª oferta $500"},
-    {v:2840000, color:"#1FE0C4", glow:"url(#gAqua)", label:"Acuerdo sin comida/transp."},
-    {v:3640000, color:"#5AA0FF", glow:"url(#gBlue)", label:"Acuerdo pleno $1.000"}
+    {v:1298500, color:"#FF5C8A", glow:"url(#gPink)",  label:"Antes ≈$350"},
+    {v:1820000, color:"#C084FC", glow:"url(#gPurple)",label:"1.ª oferta $500"},
+    {v:2840000, color:"#38BDF8", glow:"url(#gSky)",   label:"Acuerdo sin comida/transp."},
+    {v:3640000, color:"#F1F5F9", glow:"url(#gWhite)", label:"Acuerdo pleno $1.000"}
   ];
   refs.forEach(function(r){
     var y=yV(r.v);
-    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:r.color,"stroke-width":2,"stroke-dasharray":"9 5",filter:r.glow,opacity:.95}));
+    // contorno oscuro + línea de color gruesa, para que resalte sobre cualquier barra
+    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:"#070A11","stroke-width":6.5,"stroke-dasharray":"12 7","stroke-linecap":"round",opacity:.7}));
+    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:r.color,"stroke-width":3.2,"stroke-dasharray":"12 7","stroke-linecap":"round",filter:r.glow}));
     // chip rotulado a la izquierda (zona despejada sobre las barras cortas)
-    var w=r.label.length*6.6+16;
-    svg.appendChild(el("rect",{x:mL+8,y:y-18,width:w,height:16,rx:5,fill:"#0A0E17","fill-opacity":.86,stroke:r.color,"stroke-opacity":.6,"stroke-width":1}));
+    var w=r.label.length*6.6+18;
+    svg.appendChild(el("rect",{x:mL+8,y:y-19,width:w,height:17,rx:5,fill:"#070A11","fill-opacity":.9,stroke:r.color,"stroke-opacity":.8,"stroke-width":1.3}));
     txt(svg,mL+8+w/2,y-7,r.label,{"font-size":11,fill:r.color,"text-anchor":"middle","font-weight":"700","font-family":"monospace"});
   });
 })();
