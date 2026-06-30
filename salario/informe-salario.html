@@ -24,7 +24,7 @@
     background-attachment:fixed;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:900px;margin:0 auto;padding:clamp(20px,4vw,52px) clamp(16px,4vw,40px) 80px}
+  .wrap{max-width:1060px;margin:0 auto;padding:clamp(20px,4vw,52px) clamp(16px,4vw,40px) 80px}
   h1,h2,h3{font-weight:700;color:var(--ink);text-wrap:balance;line-height:1.18;letter-spacing:-.01em}
   .num{font-variant-numeric:tabular-nums}
   .mono{font-family:"SFMono-Regular",ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace}
@@ -64,15 +64,16 @@
     box-shadow:0 0 0 1px rgba(25,227,212,.04),0 24px 60px rgba(0,0,0,.5)}
   .chart-card h3{font-size:15px;margin:0 0 3px}
   .chart-scroll{overflow-x:auto}
-  .chart-scroll svg{display:block;min-width:640px;width:100%;height:auto}
-  .legend{display:flex;flex-wrap:wrap;gap:10px 20px;margin:12px 2px 2px;font-size:12.5px;color:var(--soft)}
+  .chart-scroll svg{display:block;min-width:760px;width:100%;height:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:9px 20px;margin:12px 2px 2px;font-size:13px;color:var(--soft)}
+  .legend.ref{margin-top:6px;padding-top:10px;border-top:1px solid var(--line)}
   .legend span{display:inline-flex;align-items:center;gap:7px}
-  .legend i{width:13px;height:13px;border-radius:3px;flex:none}
+  .legend i{width:14px;height:14px;border-radius:3px;flex:none}
   .legend i.cyan{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
   .legend i.amber{background:var(--amber);box-shadow:0 0 10px var(--amber)}
   .legend i.hatch{background:repeating-linear-gradient(45deg,var(--amber),var(--amber) 2px,transparent 2px,transparent 5px),rgba(255,194,75,.16);box-shadow:0 0 8px rgba(255,194,75,.4)}
-  .legend i.dash{height:0;width:20px;border-radius:0;border-top:2px dashed var(--green);box-shadow:none}
   .legend i.violet{background:var(--violet);box-shadow:0 0 10px var(--violet)}
+  .legend i.rl{height:0;width:22px;border-radius:0;border-top:2px dashed;flex:none}
   .undernote{font-size:12.5px;color:var(--muted);margin-top:12px}
   .undernote b{color:var(--soft)}
 
@@ -146,20 +147,30 @@
       Encima: el <strong>total en pesos y en dólares</strong>. Debajo: el <strong>precio del dólar</strong> de ese momento.</p>
 
     <div class="chart-card">
-      <div class="chart-scroll"><svg id="chart" viewBox="0 0 800 470" role="img"
-        aria-label="Valor total de cada acuerdo salarial en pesos y dólares, con la TRM de cada fecha"></svg></div>
+      <div class="chart-scroll"><svg id="chart" viewBox="0 0 860 560" role="img"
+        aria-label="Valor total de cada acuerdo salarial en pesos y dólares, con la TRM y líneas de referencia"></svg></div>
       <div class="legend">
         <span><i class="cyan"></i> Efectivo libre (lo que ahorro)</span>
         <span><i class="amber"></i> Estadía que cubre el jefe</span>
         <span><i class="hatch"></i> Estadía que pago yo</span>
-        <span><i class="dash"></i> Total acordado ($5.340.000)</span>
         <span><i class="violet"></i> Dólar (TRM) de la fecha</span>
+      </div>
+      <div class="legend ref">
+        <span style="color:#FF6470"><i class="rl" style="border-color:#FF4D5E"></i> Lo que ganaba antes (~$350)</span>
+        <span style="color:#4FE894"><i class="rl" style="border-color:#35E07A"></i> 1.ª oferta ($500)</span>
+        <span style="color:#3FE6CE"><i class="rl" style="border-color:#1FE0C4"></i> Acuerdo si faltaran comida y transporte ($1.000 − $800.000)</span>
+        <span style="color:#7FB6FF"><i class="rl" style="border-color:#5AA0FF"></i> Acuerdo pleno ($1.000)</span>
       </div>
     </div>
     <p class="undernote">Estadía: arriendo ≈$900.000 + comida ≈$600.000 + transporte ≈$200.000 =
       <b>$1.700.000</b>/mes (el arriendo se presupuestó en ~$800.000 pero salió en $900.000). En la prueba de
       $700 el jefe solo cubría el arriendo; en la oferta actual todo sale de mi bolsillo. Cada total se calcula
       a la TRM de su fecha. Los dos primeros eran remotos desde Popayán (sin estadía).</p>
+    <p class="undernote">Las <b>líneas horizontales</b> marcan, a la altura del ahorro, distintos escenarios de
+      referencia. La clave: incluso en el peor caso (la línea aguamarina —el acuerdo de $1.000 si por un
+      malentendido no entraran comida ni transporte, pero la estadía/arriendo <b>sí</b> estaba clara—) yo
+      debería ahorrar ≈$2.840.000. La <b>oferta actual deja solo ≈$1.300.000</b>: por debajo de todas las
+      líneas, casi al nivel de lo que ganaba antes de mudarme.</p>
   </section>
 
   <!-- 02 TRES CIFRAS -->
@@ -245,11 +256,11 @@
   function txt(p,x,y,s,a){var t=el("text",a||{});t.setAttribute("x",x);t.setAttribute("y",y);t.textContent=s;p.appendChild(t);return t;}
 
   var svg=document.getElementById("chart"); if(!svg) return;
-  var W=800,H=470,mL=58,mR=22,mT=58,mB=112, pw=W-mL-mR, ph=H-mT-mB;
+  var W=860,H=560,mL=64,mR=28,mT=66,mB=122, pw=W-mL-mR, ph=H-mT-mB;
 
   // glow filters
   var defs=el("defs");
-  [["gCyan","#19E3D4",.8],["gAmber","#FFC24B",.75],["gRed","#FF5A6E",.85],["gGreen","#43E58A",.8],["gViolet","#9B8CFF",.8]].forEach(function(f){
+  [["gCyan","#19E3D4",.8],["gAmber","#FFC24B",.75],["gRed","#FF5A6E",.85],["gGreen","#43E58A",.8],["gViolet","#9B8CFF",.8],["gBlue","#5AA0FF",.85],["gAqua","#1FE0C4",.85]].forEach(function(f){
     var fl=el("filter",{id:f[0],x:"-60%",y:"-60%",width:"220%",height:"220%"});
     fl.appendChild(el("feDropShadow",{dx:0,dy:0,stdDeviation:3.4,"flood-color":f[1],"flood-opacity":f[2]}));
     defs.appendChild(fl);
@@ -280,12 +291,7 @@
     svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:"rgba(255,255,255,.07)","stroke-width":1}));
     txt(svg,mL-9,y+4,"$"+g+"M",{"font-size":11,fill:"#7C8AA3","text-anchor":"end","font-family":"monospace"});
   }
-  txt(svg,mL-9,mT-32,"Total mensual (COP)",{"font-size":11,fill:"#B9C6DA","text-anchor":"start","font-weight":"700"});
-
-  // dashed reference at agreed total
-  var refY=yV(5340000);
-  svg.appendChild(el("line",{x1:mL,y1:refY,x2:W-mR,y2:refY,stroke:"#43E58A","stroke-width":1.4,"stroke-dasharray":"7 5",opacity:.65}));
-  txt(svg,W-mR,refY-7,"Acordado $5.340.000",{"font-size":10.5,fill:"#43E58A","text-anchor":"end","font-weight":"700","font-family":"monospace"});
+  txt(svg,mL-9,mT-36,"Total mensual (COP)",{"font-size":12,fill:"#B9C6DA","text-anchor":"start","font-weight":"700"});
 
   function seg(x,vTop,vBottom,fill,filter){
     var yT=yV(vTop), yB=yV(vBottom), h=yB-yT;
@@ -293,7 +299,7 @@
     svg.appendChild(el("rect",a));
     return {yT:yT,yB:yB,h:h};
   }
-  function segLabel(x,r,val,color){ if(r.h>19) txt(svg,x+bw/2,(r.yT+r.yB)/2+4,"$"+gp(val),{"font-size":10,fill:color,"text-anchor":"middle","font-weight":"700","font-family":"monospace"}); }
+  function segLabel(x,r,val,color){ if(r.h>20) txt(svg,x+bw/2,(r.yT+r.yB)/2+4,"$"+gp(val),{"font-size":11,fill:color,"text-anchor":"middle","font-weight":"700","font-family":"monospace"}); }
 
   data.forEach(function(d,i){
     var cx=mL+step*i+step/2, x=cx-bw/2;
@@ -309,15 +315,35 @@
     // current offer outline
     if(d.now) svg.appendChild(el("rect",{x:x-3,y:yV(total)-3,width:bw+6,height:base-yV(total)+6,fill:"none",stroke:"#FF5A6E","stroke-width":2,filter:"url(#gRed)"}));
 
-    // total labels above
-    var ty=yV(total)-12;
-    txt(svg,cx,ty-13,"$"+gp(total),{"font-size":13,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
-    txt(svg,cx,ty,"≈ $"+gp(Math.round(total/d.trm)),{"font-size":11.5,fill:(d.agree?"#43E58A":(d.now?"#FF5A6E":"#FFC24B")),"text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+    // total labels — flotantes arriba, salvo en remotos (ahí van dentro para liberar la zona izquierda)
+    if(d.y===0 && d.c===0){
+      txt(svg,cx,(rA.yT+rA.yB)/2+20,"≈ $"+gp(Math.round(total/d.trm)),{"font-size":11,fill:"#04201E","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+    } else {
+      var ty=yV(total)-14;
+      txt(svg,cx,ty-15,"$"+gp(total),{"font-size":14.5,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+      txt(svg,cx,ty,"≈ $"+gp(Math.round(total/d.trm)),{"font-size":12.5,fill:(d.agree?"#43E58A":(d.now?"#FF5A6E":"#FFC24B")),"text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+    }
 
     // x labels: sueldo / fecha / TRM
-    txt(svg,cx,base+22,d.sal,{"font-size":11.5,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700"});
-    txt(svg,cx,base+38,d.date,{"font-size":10.5,fill:"#7C8AA3","text-anchor":"middle"});
-    txt(svg,cx,base+58,"Dólar $"+gp(d.trm),{"font-size":11,fill:"#9B8CFF","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+    txt(svg,cx,base+24,d.sal,{"font-size":12.5,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700"});
+    txt(svg,cx,base+41,d.date,{"font-size":11,fill:"#7C8AA3","text-anchor":"middle"});
+    txt(svg,cx,base+62,"Dólar $"+gp(d.trm),{"font-size":12,fill:"#9B8CFF","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+  });
+
+  // ---- líneas de referencia (a la altura del ahorro) ----
+  var refs=[
+    {v:1298500, color:"#FF4D5E", glow:"url(#gRed)",  label:"Antes ≈$350"},
+    {v:1820000, color:"#35E07A", glow:"url(#gGreen)",label:"1.ª oferta $500"},
+    {v:2840000, color:"#1FE0C4", glow:"url(#gAqua)", label:"Acuerdo sin comida/transp."},
+    {v:3640000, color:"#5AA0FF", glow:"url(#gBlue)", label:"Acuerdo pleno $1.000"}
+  ];
+  refs.forEach(function(r){
+    var y=yV(r.v);
+    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:r.color,"stroke-width":2,"stroke-dasharray":"9 5",filter:r.glow,opacity:.95}));
+    // chip rotulado a la izquierda (zona despejada sobre las barras cortas)
+    var w=r.label.length*6.6+16;
+    svg.appendChild(el("rect",{x:mL+8,y:y-18,width:w,height:16,rx:5,fill:"#0A0E17","fill-opacity":.86,stroke:r.color,"stroke-opacity":.6,"stroke-width":1}));
+    txt(svg,mL+8+w/2,y-7,r.label,{"font-size":11,fill:r.color,"text-anchor":"middle","font-weight":"700","font-family":"monospace"});
   });
 })();
 </script>
