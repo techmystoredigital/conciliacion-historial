@@ -341,7 +341,9 @@
   // ---- líneas de referencia ENCIMA: finas (no tapan), con borde oscuro sutil para verse sobre cualquier barra ----
   refs.forEach(function(r){
     var y=yV(r.v);
-    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:r.color,"stroke-width":2.6,"stroke-dasharray":"12 7","stroke-linecap":"round",filter:r.glow}));
+    // SIN filtro: un filtro con objectBoundingBox sobre una línea (caja de alto ~0) colapsa la
+    // región y la oculta en visores estrictos. Trazo puro y grueso = visible en todos lados.
+    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:r.color,"stroke-width":3.4,"stroke-dasharray":"12 8","stroke-linecap":"round"}));
     // etiqueta a la izquierda (zona despejada sobre las barras cortas)
     var w=r.label.length*6.6+20;
     svg.appendChild(el("rect",{x:mL+8,y:y-20,width:w,height:18,rx:5,fill:"#070A11","fill-opacity":.94,stroke:r.color,"stroke-opacity":1,"stroke-width":1.6}));
