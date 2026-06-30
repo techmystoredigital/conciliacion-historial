@@ -295,17 +295,13 @@
   }
   txt(svg,mL-9,mT-36,"Total mensual (COP)",{"font-size":12,fill:"#B9C6DA","text-anchor":"start","font-weight":"700"});
 
-  // ---- líneas de referencia (a la altura del ahorro). Se dibujan DETRÁS de las barras ----
+  // ---- líneas de referencia (a la altura del ahorro). Se definen aquí y se dibujan ENCIMA, finas ----
   var refs=[
     {v:1298500, color:"#FF3B4E", glow:"url(#gLred)",  label:"Antes ≈$350"},                 // roja
     {v:1820000, color:"#23E06A", glow:"url(#gLgreen)",label:"1.ª oferta $500"},             // verde
     {v:2840000, color:"#00E6D2", glow:"url(#gLaqua)", label:"Acuerdo sin comida/transp."},  // aguamarina
     {v:3640000, color:"#3B8CFF", glow:"url(#gLblue)", label:"Acuerdo pleno $1.000"}         // azul
   ];
-  refs.forEach(function(r){
-    var y=yV(r.v);
-    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:r.color,"stroke-width":3,"stroke-dasharray":"12 7","stroke-linecap":"round",filter:r.glow}));
-  });
 
   function seg(x,vTop,vBottom,fill,filter){
     var yT=yV(vTop), yB=yV(vBottom), h=yB-yT;
@@ -342,9 +338,11 @@
     txt(svg,cx,base+62,"Dólar $"+gp(d.trm),{"font-size":12,fill:"#9B8CFF","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
   });
 
-  // ---- etiquetas de las líneas de referencia: van ENCIMA, en la zona despejada de la izquierda ----
+  // ---- líneas de referencia ENCIMA: finas (no tapan), con borde oscuro sutil para verse sobre cualquier barra ----
   refs.forEach(function(r){
     var y=yV(r.v);
+    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:r.color,"stroke-width":2.6,"stroke-dasharray":"12 7","stroke-linecap":"round",filter:r.glow}));
+    // etiqueta a la izquierda (zona despejada sobre las barras cortas)
     var w=r.label.length*6.6+20;
     svg.appendChild(el("rect",{x:mL+8,y:y-20,width:w,height:18,rx:5,fill:"#070A11","fill-opacity":.94,stroke:r.color,"stroke-opacity":1,"stroke-width":1.6}));
     txt(svg,mL+8+w/2,y-7,r.label,{"font-size":11.5,fill:r.color,"text-anchor":"middle","font-weight":"700","font-family":"monospace"});
