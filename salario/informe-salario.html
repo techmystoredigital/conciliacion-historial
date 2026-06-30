@@ -6,99 +6,120 @@
 <title>Conciliación salarial — historial y propuesta de reajuste</title>
 <style>
   :root{
-    --paper:#F4F6F8; --card:#FFFFFF; --ink:#16202D; --ink-soft:#33414F;
-    --muted:#5A6677; --faint:#8A93A1; --line:#E1E6EC; --line-strong:#CBD3DC;
-    --teal:#0E6F69; --teal-bg:#E4F1EF; --clay:#BB4A2C; --clay-bg:#F8E9E2;
-    --gold:#B5882F; --gold-bg:#F6EEDC; --navy:#2A4A6B;
-    --shadow:0 1px 2px rgba(22,32,45,.04),0 8px 24px rgba(22,32,45,.06);
+    --bg:#070A11; --panel:#0D1220; --panel2:#121A2B; --raise:#16203400;
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+    --ink:#EAF1FA; --soft:#B9C6DA; --muted:#7C8AA3; --faint:#5C6982;
+    --cyan:#19E3D4;   /* ahorro / efectivo libre */
+    --amber:#FFC24B;  /* estadía */
+    --red:#FF5A6E;    /* oferta actual / déficit */
+    --green:#43E58A;  /* acordado / a favor */
+    --violet:#9B8CFF; /* dólar / TRM */
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--paper);color:var(--ink);
+  body{margin:0;color:var(--ink);
+    background:
+      radial-gradient(1100px 600px at 15% -5%, rgba(25,227,212,.07), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(155,140,255,.07), transparent 55%),
+      var(--bg);
+    background-attachment:fixed;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:880px;margin:0 auto;padding:clamp(20px,4vw,52px) clamp(16px,4vw,40px) 72px}
-  h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:600;color:var(--ink);text-wrap:balance;line-height:1.2}
+  .wrap{max-width:900px;margin:0 auto;padding:clamp(20px,4vw,52px) clamp(16px,4vw,40px) 80px}
+  h1,h2,h3{font-weight:700;color:var(--ink);text-wrap:balance;line-height:1.18;letter-spacing:-.01em}
   .num{font-variant-numeric:tabular-nums}
+  .mono{font-family:"SFMono-Regular",ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace}
 
-  header.doc{border-bottom:2px solid var(--ink);padding-bottom:22px;margin-bottom:8px}
-  .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700;margin:0 0 12px}
-  header.doc h1{font-size:clamp(26px,4.4vw,38px);margin:0 0 16px;letter-spacing:-.01em}
+  header.doc{border-bottom:1px solid var(--line2);padding-bottom:24px;margin-bottom:8px}
+  .eyebrow{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--cyan);font-weight:700;margin:0 0 14px;text-shadow:0 0 12px rgba(25,227,212,.5)}
+  header.doc h1{font-size:clamp(27px,4.6vw,40px);margin:0 0 18px}
   .meta{display:flex;flex-wrap:wrap;gap:6px 28px;font-size:13px;color:var(--muted)}
-  .meta b{color:var(--ink-soft);font-weight:600}
+  .meta b{color:var(--soft);font-weight:600}
 
-  section{margin-top:44px}
-  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;border-bottom:1px solid var(--line-strong);padding-bottom:9px}
-  .sec-num{font-family:Georgia,serif;font-size:14px;color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums;flex:none;width:1.5em}
-  .sec-head h2{font-size:clamp(19px,2.5vw,23px);margin:0}
-  p{margin:0 0 12px;max-width:68ch}
+  section{margin-top:46px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;border-bottom:1px solid var(--line);padding-bottom:9px}
+  .sec-num{font-size:13px;color:var(--violet);font-weight:700;font-variant-numeric:tabular-nums;flex:none;width:1.6em;text-shadow:0 0 10px rgba(155,140,255,.5)}
+  .sec-head h2{font-size:clamp(19px,2.5vw,24px);margin:0}
+  p{margin:0 0 12px;max-width:70ch;color:var(--soft)}
   strong{color:var(--ink);font-weight:600}
 
-  .headline{font-size:17px;color:var(--ink-soft);margin:0 0 18px;max-width:70ch}
-  .headline b{color:var(--clay);font-weight:700}
+  .headline{font-size:16.5px;color:var(--soft);margin:0 0 18px;max-width:72ch}
+  .headline b{color:var(--red);font-weight:700;text-shadow:0 0 12px rgba(255,90,110,.4)}
 
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:15px 17px;box-shadow:var(--shadow)}
-  .stat .k{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);font-weight:600;margin:0 0 7px}
-  .stat .v{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.05;font-family:Georgia,serif}
-  .stat .v small{font-size:13px;color:var(--muted);font-weight:400}
-  .stat.ok .v{color:var(--teal)} .stat.bad .v{color:var(--clay)} .stat.neu .v{color:var(--navy)}
-  .stat .note{font-size:12px;color:var(--muted);margin:5px 0 0}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+  .stat{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line2);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden}
+  .stat::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;opacity:.9}
+  .stat.ok::before{background:var(--cyan);box-shadow:0 0 16px var(--cyan)}
+  .stat.neu::before{background:var(--green);box-shadow:0 0 16px var(--green)}
+  .stat.bad::before{background:var(--red);box-shadow:0 0 16px var(--red)}
+  .stat .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 9px}
+  .stat .v{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.02}
+  .stat .v small{font-size:13px;color:var(--muted);font-weight:500}
+  .stat.ok .v{color:var(--cyan);text-shadow:0 0 16px rgba(25,227,212,.45)}
+  .stat.neu .v{color:var(--green);text-shadow:0 0 16px rgba(67,229,138,.4)}
+  .stat.bad .v{color:var(--red);text-shadow:0 0 16px rgba(255,90,110,.45)}
+  .stat .note{font-size:12px;color:var(--muted);margin:7px 0 0}
 
   /* chart */
-  .chart-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 18px 12px;box-shadow:var(--shadow);margin:6px 0 0}
-  .chart-card h3{font-size:15.5px;margin:0 0 3px}
-  .chart-card .cap{font-size:13px;color:var(--muted);margin:0 0 12px;max-width:74ch}
+  .chart-card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line2);border-radius:16px;padding:18px 18px 14px;margin:6px 0 0;
+    box-shadow:0 0 0 1px rgba(25,227,212,.04),0 24px 60px rgba(0,0,0,.5)}
+  .chart-card h3{font-size:15px;margin:0 0 3px}
   .chart-scroll{overflow-x:auto}
-  .chart-scroll svg{display:block;min-width:600px;width:100%;height:auto}
-  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:10px 2px 2px;font-size:12.5px;color:var(--ink-soft)}
-  .legend span{display:inline-flex;align-items:center;gap:6px}
-  .legend i{width:12px;height:12px;border-radius:3px;flex:none}
-  .legend i.dash{height:0;width:18px;border-radius:0;border-top:2px dashed var(--teal)}
+  .chart-scroll svg{display:block;min-width:640px;width:100%;height:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:10px 20px;margin:12px 2px 2px;font-size:12.5px;color:var(--soft)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .legend i{width:13px;height:13px;border-radius:3px;flex:none}
+  .legend i.cyan{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+  .legend i.amber{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+  .legend i.dash{height:0;width:20px;border-radius:0;border-top:2px dashed var(--green);box-shadow:none}
+  .legend i.violet{background:var(--violet);box-shadow:0 0 10px var(--violet)}
+  .undernote{font-size:12.5px;color:var(--muted);margin-top:12px}
+  .undernote b{color:var(--soft)}
 
   /* table */
-  .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);background:var(--card)}
-  table{border-collapse:collapse;width:100%;min-width:680px;font-size:13.5px}
-  caption{text-align:left;padding:12px 16px;font-size:12.5px;color:var(--muted);border-bottom:1px solid var(--line)}
-  th,td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
-  thead th{font-size:11.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--faint);font-weight:700;background:#FAFBFC}
+  .table-scroll{overflow-x:auto;border:1px solid var(--line2);border-radius:14px;background:var(--panel)}
+  table{border-collapse:collapse;width:100%;min-width:700px;font-size:13.5px}
+  caption{text-align:left;padding:13px 16px;font-size:12.5px;color:var(--muted);border-bottom:1px solid var(--line)}
+  th,td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;color:var(--soft)}
+  thead th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);font-weight:700;background:rgba(255,255,255,.02)}
   tbody tr:last-child td{border-bottom:none}
   td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:ui-monospace,Menlo,Consolas,monospace}
-  tbody tr.hl{background:var(--teal-bg)} tbody tr.warn{background:var(--clay-bg)}
-  .pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:2px 7px;border-radius:6px}
-  .pill.free{background:var(--teal);color:#fff} .pill.ctx{background:#E4E9EF;color:var(--navy)}
-  .pill.real{background:var(--gold);color:#fff} .pill.now{background:var(--clay);color:#fff}
+  tbody tr.hl{background:rgba(67,229,138,.08)} tbody tr.hl td{color:var(--ink)}
+  tbody tr.warn{background:rgba(255,90,110,.09)} tbody tr.warn td{color:var(--ink)}
+  .pill{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:6px}
+  .pill.free{background:rgba(67,229,138,.16);color:var(--green);border:1px solid rgba(67,229,138,.4)}
+  .pill.ctx{background:rgba(155,140,255,.14);color:var(--violet);border:1px solid rgba(155,140,255,.35)}
+  .pill.real{background:rgba(255,194,75,.16);color:var(--amber);border:1px solid rgba(255,194,75,.4)}
+  .pill.now{background:rgba(255,90,110,.16);color:var(--red);border:1px solid rgba(255,90,110,.45)}
 
   /* timeline */
-  .tl{position:relative;padding:0 0 20px 30px;border-left:2px solid var(--line-strong)}
+  .tl{position:relative;padding:0 0 20px 30px;border-left:1px solid var(--line2)}
   .tl:last-child{border-left-color:transparent;padding-bottom:0}
-  .tl::before{content:"";position:absolute;left:-8px;top:2px;width:13px;height:13px;border-radius:50%;background:var(--card);border:3px solid var(--gold)}
-  .tl.agree::before{border-color:var(--teal)} .tl.down::before{border-color:var(--clay)}
-  .tl .when{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:0 0 2px}
-  .tl.agree .when{color:var(--teal)} .tl.down .when{color:var(--clay)}
-  .tl h3{font-size:15.5px;margin:0 0 5px}
+  .tl::before{content:"";position:absolute;left:-7px;top:3px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--violet);box-shadow:0 0 10px var(--violet)}
+  .tl.agree::before{border-color:var(--green);box-shadow:0 0 12px var(--green)}
+  .tl.down::before{border-color:var(--red);box-shadow:0 0 12px var(--red)}
+  .tl .when{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);font-weight:700;margin:0 0 2px}
+  .tl.agree .when{color:var(--green)} .tl.down .when{color:var(--red)}
+  .tl h3{font-size:15px;margin:0 0 6px;color:var(--ink)}
   .tl .chips{display:flex;flex-wrap:wrap;gap:6px}
-  .chip{font-size:12px;font-variant-numeric:tabular-nums;background:var(--paper);border:1px solid var(--line-strong);border-radius:999px;padding:3px 10px;color:var(--ink-soft)}
+  .chip{font-size:12px;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:999px;padding:3px 10px;color:var(--soft)}
   .chip b{color:var(--ink);font-weight:600}
-  .chip.usd{background:var(--gold-bg);border-color:#E6D6AE;color:#6E5316}
-  .chip.cop{background:#EEF2F6;border-color:#D2DBE4;color:var(--navy)}
-  .chip.free{background:var(--teal-bg);border-color:#BFE0DB;color:#0A5650}
-  .chip.cut{background:var(--clay-bg);border-color:#EAC9BC;color:#8A3318}
+  .chip.usd{background:rgba(255,194,75,.1);border-color:rgba(255,194,75,.3);color:var(--amber)}
+  .chip.cop{background:rgba(25,227,212,.08);border-color:rgba(25,227,212,.28);color:var(--cyan)}
+  .chip.trm{background:rgba(155,140,255,.1);border-color:rgba(155,140,255,.32);color:var(--violet)}
+  .chip.cut{background:rgba(255,90,110,.1);border-color:rgba(255,90,110,.32);color:var(--red)}
 
-  ul.clean{margin:0;padding-left:20px}
-  ul.clean li{margin:0 0 8px;max-width:70ch}
-  ul.clean li::marker{color:var(--gold)}
+  .proposal{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line2);border-radius:14px;padding:6px 22px 18px;position:relative;overflow:hidden}
+  .proposal::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--green);box-shadow:0 0 16px var(--green)}
+  .opt{padding:14px 0;border-top:1px solid var(--line)}
+  .opt:first-of-type{border-top:none}
+  .opt .ot{font-weight:700;color:var(--ink);font-size:14.5px;margin:0 0 3px}
+  .opt p{font-size:14px;color:var(--soft);margin:0}
+  .opt .fig{font-variant-numeric:tabular-nums;color:var(--cyan);font-weight:700;text-shadow:0 0 12px rgba(25,227,212,.35)}
 
-  .proposal{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--teal);border-radius:12px;padding:20px 22px;box-shadow:var(--shadow)}
-  .opt{padding:13px 0;border-top:1px solid var(--line)}
-  .opt:first-of-type{border-top:none;padding-top:2px}
-  .opt .ot{font-weight:600;color:var(--ink);font-size:14.5px;margin:0 0 3px;font-family:Georgia,serif}
-  .opt p{font-size:14px;color:var(--ink-soft);margin:0}
-  .opt .fig{font-variant-numeric:tabular-nums;color:var(--teal);font-weight:600}
-
-  .note-box{background:#FAFBFC;border:1px dashed var(--line-strong);border-radius:10px;padding:13px 16px;font-size:12.5px;color:var(--muted);margin-top:14px}
-  .note-box b{color:var(--ink-soft)}
-  footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--faint)}
-  @media print{body{background:#fff}.chart-card,.table-scroll,.stat,.proposal{box-shadow:none}.wrap{padding:0}}
+  .note-box{background:rgba(255,255,255,.02);border:1px dashed var(--line2);border-radius:12px;padding:13px 16px;font-size:12.5px;color:var(--muted);margin-top:14px}
+  .note-box b{color:var(--soft)}
+  footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--faint)}
+  @media print{body{background:#070A11}}
 </style>
 </head>
 <body>
@@ -115,28 +136,29 @@
   </header>
 
   <!-- 01 EL GRÁFICO -->
-  <section style="margin-top:32px">
+  <section style="margin-top:34px">
     <div class="sec-head"><span class="sec-num">01</span><h2>Todos los sueldos, en dólares y en pesos</h2></div>
-    <p class="headline">Cada barra es un acuerdo, en su fecha. La parte <strong style="color:var(--teal)">verde</strong>
-      es lo que me queda libre para ahorrar; la <strong style="color:var(--gold)">dorada</strong> es la estadía
-      (alojamiento + comida + transporte). Encima de cada barra: el <strong>total en pesos y en dólares</strong>.</p>
+    <p class="headline">Cada barra es un acuerdo, en su fecha. La parte
+      <strong style="color:var(--cyan)">cian</strong> es lo que me queda libre para ahorrar; la
+      <strong style="color:var(--amber)">ámbar</strong> es la estadía (alojamiento + comida + transporte).
+      Encima: el <strong>total en pesos y en dólares</strong>. Debajo: el <strong>precio del dólar</strong> de ese momento.</p>
 
     <div class="chart-card">
-      <div class="chart-scroll"><svg id="chart" viewBox="0 0 760 420" role="img"
-        aria-label="Valor total de cada acuerdo salarial en pesos y dólares"></svg></div>
+      <div class="chart-scroll"><svg id="chart" viewBox="0 0 800 470" role="img"
+        aria-label="Valor total de cada acuerdo salarial en pesos y dólares, con la TRM de cada fecha"></svg></div>
       <div class="legend">
-        <span><i style="background:#0E6F69"></i> Efectivo libre (lo que ahorro)</span>
-        <span><i style="background:#B5882F"></i> Estadía: alojamiento + comida + transporte</span>
-        <span><i class="dash"></i> Total acordado ($1.000 + todo)</span>
+        <span><i class="cyan"></i> Efectivo libre (lo que ahorro)</span>
+        <span><i class="amber"></i> Estadía: alojamiento + comida + transporte</span>
+        <span><i class="dash"></i> Total acordado ($5.240.000)</span>
+        <span><i class="violet"></i> Dólar (TRM) de la fecha</span>
       </div>
     </div>
-    <p style="font-size:12.5px;color:var(--muted);margin-top:10px">Estadía estimada hoy:
-      alojamiento ≈$800.000 + comida ≈$600.000 + transporte ≈$200.000 = <strong>$1.600.000</strong>/mes.
-      Cada total se calcula a la TRM (precio del dólar) de su fecha. Los dos primeros eran remotos desde Popayán
-      (sin estadía).</p>
+    <p class="undernote">Estadía estimada: alojamiento ≈$800.000 + comida ≈$600.000 + transporte ≈$200.000 =
+      <b>$1.600.000</b>/mes. Cada total se calcula a la TRM de su fecha (por eso la misma cantidad de
+      dólares vale distinto en pesos). Los dos primeros eran remotos desde Popayán (sin estadía).</p>
   </section>
 
-  <!-- 02 LAS TRES CIFRAS -->
+  <!-- 02 TRES CIFRAS -->
   <section>
     <div class="sec-head"><span class="sec-num">02</span><h2>El punto, en tres cifras</h2></div>
     <div class="stats">
@@ -144,8 +166,8 @@
       <div class="stat neu"><p class="k">Acordado · ahorro libre</p><div class="v">$3.640.000 <small>≈$1.000</small></div><p class="note">Lo que podía guardar cada mes.</p></div>
       <div class="stat bad"><p class="k">Oferta actual · ahorro real</p><div class="v">≈$1.400.000 <small>de $3.000.000</small></div><p class="note">Todo sale de los $3.000.000.</p></div>
     </div>
-    <p class="headline" style="margin-top:16px">Resultado: la oferta actual deja <b>≈$1.400.000</b> de ahorro
-      — casi <b>62% menos</b> que lo acordado, e incluso por debajo de la primera oferta de $500 con todo cubierto.</p>
+    <p class="headline" style="margin-top:16px">La oferta actual deja <b>≈$1.400.000</b> de ahorro —
+      casi <b>62% menos</b> que lo acordado, e incluso por debajo de la primera oferta de $500 con todo cubierto.</p>
   </section>
 
   <!-- 03 TABLA -->
@@ -153,23 +175,23 @@
     <div class="sec-head"><span class="sec-num">03</span><h2>Tabla de respaldo</h2></div>
     <div class="table-scroll">
       <table>
-        <caption>Sueldo de cada etapa, estadía cubierta, lo que queda libre y el total — en pesos y dólares, a la TRM de la fecha.</caption>
+        <caption>Sueldo, estadía cubierta, efectivo libre y total — en pesos y dólares, a la TRM de cada fecha. Verifica: efectivo libre + estadía = total.</caption>
         <thead><tr>
-          <th>Fecha</th><th>Etapa</th><th>Sueldo</th><th class="n">TRM</th>
-          <th class="n">Estadía<br>cubierta</th><th class="n">Efectivo<br>libre</th><th class="n">Total<br>(COP / USD)</th>
+          <th>Fecha</th><th>Etapa</th><th>Sueldo</th><th class="n">Dólar (TRM)</th>
+          <th class="n">Estadía</th><th class="n">Efectivo<br>libre</th><th class="n">Total<br>(COP / USD)</th>
         </tr></thead>
         <tbody>
-          <tr><td>~Oct 2025</td><td>Inicio · remoto</td><td>$250</td><td class="n">3.900</td><td class="n">—</td><td class="n">975.000</td><td class="n">975.000 / $250 <span class="pill ctx">remoto</span></td></tr>
-          <tr><td>Feb 2026</td><td>Aumento · remoto</td><td>$350</td><td class="n">3.710</td><td class="n">—</td><td class="n">1.298.500</td><td class="n">1.298.500 / $350 <span class="pill ctx">remoto</span></td></tr>
-          <tr><td>Abr 2026</td><td>1.ª oferta Medellín</td><td>$500 + todo</td><td class="n">3.640</td><td class="n">1.600.000</td><td class="n">1.820.000</td><td class="n">3.420.000 / $940</td></tr>
-          <tr class="hl"><td>Abr 2026</td><td>Acuerdo</td><td>$1.000 + todo</td><td class="n">3.640</td><td class="n">1.600.000</td><td class="n">3.640.000</td><td class="n">5.240.000 / $1.440 <span class="pill free">acordado</span></td></tr>
-          <tr><td>Abr–Jun</td><td>Prueba real</td><td>$700</td><td class="n">3.640</td><td class="n">800.000*</td><td class="n">1.748.000</td><td class="n">3.348.000 / $920 <span class="pill real">real</span></td></tr>
-          <tr class="warn"><td>Jun 2026</td><td>Oferta actual</td><td>$3.000.000 COP</td><td class="n">3.444</td><td class="n">incluida</td><td class="n">1.400.000</td><td class="n">3.000.000 / $871 <span class="pill now">actual</span></td></tr>
+          <tr><td>~Oct 2025</td><td>Inicio · remoto</td><td>$250</td><td class="n">$3.900</td><td class="n">—</td><td class="n">975.000</td><td class="n">975.000 / $250 <span class="pill ctx">remoto</span></td></tr>
+          <tr><td>Feb 2026</td><td>Aumento · remoto</td><td>$350</td><td class="n">$3.710</td><td class="n">—</td><td class="n">1.298.500</td><td class="n">1.298.500 / $350 <span class="pill ctx">remoto</span></td></tr>
+          <tr><td>Abr 2026</td><td>1.ª oferta Medellín</td><td>$500 + todo</td><td class="n">$3.640</td><td class="n">1.600.000</td><td class="n">1.820.000</td><td class="n">3.420.000 / $940</td></tr>
+          <tr class="hl"><td>Abr 2026</td><td>Acuerdo</td><td>$1.000 + todo</td><td class="n">$3.640</td><td class="n">1.600.000</td><td class="n">3.640.000</td><td class="n">5.240.000 / $1.440 <span class="pill free">acordado</span></td></tr>
+          <tr><td>Abr–Jun</td><td>Prueba real</td><td>$700</td><td class="n">$3.640</td><td class="n">1.600.000*</td><td class="n">1.748.000</td><td class="n">3.348.000 / $920 <span class="pill real">real</span></td></tr>
+          <tr class="warn"><td>Jun 2026</td><td>Oferta actual</td><td>$3.000.000 COP</td><td class="n">$3.444</td><td class="n">1.600.000</td><td class="n">1.400.000</td><td class="n">3.000.000 / $871 <span class="pill now">actual</span></td></tr>
         </tbody>
       </table>
     </div>
-    <p style="font-size:12.5px;color:var(--muted);margin-top:10px">*En la prueba solo el arriendo va cubierto;
-      comida ($600.000) y transporte ($200.000) los pago yo, por eso bajan el efectivo libre.</p>
+    <p class="undernote">*En la prueba solo el arriendo (~$800.000) lo cubre el jefe; comida ($600.000) y
+      transporte ($200.000) los pago yo, por eso bajan el efectivo libre.</p>
   </section>
 
   <!-- 04 LÍNEA DE TIEMPO -->
@@ -177,17 +199,17 @@
     <div class="sec-head"><span class="sec-num">04</span><h2>Qué se habló, paso a paso</h2></div>
     <div>
       <div class="tl"><p class="when">~Oct 2025</p><h3>Inicio — remoto desde Popayán</h3>
-        <div class="chips"><span class="chip usd"><b>USD 250</b>/mes</span><span class="chip cop">≈$975.000</span><span class="chip">TRM $3.900</span></div></div>
+        <div class="chips"><span class="chip usd"><b>USD 250</b>/mes</span><span class="chip cop">≈$975.000</span><span class="chip trm">Dólar $3.900</span></div></div>
       <div class="tl"><p class="when">Feb 2026</p><h3>Aumento — seguía remoto</h3>
-        <div class="chips"><span class="chip usd"><b>USD 350</b>/mes</span><span class="chip cop">≈$1.298.500</span><span class="chip">TRM $3.710</span></div></div>
+        <div class="chips"><span class="chip usd"><b>USD 350</b>/mes</span><span class="chip cop">≈$1.298.500</span><span class="chip trm">Dólar $3.710</span></div></div>
       <div class="tl"><p class="when">Abr 2026 · 1.ª reunión</p><h3>Mudanza a Medellín — primera oferta</h3>
-        <div class="chips"><span class="chip usd"><b>USD 500</b> + estadía</span><span class="chip cop">total ≈$3.420.000</span><span class="chip">TRM $3.640</span></div></div>
+        <div class="chips"><span class="chip usd"><b>USD 500</b> + estadía</span><span class="chip cop">total ≈$3.420.000</span><span class="chip trm">Dólar $3.640</span></div></div>
       <div class="tl agree"><p class="when">Abr 2026 · mismo día</p><h3>El acuerdo</h3>
-        <div class="chips"><span class="chip usd"><b>USD 1.000</b> + todo</span><span class="chip cop">total ≈$5.240.000</span><span class="chip cut">prueba: USD 700 ×3 meses → Anderson</span></div></div>
+        <div class="chips"><span class="chip usd"><b>USD 1.000</b> + todo</span><span class="chip cop">total ≈$5.240.000</span><span class="chip trm">Dólar $3.640</span><span class="chip cut">prueba: USD 700 ×3 meses → Anderson</span></div></div>
       <div class="tl"><p class="when">Fin abr 2026 →</p><h3>En la práctica</h3>
         <div class="chips"><span class="chip usd"><b>USD 700</b> recibidos</span><span class="chip cop">+ arriendo cubierto</span><span class="chip cut">comida y transporte los pago yo</span></div></div>
       <div class="tl down"><p class="when">Jun 2026 · última reunión</p><h3>Oferta actual</h3>
-        <div class="chips"><span class="chip cop"><b>$3.000.000</b> fijos, todo incluido</span><span class="chip">≈USD 871</span><span class="chip cut">ahorro real ≈$1.400.000</span></div></div>
+        <div class="chips"><span class="chip cop"><b>$3.000.000</b> fijos, todo incluido</span><span class="chip trm">Dólar $3.444</span><span class="chip cut">ahorro real ≈$1.400.000</span></div></div>
     </div>
   </section>
 
@@ -218,53 +240,67 @@
   function txt(p,x,y,s,a){var t=el("text",a||{});t.setAttribute("x",x);t.setAttribute("y",y);t.textContent=s;p.appendChild(t);return t;}
 
   var svg=document.getElementById("chart"); if(!svg) return;
-  var W=760,H=420,mL=60,mR=22,mT=46,mB=78, pw=W-mL-mR, ph=H-mT-mB;
-  var data=[
-    {sal:"$250",   date:"Oct 2025",       libre:975000,  est:0,       usd:250},
-    {sal:"$350",   date:"Feb 2026",       libre:1298500, est:0,       usd:350},
-    {sal:"$500+todo",date:"Abr · 1.ª oferta",libre:1820000, est:1600000, usd:940},
-    {sal:"$1.000+todo",date:"Abr · acordado",libre:3640000, est:1600000, usd:1440, agree:true},
-    {sal:"$700",   date:"Abr–Jun · prueba",libre:1748000, est:1600000, usd:920},
-    {sal:"$3.000.000",date:"Jun · actual", libre:1400000, est:1600000, usd:871, now:true}
-  ];
-  var vmax=6000000, yV=function(v){return mT+ph-(v/vmax)*ph;};
-  var step=pw/data.length, bw=Math.min(70,step*0.56);
+  var W=800,H=470,mL=58,mR=22,mT=58,mB=112, pw=W-mL-mR, ph=H-mT-mB;
 
-  // gridlines
+  // glow filters
+  var defs=el("defs");
+  [["gCyan","#19E3D4",.8],["gAmber","#FFC24B",.75],["gRed","#FF5A6E",.85],["gGreen","#43E58A",.8],["gViolet","#9B8CFF",.8]].forEach(function(f){
+    var fl=el("filter",{id:f[0],x:"-60%",y:"-60%",width:"220%",height:"220%"});
+    fl.appendChild(el("feDropShadow",{dx:0,dy:0,stdDeviation:3.4,"flood-color":f[1],"flood-opacity":f[2]}));
+    defs.appendChild(fl);
+  });
+  svg.appendChild(defs);
+
+  var data=[
+    {sal:"$250",       date:"Oct 2025",      libre:975000,  est:0,       trm:3900, usd:250},
+    {sal:"$350",       date:"Feb 2026",      libre:1298500, est:0,       trm:3710, usd:350},
+    {sal:"$500 + todo",date:"Abr · 1.ª oferta",libre:1820000,est:1600000, trm:3640, usd:940},
+    {sal:"$1.000 + todo",date:"Abr · acordado",libre:3640000,est:1600000, trm:3640, usd:1440, agree:true},
+    {sal:"$700",       date:"Abr–Jun · prueba",libre:1748000,est:1600000, trm:3640, usd:920},
+    {sal:"$3.000.000", date:"Jun · actual",  libre:1400000, est:1600000, trm:3444, usd:871, now:true}
+  ];
+  var vmax=6000000, base=mT+ph;
+  var yV=function(v){return base-(v/vmax)*ph;};   // exact proportional mapping
+  var step=pw/data.length, bw=Math.min(72,step*0.54);
+
+  // gridlines + y labels
   for(var g=0;g<=6;g++){
     var val=1000000*g, y=yV(val);
-    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:"#EAEEF2","stroke-width":1}));
-    txt(svg,mL-8,y+4,"$"+g+"M",{"font-size":11,fill:"#8A93A1","text-anchor":"end","font-family":"monospace"});
+    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:"rgba(255,255,255,.07)","stroke-width":1}));
+    txt(svg,mL-9,y+4,"$"+g+"M",{"font-size":11,fill:"#7C8AA3","text-anchor":"end","font-family":"monospace"});
   }
-  txt(svg,mL-8,mT-24,"Total mensual",{"font-size":11,fill:"#5A6677","text-anchor":"start","font-weight":"600"});
+  txt(svg,mL-9,mT-32,"Total mensual (COP)",{"font-size":11,fill:"#B9C6DA","text-anchor":"start","font-weight":"700"});
 
   // dashed reference at agreed total
   var refY=yV(5240000);
-  svg.appendChild(el("line",{x1:mL,y1:refY,x2:W-mR,y2:refY,stroke:"#0E6F69","stroke-width":1.3,"stroke-dasharray":"6 4",opacity:0.6}));
+  svg.appendChild(el("line",{x1:mL,y1:refY,x2:W-mR,y2:refY,stroke:"#43E58A","stroke-width":1.4,"stroke-dasharray":"7 5",opacity:.65}));
+  txt(svg,W-mR,refY-7,"Acordado $5.240.000",{"font-size":10.5,fill:"#43E58A","text-anchor":"end","font-weight":"700","font-family":"monospace"});
 
   data.forEach(function(d,i){
     var cx=mL+step*i+step/2, x=cx-bw/2;
     var total=d.libre+d.est;
-    var yLibre=yV(d.libre), hLibre=mT+ph-yLibre;
-    // libre (teal)
-    svg.appendChild(el("rect",{x:x,y:yLibre,width:bw,height:hLibre,rx:3,fill:"#0E6F69",opacity:0.93}));
-    // estadia (gold) stacked on top
+    var yLibre=yV(d.libre), yTot=yV(total);
+    // libre (cyan) — sharp corners so segments align exactly
+    svg.appendChild(el("rect",{x:x,y:yLibre,width:bw,height:base-yLibre,fill:"#19E3D4",opacity:.9,filter:"url(#gCyan)"}));
+    // libre segment value (inside, if tall enough)
+    if(base-yLibre>26) txt(svg,cx,(yLibre+base)/2+4,"$"+gp(d.libre),{"font-size":10.5,fill:"#04201E","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+    // estadia (amber) stacked exactly on top
     if(d.est>0){
-      var yTot=yV(total), hEst=yLibre-yTot;
-      svg.appendChild(el("rect",{x:x,y:yTot,width:bw,height:hEst,rx:3,fill:"#B5882F",opacity:0.92}));
+      svg.appendChild(el("rect",{x:x,y:yTot,width:bw,height:yLibre-yTot,fill:"#FFC24B",opacity:.9,filter:"url(#gAmber)"}));
+      if(yLibre-yTot>20) txt(svg,cx,(yTot+yLibre)/2+4,"$"+gp(d.est),{"font-size":10.5,fill:"#2A1C00","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
     }
-    // highlight current offer with red outline
-    if(d.now){
-      svg.appendChild(el("rect",{x:x-2.5,y:yV(total)-2.5,width:bw+5,height:(mT+ph)-yV(total)+5,rx:5,
-        fill:"none",stroke:"#BB4A2C","stroke-width":2.2}));
-    }
+    // current offer outline
+    if(d.now) svg.appendChild(el("rect",{x:x-3,y:yTot-3,width:bw+6,height:base-yTot+6,fill:"none",stroke:"#FF5A6E","stroke-width":2,filter:"url(#gRed)"}));
+
     // total labels above
-    var topY=yV(total)-10;
-    txt(svg,cx,topY-13,"$"+gp(total),{"font-size":12.5,fill:"#16202D","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
-    txt(svg,cx,topY,"≈ $"+gp(d.usd),{"font-size":11,fill:(d.agree?"#0E6F69":(d.now?"#BB4A2C":"#8A6A1E")),"text-anchor":"middle","font-weight":"700","font-family":"monospace"});
-    // x labels (two lines)
-    txt(svg,cx,mT+ph+22,d.sal,{"font-size":12,fill:"#33414F","text-anchor":"middle","font-weight":"700"});
-    txt(svg,cx,mT+ph+38,d.date,{"font-size":10.5,fill:"#8A93A1","text-anchor":"middle"});
+    var ty=yTot-12;
+    txt(svg,cx,ty-13,"$"+gp(total),{"font-size":13,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+    txt(svg,cx,ty,"≈ $"+gp(d.usd),{"font-size":11.5,fill:(d.agree?"#43E58A":(d.now?"#FF5A6E":"#FFC24B")),"text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+
+    // x labels: sueldo / fecha / TRM
+    txt(svg,cx,base+22,d.sal,{"font-size":12,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700"});
+    txt(svg,cx,base+38,d.date,{"font-size":10.5,fill:"#7C8AA3","text-anchor":"middle"});
+    txt(svg,cx,base+58,"Dólar $"+gp(d.trm),{"font-size":11,fill:"#9B8CFF","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
   });
 })();
 </script>
