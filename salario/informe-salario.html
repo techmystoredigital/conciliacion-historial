@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conciliación salarial — historial y propuesta de reajuste</title>
+<style>
+  :root{
+    --paper:#F4F6F8;
+    --card:#FFFFFF;
+    --ink:#16202D;
+    --ink-soft:#33414F;
+    --muted:#5A6677;
+    --faint:#8A93A1;
+    --line:#E1E6EC;
+    --line-strong:#CBD3DC;
+    --teal:#0E6F69;       /* lo acordado / a favor */
+    --teal-bg:#E4F1EF;
+    --clay:#BB4A2C;       /* déficit / oferta actual */
+    --clay-bg:#F8E9E2;
+    --gold:#B5882F;       /* dólar / TRM */
+    --gold-bg:#F6EEDC;
+    --navy:#2A4A6B;
+    --shadow:0 1px 2px rgba(22,32,45,.04),0 8px 24px rgba(22,32,45,.06);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:16px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:clamp(20px,4vw,56px) clamp(16px,4vw,40px) 80px}
+  h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:600;color:var(--ink);text-wrap:balance;line-height:1.2}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+  .mono{font-family:"SFMono-Regular",ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace}
+
+  /* ---------- Header ---------- */
+  header.doc{border-bottom:2px solid var(--ink);padding-bottom:26px;margin-bottom:14px}
+  .eyebrow{font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700;margin:0 0 14px}
+  header.doc h1{font-size:clamp(28px,4.6vw,42px);margin:0 0 12px;letter-spacing:-.01em}
+  header.doc .sub{font-size:clamp(16px,2vw,18px);color:var(--ink-soft);margin:0 0 22px;max-width:60ch}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 30px;font-size:13.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+  .meta b{color:var(--ink-soft);font-weight:600}
+  .meta .field{min-width:0}
+
+  /* ---------- Sections ---------- */
+  section{margin-top:52px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px;border-bottom:1px solid var(--line-strong);padding-bottom:10px}
+  .sec-num{font-family:Georgia,serif;font-size:15px;color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums;flex:none;width:1.6em}
+  .sec-head h2{font-size:clamp(20px,2.6vw,25px);margin:0}
+  p{margin:0 0 14px;max-width:68ch}
+  .lead{font-size:17px;color:var(--ink-soft)}
+  strong{color:var(--ink);font-weight:600}
+
+  /* ---------- Key finding callout ---------- */
+  .callout{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--clay);border-radius:10px;padding:22px 24px;box-shadow:var(--shadow);margin:8px 0 22px}
+  .callout .tag{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--clay);font-weight:700;margin:0 0 8px}
+  .callout p{margin:0;font-size:17px;color:var(--ink-soft)}
+  .callout p + p{margin-top:10px}
+
+  /* ---------- Stat strip ---------- */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:20px 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow)}
+  .stat .k{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:600;margin:0 0 8px}
+  .stat .v{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em;line-height:1.05;font-family:Georgia,serif}
+  .stat .v small{font-size:14px;color:var(--muted);font-weight:400}
+  .stat.ok .v{color:var(--teal)} .stat.bad .v{color:var(--clay)} .stat.neu .v{color:var(--navy)}
+  .stat .note{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+
+  /* ---------- Timeline ---------- */
+  .timeline{position:relative;margin:8px 0 0;padding-left:8px}
+  .tl{position:relative;padding:0 0 28px 34px;border-left:2px solid var(--line-strong)}
+  .tl:last-child{border-left-color:transparent;padding-bottom:4px}
+  .tl::before{content:"";position:absolute;left:-8px;top:3px;width:14px;height:14px;border-radius:50%;background:var(--card);border:3px solid var(--gold)}
+  .tl.agree::before{border-color:var(--teal)} .tl.down::before{border-color:var(--clay)}
+  .tl .when{font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:0 0 3px}
+  .tl.agree .when{color:var(--teal)} .tl.down .when{color:var(--clay)}
+  .tl h3{font-size:17.5px;margin:0 0 6px}
+  .tl p{font-size:15px;color:var(--ink-soft);margin:0 0 8px}
+  .tl .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .chip{font-size:13px;font-variant-numeric:tabular-nums;background:var(--paper);border:1px solid var(--line-strong);border-radius:999px;padding:3px 11px;color:var(--ink-soft)}
+  .chip b{color:var(--ink);font-weight:600}
+  .chip.usd{background:var(--gold-bg);border-color:#E6D6AE;color:#6E5316}
+  .chip.cop{background:#EEF2F6;border-color:#D2DBE4;color:var(--navy)}
+  .chip.free{background:var(--teal-bg);border-color:#BFE0DB;color:#0A5650}
+  .chip.cut{background:var(--clay-bg);border-color:#EAC9BC;color:#8A3318}
+
+  /* ---------- Charts ---------- */
+  .chart-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 20px 12px;box-shadow:var(--shadow);margin:18px 0}
+  .chart-card h3{font-size:16.5px;margin:0 0 3px}
+  .chart-card .cap{font-size:13.5px;color:var(--muted);margin:0 0 14px;max-width:70ch}
+  .chart-scroll{overflow-x:auto}
+  .chart-scroll svg{display:block;min-width:520px;width:100%;height:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin:10px 2px 4px;font-size:13px;color:var(--ink-soft)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .legend i{width:13px;height:13px;border-radius:3px;flex:none}
+  .legend i.line{height:3px;width:18px;border-radius:2px}
+
+  /* ---------- Table ---------- */
+  .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);background:var(--card)}
+  table{border-collapse:collapse;width:100%;min-width:680px;font-size:14px}
+  caption{text-align:left;padding:14px 18px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line)}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);font-weight:700;background:#FAFBFC;position:sticky;top:0}
+  tbody tr:last-child td{border-bottom:none}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace}
+  tbody tr.hl{background:var(--teal-bg)}
+  tbody tr.warn{background:var(--clay-bg)}
+  .pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:6px}
+  .pill.free{background:var(--teal);color:#fff}
+  .pill.ctx{background:#E4E9EF;color:var(--navy)}
+  .pill.real{background:var(--gold);color:#fff}
+  .pill.now{background:var(--clay);color:#fff}
+
+  /* ---------- Ask / proposal ---------- */
+  .proposal{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--teal);border-radius:12px;padding:24px 26px;box-shadow:var(--shadow)}
+  .proposal h3{font-size:18px;margin:0 0 12px}
+  .opt{padding:16px 0;border-top:1px solid var(--line)}
+  .opt:first-of-type{border-top:none;padding-top:4px}
+  .opt .ot{font-weight:600;color:var(--ink);font-size:15.5px;margin:0 0 4px;font-family:Georgia,serif}
+  .opt p{font-size:14.5px;color:var(--ink-soft);margin:0}
+  .opt .fig{font-variant-numeric:tabular-nums;color:var(--teal);font-weight:600}
+
+  ul.clean{margin:0 0 14px;padding-left:20px}
+  ul.clean li{margin:0 0 7px;max-width:66ch}
+  ul.clean li::marker{color:var(--gold)}
+
+  .note-box{background:#FAFBFC;border:1px dashed var(--line-strong);border-radius:10px;padding:16px 18px;font-size:13.5px;color:var(--muted);margin-top:16px}
+  .note-box b{color:var(--ink-soft)}
+  .note-box ul{margin:8px 0 0;padding-left:18px}
+  .note-box li{margin:4px 0}
+  .note-box a{color:var(--navy)}
+
+  footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--faint)}
+  footer a{color:var(--muted)}
+
+  @media (max-width:560px){
+    body{font-size:15px}
+    .meta{gap:6px 18px}
+    .stat .v{font-size:22px}
+  }
+  @media print{
+    body{background:#fff}
+    .chart-card,.table-scroll,.stat,.callout,.proposal{box-shadow:none}
+    .wrap{padding:0}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ HEADER ============ -->
+  <header class="doc">
+    <p class="eyebrow">Documento de conciliación · Uso personal</p>
+    <h1>Historial de mi salario y solicitud de reajuste</h1>
+    <p class="sub">Resumen ordenado, paso a paso, de lo que se conversó y se acordó —
+       comparando el salario en dólares (USD) frente al peso colombiano (COP) y su
+       valor real según el tipo de cambio (TRM) de cada momento.</p>
+    <div class="meta">
+      <span class="field"><b>Preparado por:</b> ______________________</span>
+      <span class="field"><b>Dirigido a:</b> ______________________</span>
+      <span class="field"><b>Fecha:</b> 30 de junio de 2026</span>
+      <span class="field"><b>Ciudad:</b> Medellín, Colombia</span>
+    </div>
+  </header>
+
+  <!-- ============ 1. RESUMEN ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>En una frase</h2></div>
+    <div class="callout">
+      <p class="tag">Hallazgo principal</p>
+      <p>La oferta actual de <strong>$3.000.000 COP fijos con todo incluido</strong> deja, después de
+         pagar arriendo, comida y transporte, una capacidad de ahorro de
+         <strong>≈ $1.500.000 COP/mes</strong>. Eso es <strong>menos</strong> de lo que ya implicaba
+         la primera propuesta que se hizo al llegar a Medellín
+         ($500 libres + estadía ≈ $1.722.000 libres) y muy por debajo de lo
+         finalmente acordado ($1.000 libres + estadía ≈ $3.444.000 libres).</p>
+      <p>Dicho de otra forma: hoy estaría ganando, en capacidad real de ahorro,
+         <strong>menos que el primer día</strong> que se habló de trabajar en Medellín — pese a que
+         para entonces ya nos habíamos puesto de acuerdo en una cifra mayor.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat ok">
+        <p class="k">Lo acordado (ahorro libre)</p>
+        <div class="v">$3.444.000 <small>/mes</small></div>
+        <p class="note">$1.000 USD libres + alojamiento, comida y transporte aparte.</p>
+      </div>
+      <div class="stat neu">
+        <p class="k">Primera oferta Medellín</p>
+        <div class="v">$1.722.000 <small>/mes</small></div>
+        <p class="note">$500 USD libres + toda la estadía cubierta aparte.</p>
+      </div>
+      <div class="stat bad">
+        <p class="k">Oferta actual (ahorro real)</p>
+        <div class="v">≈ $1.500.000 <small>/mes</small></div>
+        <p class="note">$3.000.000 fijos, pero de ahí salen arriendo, comida y transporte.</p>
+      </div>
+    </div>
+    <p style="font-size:13.5px;color:var(--muted)">Cifras en COP convertidas a la TRM actual
+       (<span class="num">$3.444</span> por dólar, 30-jun-2026) para poder compararlas de forma directa.
+       Las cifras de comida y transporte son estimaciones que conviene afinar (ver notas al final).</p>
+  </section>
+
+  <!-- ============ 2. LÍNEA DE TIEMPO ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Cómo evolucionó, paso a paso</h2></div>
+    <p class="lead">Esta es la secuencia de lo que se habló y se pactó, con la cifra en dólares,
+       su equivalente en pesos y el dólar (TRM) de cada momento.</p>
+
+    <div class="timeline">
+
+      <div class="tl">
+        <p class="when">Hace ~8 meses · Octubre 2025</p>
+        <h3>Inicio del trabajo — remoto desde Popayán</h3>
+        <p>Empecé trabajando de manera remota con la persona de Medellín, viviendo en Popayán.</p>
+        <div class="chips">
+          <span class="chip usd"><b>USD 250</b> / mes</span>
+          <span class="chip cop">≈ <b>$975.000</b> COP</span>
+          <span class="chip">Dólar (TRM): <b>$3.900</b></span>
+        </div>
+      </div>
+
+      <div class="tl">
+        <p class="when">Febrero 2026</p>
+        <h3>Primer aumento — seguía remoto</h3>
+        <p>El salario subió a USD 350 mensuales, todavía trabajando a distancia.</p>
+        <div class="chips">
+          <span class="chip usd"><b>USD 350</b> / mes</span>
+          <span class="chip cop">≈ <b>$1.298.500</b> COP</span>
+          <span class="chip">Dólar (TRM): <b>$3.710</b></span>
+        </div>
+      </div>
+
+      <div class="tl">
+        <p class="when">Mediados de abril 2026</p>
+        <h3>Mudanza a Medellín — primera reunión y primera oferta</h3>
+        <p>Se planteó que fuera a Medellín para trabajar más de cerca y ganar mejor. No se cerró
+           cifra antes de viajar (yo no conocía los costos de una ciudad grande). En la primera
+           reunión la oferta fue <strong>USD 500 completamente libres</strong>, más la estadía:
+           lugar para dormir, comida y transporte cubiertos aparte.</p>
+        <div class="chips">
+          <span class="chip usd"><b>USD 500</b> libres</span>
+          <span class="chip free">+ alojamiento + comida + transporte</span>
+          <span class="chip cop">≈ <b>$1.820.000</b> COP libres</span>
+          <span class="chip">Dólar (TRM): <b>$3.640</b></span>
+        </div>
+      </div>
+
+      <div class="tl agree">
+        <p class="when">Mismo día · Mediados de abril 2026</p>
+        <h3>El acuerdo al que llegamos</h3>
+        <p>Al preguntarme con cuánto estaría contento, dije que para empezar me parecería muy bien
+           ganar <strong>USD 1.000 completamente libres</strong> (libres justamente para poder ahorrarlos).
+           Tras conversar, quedamos en <strong>USD 1.000 libres + alojamiento, comida y transporte</strong>.</p>
+        <p>Propuse yo mismo un acuerdo de transición: recibir <strong>USD 700/mes durante 3 meses</strong>
+           y, pasado ese periodo, los <strong>USD 1.000</strong>. La razón: los USD 300 retenidos cada mes
+           (USD 900 en total) eran para <strong>Anderson</strong>, quien me consiguió el contacto. Esa palabra
+           dada a Anderson la sostengo, sea cual sea el arreglo posterior entre ellos.</p>
+        <div class="chips">
+          <span class="chip usd"><b>USD 1.000</b> libres</span>
+          <span class="chip free">+ alojamiento + comida + transporte</span>
+          <span class="chip cop">≈ <b>$3.640.000</b> COP libres</span>
+          <span class="chip cut">Prueba: USD 700 ×3 meses</span>
+        </div>
+      </div>
+
+      <div class="tl">
+        <p class="when">Finales de abril 2026 → en adelante</p>
+        <h3>Lo que realmente pasó en la práctica</h3>
+        <p>Empezaron a llegar los <strong>USD 700</strong> y el arriendo se consiguió en
+           <strong>≈ $900.000 COP</strong>, que se paga aparte. Al recordar que el acuerdo incluía
+           comida y transporte, se me indicó que esos no salían de ahí — lo cual choca con que los
+           USD 1.000 los pedí <strong>completamente libres</strong>. Más adelante se aclaró que la cifra
+           pactada seguía en pie, pero que no contara con los USD 300 para Anderson (porque a Anderson
+           lo contrató directamente). Aun así, mi compromiso con Anderson sigue siendo mío.</p>
+        <div class="chips">
+          <span class="chip usd"><b>USD 700</b> recibidos</span>
+          <span class="chip cop">+ arriendo <b>$900.000</b> pagado</span>
+          <span class="chip cut">comida + transporte NO cubiertos</span>
+        </div>
+      </div>
+
+      <div class="tl down">
+        <p class="when">Junio 2026 · Última reunión</p>
+        <h3>La oferta actual — y dónde aparece el problema</h3>
+        <p>Comenté que me había atrasado con el arriendo. La respuesta fue que no había problema,
+           pero que cuadráramos las cosas, y se ofreció <strong>$3.000.000 COP fijos</strong>, argumentando
+           —con razón— que el dólar había bajado mucho. Al preguntar "¿$3.000.000 más qué?", la
+           respuesta fue <strong>exclusivamente $3.000.000</strong>: de ahí salen arriendo, comida y
+           transporte. Haciendo cuentas, lo que realmente me queda para ahorrar baja a
+           <strong>≈ $1.500.000</strong> — terminando por debajo incluso de la primera oferta de USD 500
+           con todo cubierto.</p>
+        <div class="chips">
+          <span class="chip cop"><b>$3.000.000</b> COP fijos, todo incluido</span>
+          <span class="chip">≈ <b>USD 871</b> brutos</span>
+          <span class="chip cut">Ahorro real ≈ $1.500.000</span>
+          <span class="chip">Dólar (TRM): <b>$3.444</b></span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 3. GRÁFICAS ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Cómo se ve en gráfica</h2></div>
+
+    <div class="chart-card">
+      <h3>Salario en dólares y valor del dólar (TRM) en el tiempo</h3>
+      <p class="cap">Las barras son el salario base en USD de cada etapa. La línea es el dólar (TRM):
+         mientras el salario en dólares subía, el dólar fue bajando — un punto en el que ambos
+         coincidimos y que este informe sí reconoce.</p>
+      <div class="chart-scroll"><svg id="chart1" viewBox="0 0 720 360" role="img"
+        aria-label="Salario en USD por etapa y evolución de la TRM"></svg></div>
+      <div class="legend">
+        <span><i style="background:#B5882F"></i> Salario base (USD)</span>
+        <span><i class="line" style="background:#2A4A6B"></i> Dólar — TRM (COP por USD)</span>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Lo que realmente puedo ahorrar al mes (en Medellín)</h3>
+      <p class="cap">Aquí está el corazón del asunto: cuánto me queda libre para ahorrar en cada
+         escenario, ya descontados arriendo, comida y transporte. Todo en COP a la TRM actual
+         ($3.444) para comparar peras con peras. La oferta actual (en rojo) es la <strong>más
+         baja de todas</strong>, incluso menor que la primera propuesta.</p>
+      <div class="chart-scroll"><svg id="chart2" viewBox="0 0 720 360" role="img"
+        aria-label="Capacidad de ahorro mensual por escenario, en pesos colombianos"></svg></div>
+      <div class="legend">
+        <span><i style="background:#0E6F69"></i> Lo acordado</span>
+        <span><i style="background:#B5882F"></i> Etapas intermedias</span>
+        <span><i style="background:#BB4A2C"></i> Oferta actual</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. TABLA ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Tabla completa de respaldo</h2></div>
+    <div class="table-scroll">
+      <table>
+        <caption>Salario pactado/recibido en cada etapa, su equivalente en pesos a la TRM de la época
+          y lo que queda libre para ahorrar. Los valores marcados como estimados deben confirmarse.</caption>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Etapa</th>
+            <th>Salario (USD)</th>
+            <th class="n">TRM<br>(COP/USD)</th>
+            <th class="n">Equivalente<br>(COP)</th>
+            <th>Estadía cubierta</th>
+            <th class="n">Ahorro libre<br>estimado (COP)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>~Oct 2025</td>
+            <td>Inicio · remoto (Popayán)</td>
+            <td>$250</td>
+            <td class="n">3.900</td>
+            <td class="n">975.000</td>
+            <td>—</td>
+            <td class="n">~975.000 <span class="pill ctx">contexto</span></td>
+          </tr>
+          <tr>
+            <td>Feb 2026</td>
+            <td>Aumento · remoto</td>
+            <td>$350</td>
+            <td class="n">3.710</td>
+            <td class="n">1.298.500</td>
+            <td>—</td>
+            <td class="n">~1.298.500 <span class="pill ctx">contexto</span></td>
+          </tr>
+          <tr>
+            <td>Abr 2026</td>
+            <td>1.ª oferta Medellín</td>
+            <td>$500 libres</td>
+            <td class="n">3.640</td>
+            <td class="n">1.820.000</td>
+            <td>Alojamiento + comida + transporte</td>
+            <td class="n">1.820.000 <span class="pill free">libre</span></td>
+          </tr>
+          <tr class="hl">
+            <td>Abr 2026</td>
+            <td>Acuerdo alcanzado</td>
+            <td>$1.000 libres</td>
+            <td class="n">3.640</td>
+            <td class="n">3.640.000</td>
+            <td>Alojamiento + comida + transporte</td>
+            <td class="n">3.640.000 <span class="pill free">libre</span></td>
+          </tr>
+          <tr>
+            <td>Abr–Jun 2026</td>
+            <td>Prueba real (USD 700)</td>
+            <td>$700</td>
+            <td class="n">3.640→3.444</td>
+            <td class="n">~2.480.000</td>
+            <td>Solo arriendo (pagado aparte); comida y transporte NO</td>
+            <td class="n">~1.880.000 <span class="pill real">real</span></td>
+          </tr>
+          <tr class="warn">
+            <td>Jun 2026</td>
+            <td>Oferta actual</td>
+            <td>$3.000.000 COP (≈$871)</td>
+            <td class="n">3.444</td>
+            <td class="n">3.000.000</td>
+            <td>Todo incluido (sale del mismo monto)</td>
+            <td class="n">~1.500.000 <span class="pill now">actual</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 5. ANÁLISIS DEL DÉFICIT ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Dónde está la diferencia</h2></div>
+    <ul class="clean">
+      <li><strong>Lo acordado fueron USD 1.000 libres + estadía.</strong> "Libres" significaba poder
+          ahorrarlos: por eso pedí que comida y transporte fueran aparte. A la TRM de hoy, eso son
+          <strong>≈ $3.444.000 de ahorro</strong> al mes.</li>
+      <li><strong>La oferta actual deja ≈ $1.500.000 de ahorro.</strong> Es una caída de
+          <strong>cerca del 56 %</strong> frente a lo acordado, y queda incluso por debajo de la
+          primera oferta de USD 500 con todo cubierto (≈ $1.722.000).</li>
+      <li><strong>El dólar sí bajó, y lo reconozco.</strong> Pasó de ≈ $3.900 (oct 2025) a ≈ $3.444 (hoy),
+          alrededor de un 12 % menos. Pero esa baja, por sí sola, no explica el salto de $3.444.000 a
+          $1.500.000: la mayor parte de la diferencia viene de pasar de "USD 1.000 libres + estadía
+          aparte" a "$3.000.000 con todo adentro".</li>
+      <li><strong>El compromiso de transición ya se está cumpliendo.</strong> Acepté USD 700 por 3 meses
+          justamente para honrar mi palabra con Anderson. Ese periodo fue un puente hacia los
+          USD 1.000, no el nuevo techo.</li>
+    </ul>
+  </section>
+
+  <!-- ============ 6. SOLICITUD ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>Lo que pido — y cómo cuadrarlo</h2></div>
+    <p class="lead">No busco desconocer que el dólar bajó ni que me ayudaste con el contacto y la
+       estadía; lo agradezco de verdad. Lo que pido es volver a lo que ya habíamos acordado, y dejarlo
+       escrito para que no quede a interpretación. Estas son tres formas de lograrlo:</p>
+
+    <div class="proposal">
+      <h3>Opciones para reajustar (cualquiera honra el acuerdo)</h3>
+
+      <div class="opt">
+        <p class="ot">A · Volver al acuerdo en dólares</p>
+        <p><span class="fig">USD 1.000 libres</span> + alojamiento, comida y transporte aparte —
+           tal como quedamos. Sencillo y fiel a lo conversado.</p>
+      </div>
+
+      <div class="opt">
+        <p class="ot">B · Pasar el acuerdo a pesos (para protegerte del dólar)</p>
+        <p>Si prefieres trabajar en COP por la volatilidad del dólar, el equivalente justo hoy sería
+           <span class="fig">≈ $3.444.000 libres + arriendo ($900.000) cubierto aparte</span>
+           (≈ $4.344.000 en total), más comida y transporte. Así te cubres del tipo de cambio sin que
+           yo pierda lo pactado.</p>
+      </div>
+
+      <div class="opt">
+        <p class="ot">C · Monto único todo incluido — pero realista</p>
+        <p>Si la idea es un solo número con todo adentro, debería dejar el mismo ahorro libre de
+           ≈ $3.444.000 después de gastos: es decir, del orden de
+           <span class="fig">≈ $4.900.000 COP fijos</span> (≈ $3.444.000 de ahorro + ≈ $1.500.000
+           de arriendo, comida y transporte). Los $3.000.000 actuales se quedan muy cortos frente a esto.</p>
+      </div>
+    </div>
+
+    <div class="note-box">
+      <b>Cifras a confirmar entre los dos</b> — para que el documento quede exacto:
+      <ul>
+        <li>Comida estimada en <b>~$450.000/mes</b> y transporte en <b>~$150.000/mes</b>. Si los reales
+            son otros, ajustamos y las cuentas se recalculan solas.</li>
+        <li>Arriendo confirmado en <b>$900.000/mes</b>.</li>
+        <li>Fechas exactas de inicio (octubre 2025) y del aumento (febrero 2026), por si conviene precisarlas.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ FUENTES ============ -->
+  <footer>
+    <p><b>Fuentes del tipo de cambio (TRM, COP por USD):</b> valores promedio mensuales del dólar en
+       Colombia — Banco de la República (banrep.gov.co), Wilkinson PC (dolar.wilkinsonpc.com.co) y
+       Dólar Colombia (dolar-colombia.com). Referencias: oct-2025 ≈ $3.900 (inició $3.923,55 / cerró
+       $3.870,42); feb-2026 ≈ $3.710; abr-2026 ≈ $3.640 (inició $3.660,10 / cerró $3.621,86);
+       30-jun-2026 = $3.443,59.</p>
+    <p>Documento preparado como apoyo para conversar el reajuste salarial. Las cifras de salario
+       reflejan lo relatado por el trabajador; las marcadas como estimadas deben confirmarse antes de
+       presentarlo formalmente. · Generado el 30 de junio de 2026.</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  function el(t,a){var e=document.createElementNS(NS,t);if(a)for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function gp(n){return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");} // pesos
+  function txt(p,x,y,s,a){var t=el("text",a||{});t.setAttribute("x",x);t.setAttribute("y",y);t.textContent=s;p.appendChild(t);return t;}
+
+  /* ---------- CHART 1: USD bars + TRM line ---------- */
+  (function(){
+    var svg=document.getElementById("chart1"); if(!svg) return;
+    var W=720,H=360,mL=52,mR=58,mT=24,mB=64;
+    var pw=W-mL-mR, ph=H-mT-mB;
+    var data=[
+      {l:"Oct 2025",sub:"remoto",usd:250,trm:3900},
+      {l:"Feb 2026",sub:"remoto",usd:350,trm:3710},
+      {l:"Abr 2026",sub:"acuerdo",usd:1000,trm:3640},
+      {l:"Jun 2026",sub:"oferta",usd:871,trm:3444}
+    ];
+    var usdMax=1100, trmMin=3300, trmMax=4000;
+    var yU=function(v){return mT+ph-(v/usdMax)*ph;};
+    var yT=function(v){return mT+ph-((v-trmMin)/(trmMax-trmMin))*ph;};
+    var step=pw/data.length, bw=Math.min(64,step*0.42);
+
+    // gridlines + left axis (USD)
+    for(var g=0;g<=4;g++){
+      var val=usdMax*g/4, y=yU(val);
+      svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:"#EAEEF2","stroke-width":1}));
+      txt(svg,mL-8,y+4,"$"+gp(val),{"font-size":11,fill:"#8A93A1","text-anchor":"end","font-family":"monospace"});
+    }
+    // right axis (TRM)
+    for(var t2=0;t2<=4;t2++){
+      var tv=trmMin+(trmMax-trmMin)*t2/4, ty=yT(tv);
+      txt(svg,W-mR+8,ty+4,gp(tv),{"font-size":11,fill:"#2A4A6B","text-anchor":"start","font-family":"monospace"});
+    }
+    txt(svg,mL-8,mT-9,"USD",{"font-size":10.5,fill:"#B5882F","text-anchor":"end","font-weight":"700","letter-spacing":"0.06em"});
+    txt(svg,W-mR+8,mT-9,"TRM",{"font-size":10.5,fill:"#2A4A6B","text-anchor":"start","font-weight":"700","letter-spacing":"0.06em"});
+
+    // bars
+    data.forEach(function(d,i){
+      var cx=mL+step*i+step/2, x=cx-bw/2, y=yU(d.usd), h=mT+ph-y;
+      var fill=(d.sub==="acuerdo")?"#0E6F69":"#B5882F";
+      svg.appendChild(el("rect",{x:x,y:y,width:bw,height:h,rx:4,fill:fill,opacity:0.92}));
+      txt(svg,cx,y-8,"$"+gp(d.usd),{"font-size":12,fill:"#33414F","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+      txt(svg,cx,mT+ph+22,d.l,{"font-size":12,fill:"#33414F","text-anchor":"middle","font-weight":"600"});
+      txt(svg,cx,mT+ph+39,d.sub,{"font-size":10.5,fill:"#8A93A1","text-anchor":"middle"});
+    });
+    // acordado note
+    var ai=2, acx=mL+step*ai+step/2;
+    txt(svg,acx,yU(1000)+ (yU(700)-yU(1000)) ,"",{});
+
+    // TRM line
+    var pts=data.map(function(d,i){return [mL+step*i+step/2, yT(d.trm)];});
+    var dstr="M"+pts.map(function(p){return p[0]+","+p[1];}).join(" L");
+    svg.appendChild(el("path",{d:dstr,fill:"none",stroke:"#2A4A6B","stroke-width":2.5,"stroke-linejoin":"round","stroke-linecap":"round"}));
+    pts.forEach(function(p,i){
+      svg.appendChild(el("circle",{cx:p[0],cy:p[1],r:4.5,fill:"#fff",stroke:"#2A4A6B","stroke-width":2.5}));
+      txt(svg,p[0],p[1]-12,gp(data[i].trm),{"font-size":10.5,fill:"#2A4A6B","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+    });
+  })();
+
+  /* ---------- CHART 2: savings by scenario ---------- */
+  (function(){
+    var svg=document.getElementById("chart2"); if(!svg) return;
+    var W=720,H=360,mL=58,mR=24,mT=30,mB=76;
+    var pw=W-mL-mR, ph=H-mT-mB;
+    var data=[
+      {l:"1.ª oferta",sub:"$500 + todo",v:1722000,c:"#B5882F"},
+      {l:"Acordado",sub:"$1.000 + todo",v:3444000,c:"#0E6F69"},
+      {l:"Prueba real",sub:"$700",v:1880000,c:"#B5882F"},
+      {l:"Oferta actual",sub:"$3.000.000",v:1500000,c:"#BB4A2C"}
+    ];
+    var vmax=3600000;
+    var yV=function(v){return mT+ph-(v/vmax)*ph;};
+    var step=pw/data.length, bw=Math.min(92,step*0.5);
+
+    for(var g=0;g<=4;g++){
+      var val=vmax*g/4, y=yV(val);
+      svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:"#EAEEF2","stroke-width":1}));
+      txt(svg,mL-8,y+4,"$"+gp(val/1000)+"k",{"font-size":11,fill:"#8A93A1","text-anchor":"end","font-family":"monospace"});
+    }
+    txt(svg,mL-8,mT-12,"Ahorro libre / mes (COP)",{"font-size":10.5,fill:"#5A6677","text-anchor":"start","font-weight":"600"});
+
+    // reference line at "acordado"
+    var refY=yV(3444000);
+    svg.appendChild(el("line",{x1:mL,y1:refY,x2:W-mR,y2:refY,stroke:"#0E6F69","stroke-width":1.2,"stroke-dasharray":"5 4",opacity:0.55}));
+
+    data.forEach(function(d,i){
+      var cx=mL+step*i+step/2, x=cx-bw/2, y=yV(d.v), h=mT+ph-y;
+      svg.appendChild(el("rect",{x:x,y:y,width:bw,height:h,rx:5,fill:d.c,opacity:0.93}));
+      txt(svg,cx,y-9,"$"+gp(d.v),{"font-size":12.5,fill:"#16202D","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+      txt(svg,cx,mT+ph+22,d.l,{"font-size":12.5,fill:"#33414F","text-anchor":"middle","font-weight":"600"});
+      txt(svg,cx,mT+ph+39,d.sub,{"font-size":10.5,fill:"#8A93A1","text-anchor":"middle","font-family":"monospace"});
+    });
+  })();
+})();
+</script>
+</body>
+</html>
