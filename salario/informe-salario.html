@@ -70,6 +70,7 @@
   .legend i{width:13px;height:13px;border-radius:3px;flex:none}
   .legend i.cyan{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
   .legend i.amber{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+  .legend i.hatch{background:repeating-linear-gradient(45deg,var(--amber),var(--amber) 2px,transparent 2px,transparent 5px),rgba(255,194,75,.16);box-shadow:0 0 8px rgba(255,194,75,.4)}
   .legend i.dash{height:0;width:20px;border-radius:0;border-top:2px dashed var(--green);box-shadow:none}
   .legend i.violet{background:var(--violet);box-shadow:0 0 10px var(--violet)}
   .undernote{font-size:12.5px;color:var(--muted);margin-top:12px}
@@ -140,7 +141,8 @@
     <div class="sec-head"><span class="sec-num">01</span><h2>Todos los sueldos, en dólares y en pesos</h2></div>
     <p class="headline">Cada barra es un acuerdo, en su fecha. La parte
       <strong style="color:var(--cyan)">cian</strong> es lo que me queda libre para ahorrar; la
-      <strong style="color:var(--amber)">ámbar</strong> es la estadía (alojamiento + comida + transporte).
+      <strong style="color:var(--amber)">ámbar sólida</strong> es la estadía que <strong>cubre el jefe</strong>,
+      y la <strong style="color:var(--amber)">ámbar rayada</strong> es la estadía que <strong>pago yo</strong>.
       Encima: el <strong>total en pesos y en dólares</strong>. Debajo: el <strong>precio del dólar</strong> de ese momento.</p>
 
     <div class="chart-card">
@@ -148,26 +150,28 @@
         aria-label="Valor total de cada acuerdo salarial en pesos y dólares, con la TRM de cada fecha"></svg></div>
       <div class="legend">
         <span><i class="cyan"></i> Efectivo libre (lo que ahorro)</span>
-        <span><i class="amber"></i> Estadía: alojamiento + comida + transporte</span>
-        <span><i class="dash"></i> Total acordado ($5.240.000)</span>
+        <span><i class="amber"></i> Estadía que cubre el jefe</span>
+        <span><i class="hatch"></i> Estadía que pago yo</span>
+        <span><i class="dash"></i> Total acordado ($5.340.000)</span>
         <span><i class="violet"></i> Dólar (TRM) de la fecha</span>
       </div>
     </div>
-    <p class="undernote">Estadía estimada: alojamiento ≈$800.000 + comida ≈$600.000 + transporte ≈$200.000 =
-      <b>$1.600.000</b>/mes. Cada total se calcula a la TRM de su fecha (por eso la misma cantidad de
-      dólares vale distinto en pesos). Los dos primeros eran remotos desde Popayán (sin estadía).</p>
+    <p class="undernote">Estadía: arriendo ≈$900.000 + comida ≈$600.000 + transporte ≈$200.000 =
+      <b>$1.700.000</b>/mes (el arriendo se presupuestó en ~$800.000 pero salió en $900.000). En la prueba de
+      $700 el jefe solo cubría el arriendo; en la oferta actual todo sale de mi bolsillo. Cada total se calcula
+      a la TRM de su fecha. Los dos primeros eran remotos desde Popayán (sin estadía).</p>
   </section>
 
   <!-- 02 TRES CIFRAS -->
   <section>
     <div class="sec-head"><span class="sec-num">02</span><h2>El punto, en tres cifras</h2></div>
     <div class="stats">
-      <div class="stat ok"><p class="k">Acordado · valor total</p><div class="v">$5.240.000 <small>≈$1.440</small></div><p class="note">$1.000 libres + estadía completa.</p></div>
+      <div class="stat ok"><p class="k">Acordado · valor total</p><div class="v">$5.340.000 <small>≈$1.467</small></div><p class="note">$1.000 libres + estadía completa.</p></div>
       <div class="stat neu"><p class="k">Acordado · ahorro libre</p><div class="v">$3.640.000 <small>≈$1.000</small></div><p class="note">Lo que podía guardar cada mes.</p></div>
-      <div class="stat bad"><p class="k">Oferta actual · ahorro real</p><div class="v">≈$1.400.000 <small>de $3.000.000</small></div><p class="note">Todo sale de los $3.000.000.</p></div>
+      <div class="stat bad"><p class="k">Oferta actual · ahorro real</p><div class="v">≈$1.300.000 <small>de $3.000.000</small></div><p class="note">Todo sale de los $3.000.000.</p></div>
     </div>
-    <p class="headline" style="margin-top:16px">La oferta actual deja <b>≈$1.400.000</b> de ahorro —
-      casi <b>62% menos</b> que lo acordado, e incluso por debajo de la primera oferta de $500 con todo cubierto.</p>
+    <p class="headline" style="margin-top:16px">La oferta actual deja <b>≈$1.300.000</b> de ahorro —
+      casi <b>64% menos</b> que lo acordado, e incluso por debajo de la primera oferta de $500 con todo cubierto.</p>
   </section>
 
   <!-- 03 TABLA -->
@@ -175,23 +179,24 @@
     <div class="sec-head"><span class="sec-num">03</span><h2>Tabla de respaldo</h2></div>
     <div class="table-scroll">
       <table>
-        <caption>Sueldo, estadía cubierta, efectivo libre y total — en pesos y dólares, a la TRM de cada fecha. Verifica: efectivo libre + estadía = total.</caption>
+        <caption>Sueldo, estadía (la que cubre el jefe y la que pago yo), efectivo libre y total — en pesos y dólares, a la TRM de cada fecha. Verifica: efectivo libre + estadía = total.</caption>
         <thead><tr>
           <th>Fecha</th><th>Etapa</th><th>Sueldo</th><th class="n">Dólar (TRM)</th>
-          <th class="n">Estadía</th><th class="n">Efectivo<br>libre</th><th class="n">Total<br>(COP / USD)</th>
+          <th class="n">Estadía:<br>cubre jefe</th><th class="n">Estadía:<br>pago yo</th><th class="n">Efectivo<br>libre</th><th class="n">Total<br>(COP / USD)</th>
         </tr></thead>
         <tbody>
-          <tr><td>~Oct 2025</td><td>Inicio · remoto</td><td>$250</td><td class="n">$3.900</td><td class="n">—</td><td class="n">975.000</td><td class="n">975.000 / $250 <span class="pill ctx">remoto</span></td></tr>
-          <tr><td>Feb 2026</td><td>Aumento · remoto</td><td>$350</td><td class="n">$3.710</td><td class="n">—</td><td class="n">1.298.500</td><td class="n">1.298.500 / $350 <span class="pill ctx">remoto</span></td></tr>
-          <tr><td>Abr 2026</td><td>1.ª oferta Medellín</td><td>$500 + todo</td><td class="n">$3.640</td><td class="n">1.600.000</td><td class="n">1.820.000</td><td class="n">3.420.000 / $940</td></tr>
-          <tr class="hl"><td>Abr 2026</td><td>Acuerdo</td><td>$1.000 + todo</td><td class="n">$3.640</td><td class="n">1.600.000</td><td class="n">3.640.000</td><td class="n">5.240.000 / $1.440 <span class="pill free">acordado</span></td></tr>
-          <tr><td>Abr–Jun</td><td>Prueba real</td><td>$700</td><td class="n">$3.640</td><td class="n">1.600.000*</td><td class="n">1.748.000</td><td class="n">3.348.000 / $920 <span class="pill real">real</span></td></tr>
-          <tr class="warn"><td>Jun 2026</td><td>Oferta actual</td><td>$3.000.000 COP</td><td class="n">$3.444</td><td class="n">1.600.000</td><td class="n">1.400.000</td><td class="n">3.000.000 / $871 <span class="pill now">actual</span></td></tr>
+          <tr><td>~Oct 2025</td><td>Inicio · remoto</td><td>$250</td><td class="n">$3.900</td><td class="n">—</td><td class="n">—</td><td class="n">975.000</td><td class="n">975.000 / $250 <span class="pill ctx">remoto</span></td></tr>
+          <tr><td>Feb 2026</td><td>Aumento · remoto</td><td>$350</td><td class="n">$3.710</td><td class="n">—</td><td class="n">—</td><td class="n">1.298.500</td><td class="n">1.298.500 / $350 <span class="pill ctx">remoto</span></td></tr>
+          <tr><td>Abr 2026</td><td>1.ª oferta Medellín</td><td>$500 + todo</td><td class="n">$3.640</td><td class="n">1.700.000</td><td class="n">0</td><td class="n">1.820.000</td><td class="n">3.520.000 / $967</td></tr>
+          <tr class="hl"><td>Abr 2026</td><td>Acuerdo</td><td>$1.000 + todo</td><td class="n">$3.640</td><td class="n">1.700.000</td><td class="n">0</td><td class="n">3.640.000</td><td class="n">5.340.000 / $1.467 <span class="pill free">acordado</span></td></tr>
+          <tr><td>Abr–Jun</td><td>Prueba real</td><td>$700 + arriendo</td><td class="n">$3.640</td><td class="n">900.000</td><td class="n">800.000</td><td class="n">1.748.000</td><td class="n">3.448.000 / $947 <span class="pill real">real</span></td></tr>
+          <tr class="warn"><td>Jun 2026</td><td>Oferta actual</td><td>$3.000.000 COP</td><td class="n">$3.444</td><td class="n">0</td><td class="n">1.700.000</td><td class="n">1.300.000</td><td class="n">3.000.000 / $871 <span class="pill now">actual</span></td></tr>
         </tbody>
       </table>
     </div>
-    <p class="undernote">*En la prueba solo el arriendo (~$800.000) lo cubre el jefe; comida ($600.000) y
-      transporte ($200.000) los pago yo, por eso bajan el efectivo libre.</p>
+    <p class="undernote">En la prueba de $700 el jefe daba $700 + $900.000 de arriendo, pero comida ($600.000) y
+      transporte ($200.000) los pagaba yo. En la oferta actual de $3.000.000 toda la estadía ($1.700.000) sale
+      de mi bolsillo, por eso el efectivo libre cae a $1.300.000.</p>
   </section>
 
   <!-- 04 LÍNEA DE TIEMPO -->
@@ -207,7 +212,7 @@
       <div class="tl agree"><p class="when">Abr 2026 · mismo día</p><h3>El acuerdo</h3>
         <div class="chips"><span class="chip usd"><b>USD 1.000</b> + todo</span><span class="chip cop">total ≈$5.240.000</span><span class="chip trm">Dólar $3.640</span><span class="chip cut">prueba: USD 700 ×3 meses → Anderson</span></div></div>
       <div class="tl"><p class="when">Fin abr 2026 →</p><h3>En la práctica</h3>
-        <div class="chips"><span class="chip usd"><b>USD 700</b> recibidos</span><span class="chip cop">+ arriendo cubierto</span><span class="chip cut">comida y transporte los pago yo</span></div></div>
+        <div class="chips"><span class="chip usd"><b>USD 700</b> recibidos</span><span class="chip cop">+ $900.000 arriendo (lo cubre el jefe)</span><span class="chip cut">comida y transporte los pago yo</span></div></div>
       <div class="tl down"><p class="when">Jun 2026 · última reunión</p><h3>Oferta actual</h3>
         <div class="chips"><span class="chip cop"><b>$3.000.000</b> fijos, todo incluido</span><span class="chip trm">Dólar $3.444</span><span class="chip cut">ahorro real ≈$1.400.000</span></div></div>
     </div>
@@ -219,8 +224,8 @@
     <p>Volver a lo acordado y dejarlo por escrito. Reconozco que el dólar bajó, así que las cifras en pesos van a la TRM de hoy ($3.444):</p>
     <div class="proposal">
       <div class="opt"><p class="ot">A · En dólares</p><p><span class="fig">USD 1.000 libres</span> + alojamiento, comida y transporte aparte. Tal como quedamos.</p></div>
-      <div class="opt"><p class="ot">B · En pesos (te cubre del dólar)</p><p><span class="fig">≈$3.444.000 libres</span> + estadía aparte ($1.600.000) = total ≈$5.044.000.</p></div>
-      <div class="opt"><p class="ot">C · Monto único todo incluido</p><p>≈<span class="fig">$5.044.000 COP fijos</span> para que el ahorro libre siga en ~$3.444.000. Los $3.000.000 actuales se quedan cortos por ~$2.000.000.</p></div>
+      <div class="opt"><p class="ot">B · En pesos (te cubre del dólar)</p><p><span class="fig">≈$3.444.000 libres</span> + estadía aparte ($1.700.000) = total ≈$5.144.000.</p></div>
+      <div class="opt"><p class="ot">C · Monto único todo incluido</p><p>≈<span class="fig">$5.144.000 COP fijos</span> para que el ahorro libre siga en ~$3.444.000. Los $3.000.000 actuales se quedan cortos por ~$2.144.000.</p></div>
     </div>
     <div class="note-box"><b>A confirmar entre los dos:</b> alojamiento ~$800.000, comida ~$600.000, transporte ~$200.000. Dime los reales y recalculo todo.</div>
   </section>
@@ -249,15 +254,21 @@
     fl.appendChild(el("feDropShadow",{dx:0,dy:0,stdDeviation:3.4,"flood-color":f[1],"flood-opacity":f[2]}));
     defs.appendChild(fl);
   });
+  // hatch pattern for "estadía que pago yo"
+  var pat=el("pattern",{id:"hatch",width:7,height:7,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"});
+  pat.appendChild(el("rect",{width:7,height:7,fill:"#FFC24B","fill-opacity":.16}));
+  pat.appendChild(el("line",{x1:0,y1:0,x2:0,y2:7,stroke:"#FFC24B","stroke-width":3,"stroke-opacity":.95}));
+  defs.appendChild(pat);
   svg.appendChild(defs);
 
+  // a=ahorro(efectivo libre), y=estadía que pago yo, c=estadía que cubre el jefe
   var data=[
-    {sal:"$250",       date:"Oct 2025",      libre:975000,  est:0,       trm:3900, usd:250},
-    {sal:"$350",       date:"Feb 2026",      libre:1298500, est:0,       trm:3710, usd:350},
-    {sal:"$500 + todo",date:"Abr · 1.ª oferta",libre:1820000,est:1600000, trm:3640, usd:940},
-    {sal:"$1.000 + todo",date:"Abr · acordado",libre:3640000,est:1600000, trm:3640, usd:1440, agree:true},
-    {sal:"$700",       date:"Abr–Jun · prueba",libre:1748000,est:1600000, trm:3640, usd:920},
-    {sal:"$3.000.000", date:"Jun · actual",  libre:1400000, est:1600000, trm:3444, usd:871, now:true}
+    {sal:"$250",       date:"Oct 2025",        a:975000,  y:0,      c:0,       trm:3900},
+    {sal:"$350",       date:"Feb 2026",        a:1298500, y:0,      c:0,       trm:3710},
+    {sal:"$500 + todo",date:"Abr · 1.ª oferta", a:1820000, y:0,      c:1700000, trm:3640},
+    {sal:"$1.000 + todo",date:"Abr · acordado", a:3640000, y:0,      c:1700000, trm:3640, agree:true},
+    {sal:"$700 + arriendo",date:"Abr–Jun · prueba",a:1748000,y:800000,c:900000, trm:3640},
+    {sal:"$3.000.000", date:"Jun · actual",    a:1300000, y:1700000, c:0,       trm:3444, now:true}
   ];
   var vmax=6000000, base=mT+ph;
   var yV=function(v){return base-(v/vmax)*ph;};   // exact proportional mapping
@@ -272,33 +283,39 @@
   txt(svg,mL-9,mT-32,"Total mensual (COP)",{"font-size":11,fill:"#B9C6DA","text-anchor":"start","font-weight":"700"});
 
   // dashed reference at agreed total
-  var refY=yV(5240000);
+  var refY=yV(5340000);
   svg.appendChild(el("line",{x1:mL,y1:refY,x2:W-mR,y2:refY,stroke:"#43E58A","stroke-width":1.4,"stroke-dasharray":"7 5",opacity:.65}));
-  txt(svg,W-mR,refY-7,"Acordado $5.240.000",{"font-size":10.5,fill:"#43E58A","text-anchor":"end","font-weight":"700","font-family":"monospace"});
+  txt(svg,W-mR,refY-7,"Acordado $5.340.000",{"font-size":10.5,fill:"#43E58A","text-anchor":"end","font-weight":"700","font-family":"monospace"});
+
+  function seg(x,vTop,vBottom,fill,filter){
+    var yT=yV(vTop), yB=yV(vBottom), h=yB-yT;
+    var a={x:x,y:yT,width:bw,height:h,fill:fill,opacity:.9}; if(filter)a.filter=filter;
+    svg.appendChild(el("rect",a));
+    return {yT:yT,yB:yB,h:h};
+  }
+  function segLabel(x,r,val,color){ if(r.h>19) txt(svg,x+bw/2,(r.yT+r.yB)/2+4,"$"+gp(val),{"font-size":10,fill:color,"text-anchor":"middle","font-weight":"700","font-family":"monospace"}); }
 
   data.forEach(function(d,i){
     var cx=mL+step*i+step/2, x=cx-bw/2;
-    var total=d.libre+d.est;
-    var yLibre=yV(d.libre), yTot=yV(total);
-    // libre (cyan) — sharp corners so segments align exactly
-    svg.appendChild(el("rect",{x:x,y:yLibre,width:bw,height:base-yLibre,fill:"#19E3D4",opacity:.9,filter:"url(#gCyan)"}));
-    // libre segment value (inside, if tall enough)
-    if(base-yLibre>26) txt(svg,cx,(yLibre+base)/2+4,"$"+gp(d.libre),{"font-size":10.5,fill:"#04201E","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
-    // estadia (amber) stacked exactly on top
-    if(d.est>0){
-      svg.appendChild(el("rect",{x:x,y:yTot,width:bw,height:yLibre-yTot,fill:"#FFC24B",opacity:.9,filter:"url(#gAmber)"}));
-      if(yLibre-yTot>20) txt(svg,cx,(yTot+yLibre)/2+4,"$"+gp(d.est),{"font-size":10.5,fill:"#2A1C00","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
-    }
+    var total=d.a+d.y+d.c;
+    // 1) ahorro (cyan)
+    var rA=seg(x,d.a,0,"#19E3D4","url(#gCyan)"); segLabel(x,rA,d.a,"#04201E");
+    // 2) estadía que pago yo (hatched amber)
+    if(d.y>0){ var rY=seg(x,d.a+d.y,d.a,"url(#hatch)",null);
+      svg.appendChild(el("rect",{x:x,y:rY.yT,width:bw,height:rY.h,fill:"none",stroke:"#FFC24B","stroke-width":1,"stroke-opacity":.5}));
+      segLabel(x,rY,d.y,"#FFD98A"); }
+    // 3) estadía que cubre el jefe (solid amber)
+    if(d.c>0){ var rC=seg(x,total,d.a+d.y,"#FFC24B","url(#gAmber)"); segLabel(x,rC,d.c,"#2A1C00"); }
     // current offer outline
-    if(d.now) svg.appendChild(el("rect",{x:x-3,y:yTot-3,width:bw+6,height:base-yTot+6,fill:"none",stroke:"#FF5A6E","stroke-width":2,filter:"url(#gRed)"}));
+    if(d.now) svg.appendChild(el("rect",{x:x-3,y:yV(total)-3,width:bw+6,height:base-yV(total)+6,fill:"none",stroke:"#FF5A6E","stroke-width":2,filter:"url(#gRed)"}));
 
     // total labels above
-    var ty=yTot-12;
+    var ty=yV(total)-12;
     txt(svg,cx,ty-13,"$"+gp(total),{"font-size":13,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
-    txt(svg,cx,ty,"≈ $"+gp(d.usd),{"font-size":11.5,fill:(d.agree?"#43E58A":(d.now?"#FF5A6E":"#FFC24B")),"text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+    txt(svg,cx,ty,"≈ $"+gp(Math.round(total/d.trm)),{"font-size":11.5,fill:(d.agree?"#43E58A":(d.now?"#FF5A6E":"#FFC24B")),"text-anchor":"middle","font-weight":"700","font-family":"monospace"});
 
     // x labels: sueldo / fecha / TRM
-    txt(svg,cx,base+22,d.sal,{"font-size":12,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700"});
+    txt(svg,cx,base+22,d.sal,{"font-size":11.5,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700"});
     txt(svg,cx,base+38,d.date,{"font-size":10.5,fill:"#7C8AA3","text-anchor":"middle"});
     txt(svg,cx,base+58,"Dólar $"+gp(d.trm),{"font-size":11,fill:"#9B8CFF","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
   });
