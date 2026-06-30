@@ -9,7 +9,8 @@
     --bg:#070A11; --panel:#0D1220; --panel2:#121A2B; --raise:#16203400;
     --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
     --ink:#EAF1FA; --soft:#B9C6DA; --muted:#7C8AA3; --faint:#5C6982;
-    --cyan:#E85CC4;   /* ahorro / efectivo libre (magenta) */
+    --cyan:#2FB85F;   /* ahorro / efectivo libre (verde semáforo) */
+    --barred:#E5484D; /* estadía que pago yo (rojo semáforo) */
     --amber:#FFC24B;  /* estadía */
     --red:#FF5A6E;    /* oferta actual / déficit */
     --green:#43E58A;  /* acordado / a favor */
@@ -18,7 +19,7 @@
   *{box-sizing:border-box}
   body{margin:0;color:var(--ink);
     background:
-      radial-gradient(1100px 600px at 15% -5%, rgba(232,92,196,.07), transparent 60%),
+      radial-gradient(1100px 600px at 15% -5%, rgba(47,184,95,.07), transparent 60%),
       radial-gradient(900px 500px at 100% 0%, rgba(155,140,255,.07), transparent 55%),
       var(--bg);
     background-attachment:fixed;
@@ -30,7 +31,7 @@
   .mono{font-family:"SFMono-Regular",ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace}
 
   header.doc{border-bottom:1px solid var(--line2);padding-bottom:24px;margin-bottom:8px}
-  .eyebrow{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--cyan);font-weight:700;margin:0 0 14px;text-shadow:0 0 12px rgba(232,92,196,.5)}
+  .eyebrow{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--cyan);font-weight:700;margin:0 0 14px;text-shadow:0 0 12px rgba(47,184,95,.5)}
   header.doc h1{font-size:clamp(27px,4.6vw,40px);margin:0 0 18px}
   .meta{display:flex;flex-wrap:wrap;gap:6px 28px;font-size:13px;color:var(--muted)}
   .meta b{color:var(--soft);font-weight:600}
@@ -54,14 +55,14 @@
   .stat .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 9px}
   .stat .v{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.02}
   .stat .v small{font-size:13px;color:var(--muted);font-weight:500}
-  .stat.ok .v{color:var(--cyan);text-shadow:0 0 16px rgba(232,92,196,.45)}
+  .stat.ok .v{color:var(--cyan);text-shadow:0 0 16px rgba(47,184,95,.45)}
   .stat.neu .v{color:var(--green);text-shadow:0 0 16px rgba(67,229,138,.4)}
   .stat.bad .v{color:var(--red);text-shadow:0 0 16px rgba(255,90,110,.45)}
   .stat .note{font-size:12px;color:var(--muted);margin:7px 0 0}
 
   /* chart */
   .chart-card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line2);border-radius:16px;padding:18px 18px 14px;margin:6px 0 0;
-    box-shadow:0 0 0 1px rgba(232,92,196,.04),0 24px 60px rgba(0,0,0,.5)}
+    box-shadow:0 0 0 1px rgba(47,184,95,.04),0 24px 60px rgba(0,0,0,.5)}
   .chart-card h3{font-size:15px;margin:0 0 3px}
   .chart-scroll{overflow-x:auto}
   .chart-scroll svg{display:block;min-width:760px;width:100%;height:auto}
@@ -106,7 +107,7 @@
   .chip{font-size:12px;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:999px;padding:3px 10px;color:var(--soft)}
   .chip b{color:var(--ink);font-weight:600}
   .chip.usd{background:rgba(255,194,75,.1);border-color:rgba(255,194,75,.3);color:var(--amber)}
-  .chip.cop{background:rgba(232,92,196,.1);border-color:rgba(232,92,196,.3);color:var(--cyan)}
+  .chip.cop{background:rgba(47,184,95,.1);border-color:rgba(47,184,95,.3);color:var(--cyan)}
   .chip.trm{background:rgba(155,140,255,.1);border-color:rgba(155,140,255,.32);color:var(--violet)}
   .chip.cut{background:rgba(255,90,110,.1);border-color:rgba(255,90,110,.32);color:var(--red)}
 
@@ -116,7 +117,7 @@
   .opt:first-of-type{border-top:none}
   .opt .ot{font-weight:700;color:var(--ink);font-size:14.5px;margin:0 0 3px}
   .opt p{font-size:14px;color:var(--soft);margin:0}
-  .opt .fig{font-variant-numeric:tabular-nums;color:var(--cyan);font-weight:700;text-shadow:0 0 12px rgba(232,92,196,.35)}
+  .opt .fig{font-variant-numeric:tabular-nums;color:var(--cyan);font-weight:700;text-shadow:0 0 12px rgba(47,184,95,.35)}
 
   .note-box{background:rgba(255,255,255,.02);border:1px dashed var(--line2);border-radius:12px;padding:13px 16px;font-size:12.5px;color:var(--muted);margin-top:14px}
   .note-box b{color:var(--soft)}
@@ -140,26 +141,26 @@
   <!-- 01 EL GRÁFICO -->
   <section style="margin-top:34px">
     <div class="sec-head"><span class="sec-num">01</span><h2>Todos los sueldos, en dólares y en pesos</h2></div>
-    <p class="headline">Cada barra es un acuerdo, en su fecha. La parte
-      <strong style="color:var(--cyan)">magenta</strong> es lo que me queda libre para ahorrar; la
-      <strong style="color:var(--amber)">ámbar sólida</strong> es la estadía que <strong>cubre el jefe</strong>,
-      y la <strong style="color:var(--amber)">ámbar rayada</strong> es la estadía que <strong>pago yo</strong>.
+    <p class="headline">Cada barra es un acuerdo, en su fecha, en colores de semáforo: la parte
+      <strong style="color:var(--cyan)">verde</strong> es lo que me queda libre para ahorrar (lo bueno); la
+      <strong style="color:var(--amber)">ámbar</strong> es la estadía que <strong>cubre el jefe</strong> (neutral),
+      y la <strong style="color:var(--barred)">roja</strong> es la estadía que <strong>pago yo</strong> (sale de mi bolsillo).
       Encima: el <strong>total en pesos y en dólares</strong>. Debajo: el <strong>precio del dólar</strong> de ese momento.</p>
 
     <div class="chart-card">
       <div class="chart-scroll"><svg id="chart" viewBox="0 0 860 560" role="img"
         aria-label="Valor total de cada acuerdo salarial en pesos y dólares, con la TRM y líneas de referencia"></svg></div>
       <div class="legend">
-        <span><i class="cyan"></i> Efectivo libre (lo que ahorro)</span>
+        <span><i class="cyan"></i> Efectivo libre — lo que ahorro</span>
         <span><i class="amber"></i> Estadía que cubre el jefe</span>
-        <span><i class="hatch"></i> Estadía que pago yo</span>
+        <span><i style="background:#E5484D;box-shadow:0 0 9px rgba(229,72,77,.6)"></i> Estadía que pago yo</span>
         <span><i class="violet"></i> Dólar (TRM) de la fecha</span>
       </div>
       <div class="legend ref">
-        <span style="color:#FF6B82"><i class="rl" style="border-color:#FF4060"></i> Lo que ganaba antes (~$350)</span>
-        <span style="color:#4FE08A"><i class="rl" style="border-color:#28D96B"></i> 1.ª oferta ($500)</span>
-        <span style="color:#3FE6D2"><i class="rl" style="border-color:#16E0C9"></i> Acuerdo si faltaran comida y transporte ($1.000 − $800.000)</span>
-        <span style="color:#7FB6FF"><i class="rl" style="border-color:#4D9DFF"></i> Acuerdo pleno ($1.000)</span>
+        <span style="color:#FF738C"><i class="rl" style="border-color:#FF738C"></i> Lo que ganaba antes (~$350)</span>
+        <span style="color:#7DF2AD"><i class="rl" style="border-color:#7DF2AD"></i> 1.ª oferta ($500)</span>
+        <span style="color:#3FE6D8"><i class="rl" style="border-color:#19E3D4"></i> Acuerdo si faltaran comida y transporte ($1.000 − $800.000)</span>
+        <span style="color:#7FB6FF"><i class="rl" style="border-color:#5AA0FF"></i> Acuerdo pleno ($1.000)</span>
       </div>
     </div>
     <p class="undernote">Estadía: arriendo ≈$900.000 + comida ≈$600.000 + transporte ≈$200.000 =
@@ -260,7 +261,7 @@
 
   // glow filters
   var defs=el("defs");
-  [["gCyan","#E85CC4",.8],["gAmber","#FFC24B",.75],["gRed","#FF5A6E",.85],["gGreen","#43E58A",.8],["gViolet","#9B8CFF",.8]].forEach(function(f){
+  [["gCyan","#2FB85F",.8],["gAmber","#FFC24B",.75],["gRed","#FF5A6E",.85],["gBarRed","#E5484D",.8],["gGreen","#43E58A",.8],["gViolet","#9B8CFF",.8]].forEach(function(f){
     var fl=el("filter",{id:f[0],x:"-60%",y:"-60%",width:"220%",height:"220%"});
     fl.appendChild(el("feDropShadow",{dx:0,dy:0,stdDeviation:3.4,"flood-color":f[1],"flood-opacity":f[2]}));
     defs.appendChild(fl);
@@ -304,20 +305,18 @@
   data.forEach(function(d,i){
     var cx=mL+step*i+step/2, x=cx-bw/2;
     var total=d.a+d.y+d.c;
-    // 1) ahorro (cyan)
-    var rA=seg(x,d.a,0,"#E85CC4","url(#gCyan)"); segLabel(x,rA,d.a,"#3A0A2E");
-    // 2) estadía que pago yo (hatched amber)
-    if(d.y>0){ var rY=seg(x,d.a+d.y,d.a,"url(#hatch)",null);
-      svg.appendChild(el("rect",{x:x,y:rY.yT,width:bw,height:rY.h,fill:"none",stroke:"#FFC24B","stroke-width":1,"stroke-opacity":.5}));
-      segLabel(x,rY,d.y,"#FFD98A"); }
-    // 3) estadía que cubre el jefe (solid amber)
+    // 1) ahorro — verde (bueno)
+    var rA=seg(x,d.a,0,"#2FB85F","url(#gCyan)"); segLabel(x,rA,d.a,"#04220F");
+    // 2) estadía que pago yo — rojo (sale de mi bolsillo)
+    if(d.y>0){ var rY=seg(x,d.a+d.y,d.a,"#E5484D","url(#gBarRed)"); segLabel(x,rY,d.y,"#FFFFFF"); }
+    // 3) estadía que cubre el jefe — ámbar (neutral)
     if(d.c>0){ var rC=seg(x,total,d.a+d.y,"#FFC24B","url(#gAmber)"); segLabel(x,rC,d.c,"#2A1C00"); }
     // current offer outline
     if(d.now) svg.appendChild(el("rect",{x:x-3,y:yV(total)-3,width:bw+6,height:base-yV(total)+6,fill:"none",stroke:"#FF5A6E","stroke-width":2,filter:"url(#gRed)"}));
 
     // total labels — flotantes arriba, salvo en remotos (ahí van dentro para liberar la zona izquierda)
     if(d.y===0 && d.c===0){
-      txt(svg,cx,(rA.yT+rA.yB)/2+20,"≈ $"+gp(Math.round(total/d.trm)),{"font-size":11,fill:"#3A0A2E","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+      txt(svg,cx,(rA.yT+rA.yB)/2+20,"≈ $"+gp(Math.round(total/d.trm)),{"font-size":11,fill:"#04220F","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
     } else {
       var ty=yV(total)-14;
       txt(svg,cx,ty-15,"$"+gp(total),{"font-size":14.5,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
@@ -332,16 +331,16 @@
 
   // ---- líneas de referencia (a la altura del ahorro) ----
   var refs=[
-    {v:1298500, color:"#FF4060", label:"Antes ≈$350"},                 // roja
-    {v:1820000, color:"#28D96B", label:"1.ª oferta $500"},             // verde
-    {v:2840000, color:"#16E0C9", label:"Acuerdo sin comida/transp."},  // aguamarina
-    {v:3640000, color:"#4D9DFF", label:"Acuerdo pleno $1.000"}         // azul
+    {v:1298500, color:"#FF738C", label:"Antes ≈$350"},                 // roja (coral, distinta del rojo de barra)
+    {v:1820000, color:"#7DF2AD", label:"1.ª oferta $500"},             // verde (menta, distinta del verde de barra)
+    {v:2840000, color:"#19E3D4", label:"Acuerdo sin comida/transp."},  // aguamarina
+    {v:3640000, color:"#5AA0FF", label:"Acuerdo pleno $1.000"}         // azul
   ];
   refs.forEach(function(r){
     var y=yV(r.v);
-    // contorno oscuro fino + línea de color gruesa y brillante encima
-    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:"#070A11","stroke-width":6,"stroke-dasharray":"13 7","stroke-linecap":"round",opacity:.55}));
-    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:r.color,"stroke-width":4,"stroke-dasharray":"13 7","stroke-linecap":"round"}));
+    // contorno oscuro fino + línea de color encima (más delgada)
+    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:"#070A11","stroke-width":4.4,"stroke-dasharray":"11 6","stroke-linecap":"round",opacity:.5}));
+    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:r.color,"stroke-width":2.4,"stroke-dasharray":"11 6","stroke-linecap":"round"}));
     // chip rotulado a la izquierda (zona despejada sobre las barras cortas)
     var w=r.label.length*6.6+20;
     svg.appendChild(el("rect",{x:mL+8,y:y-20,width:w,height:18,rx:5,fill:"#070A11","fill-opacity":.92,stroke:r.color,"stroke-opacity":.95,"stroke-width":1.4}));
