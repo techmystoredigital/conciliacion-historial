@@ -385,18 +385,17 @@
       var netGreen=Math.max(0,G-sumSub);
       var net=G - sumSub + sumOtherAdd;   // total neto
 
-      // 1) VERDE base [0, G] (queda debajo; la parte alta la consume la resta)
+      // 1) VERDE ya REDUCIDO: se dibuja a su altura NETA (así se ve cómo queda tras la resta)
       if(G>0){
-        var yTg=yV(G);
-        segRect(x,yTg,(base-yTg)-GAP, catByKey.ahorro.color, i,"ahorro", null);
-        var solidTop=yV(netGreen);            // parte que queda como verde neto
-        if((base-solidTop)>=15) segLabel(cx,solidTop,base,netGreen,d.trm,catByKey.ahorro.ink,"",false);
+        var yTg=yV(netGreen);
+        if((base-yTg)>=3) segRect(x,yTg,(base-yTg)-GAP, catByKey.ahorro.color, i,"ahorro", null);
+        segLabel(cx,yTg,base,netGreen,d.trm,catByKey.ahorro.ink,"",false);
       }
-      // 2) RESTAS: superpuestas sobre el verde (tinte rojo + borde punteado), desde netGreen hacia arriba
+      // 2) RESTAS: superpuestas justo encima del verde neto (rojo, borde punteado) = lo que se le quitó al verde
       var cum=netGreen;
       subs.forEach(function(k){
         var v=d.vals[k],yT=yV(cum+v),yB=yV(cum);
-        segRect(x,yT,(yB-yT)-GAP, catByKey[k].color, i,k, {"fill-opacity":.30,stroke:"#FF3B4E","stroke-width":2,"stroke-dasharray":"4 3"});
+        segRect(x,yT,(yB-yT)-GAP, catByKey[k].color, i,k, {"fill-opacity":.42,stroke:"#FF3B4E","stroke-width":2,"stroke-dasharray":"4 3"});
         segLabel(cx,yT,yB,v,d.trm,"#FFD0D6","−",false);
         cum+=v;
       });
