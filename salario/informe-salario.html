@@ -367,38 +367,60 @@
 
     data.forEach(function(d,i){
       var cx=mL+step*i+step/2, x=cx-bw/2;
-      var adds=[],subs=[],discs=[];
-      ORDER.forEach(function(k){ if(d.vals[k]==null) return; var s=state[i][k]||"add"; if(s==="sub")subs.push(k); else if(s==="discard")discs.push(k); else adds.push(k); });
       var isRemote=(d.vals.arriendo==null);
+      var greenAdd=(d.vals.ahorro!=null && (state[i].ahorro||"add")==="add");
+      var G=greenAdd? d.vals.ahorro : 0;
 
-      // SUMAN: desde la base
-      var cum=0;
-      adds.forEach(function(k){
-        var v=d.vals[k],cat=catByKey[k],yT=yV(cum+v),yB=yV(cum);
-        segRect(x,yT,(yB-yT)-GAP,cat.color,i,k, cat.glow?{filter:"url(#glow_"+k+")",stroke:"#FFFFFF","stroke-opacity":.75,"stroke-width":1.5}:null);
-        if(cat.tag) tagLabel(cx,yT,yB,cat.tag,v,d.trm,cat.ink); else segLabel(cx,yT,yB,v,d.trm,cat.ink,"",false);
-        cum+=v;
+      var otherAdds=[], subs=[], discs=[];
+      ORDER.forEach(function(k){
+        if(d.vals[k]==null) return;
+        var s=state[i][k]||"add";
+        if(k==="ahorro" && greenAdd) return;          // el verde es la base
+        if(s==="sub") subs.push(k);
+        else if(s==="discard") discs.push(k);
+        else otherAdds.push(k);
       });
-      var sumAdd=cum;
-      // RESTAN: encima, con borde rojo punteado y signo −
+      var sumSub=0; subs.forEach(function(k){sumSub+=d.vals[k];});
+      var sumOtherAdd=0; otherAdds.forEach(function(k){sumOtherAdd+=d.vals[k];});
+      var netGreen=Math.max(0,G-sumSub);
+      var net=G - sumSub + sumOtherAdd;   // total neto
+
+      // 1) VERDE base [0, G] (queda debajo; la parte alta la consume la resta)
+      if(G>0){
+        var yTg=yV(G);
+        segRect(x,yTg,(base-yTg)-GAP, catByKey.ahorro.color, i,"ahorro", null);
+        var solidTop=yV(netGreen);            // parte que queda como verde neto
+        if((base-solidTop)>=15) segLabel(cx,solidTop,base,netGreen,d.trm,catByKey.ahorro.ink,"",false);
+      }
+      // 2) RESTAS: superpuestas sobre el verde (tinte rojo + borde punteado), desde netGreen hacia arriba
+      var cum=netGreen;
       subs.forEach(function(k){
         var v=d.vals[k],yT=yV(cum+v),yB=yV(cum);
-        segRect(x,yT,(yB-yT)-GAP,catByKey[k].color,i,k,{"fill-opacity":.38,stroke:"#FF3B4E","stroke-width":2,"stroke-dasharray":"4 3"});
-        segLabel(cx,yT,yB,v,d.trm,"#FFC2CB","−",false);
+        segRect(x,yT,(yB-yT)-GAP, catByKey[k].color, i,k, {"fill-opacity":.30,stroke:"#FF3B4E","stroke-width":2,"stroke-dasharray":"4 3"});
+        segLabel(cx,yT,yB,v,d.trm,"#FFD0D6","−",false);
         cum+=v;
       });
-      var sumSub=cum-sumAdd, net=sumAdd-sumSub, stackTop=cum;
+      var afterSub=cum;                        // = max(G, sumSub)
+      // 3) OTRAS SUMAS encima
+      var addCur=afterSub;
+      otherAdds.forEach(function(k){
+        var v=d.vals[k],cat=catByKey[k],yT=yV(addCur+v),yB=yV(addCur);
+        segRect(x,yT,(yB-yT)-GAP, cat.color, i,k, cat.glow?{filter:"url(#glow_"+k+")",stroke:"#FFFFFF","stroke-opacity":.75,"stroke-width":1.5}:null);
+        if(cat.tag) tagLabel(cx,yT,yB,cat.tag,v,d.trm,cat.ink); else segLabel(cx,yT,yB,v,d.trm,cat.ink,"",false);
+        addCur+=v;
+      });
+      var stackTop=addCur;
 
-      // total NETO encima (recalculado: suma − resta)
-      var showFloat=!(isRemote && adds.length===1 && subs.length===0 && discs.length===0);
+      // 4) TOTAL NETO encima (verde neto + otras sumas)
+      var showFloat=!(isRemote && greenAdd && subs.length===0 && otherAdds.length===0 && discs.length===0);
       if(showFloat){
         var ty=yV(stackTop)-13, col=(d.agree?"#23E06A":(d.now?"#FF5B6B":"#FFC24B"));
-        if(subs.length) txt(svg,cx,ty-30,"Neto (suma − resta)",{"font-size":9,fill:"#B9C6DA","text-anchor":"middle","font-weight":"700",style:NOCLICK});
+        if(subs.length) txt(svg,cx,ty-30,"Neto (verde − resta)",{"font-size":9,fill:"#B9C6DA","text-anchor":"middle","font-weight":"700",style:NOCLICK});
         txt(svg,cx,ty-15,"$"+gp(net),{"font-size":14,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
         txt(svg,cx,ty,"≈ $"+gp(Math.round(net/d.trm)),{"font-size":12,fill:col,"text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
       }
 
-      // DESCARTADOS: en gris, arriba
+      // 5) DESCARTADOS: gris, arriba
       var iy=yV(stackTop)-44;
       discs.forEach(function(k){
         var v=d.vals[k],hpx=v*PXV,yT=iy-hpx;
