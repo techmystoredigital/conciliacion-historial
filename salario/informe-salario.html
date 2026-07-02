@@ -66,6 +66,8 @@
   .chart-card h3{font-size:15px;margin:0 0 3px}
   .chart-scroll{overflow-x:auto}
   .chart-scroll svg{display:block;min-width:760px;width:100%;height:auto}
+  #chart rect[data-seg]{transition:opacity .12s ease}
+  #chart rect[data-seg]:hover{opacity:.82}
   .legend{display:flex;flex-wrap:wrap;gap:9px 20px;margin:12px 2px 2px;font-size:13px;color:var(--soft)}
   .legend.ref{margin-top:6px;padding-top:10px;border-top:1px solid var(--line)}
   .legend span{display:inline-flex;align-items:center;gap:7px}
@@ -141,19 +143,21 @@
   <!-- 01 EL GRÁFICO -->
   <section style="margin-top:34px">
     <div class="sec-head"><span class="sec-num">01</span><h2>Todos los sueldos, en dólares y en pesos</h2></div>
-    <p class="headline">Cada barra es un acuerdo, en su fecha, en colores de semáforo: la parte
-      <strong style="color:var(--cyan)">verde</strong> es lo que me queda libre para ahorrar (lo bueno); la
-      <strong style="color:var(--amber)">ámbar</strong> es la estadía que <strong>cubre el jefe</strong> (neutral),
-      y la <strong style="color:var(--barred)">roja</strong> es la estadía que <strong>pago yo</strong> (sale de mi bolsillo).
-      Encima: el <strong>total en pesos y en dólares</strong>. Debajo: el <strong>precio del dólar</strong> de ese momento.</p>
+    <p class="headline">Cada barra es un acuerdo, en su fecha, dividido en lo que <strong style="color:var(--cyan)">ahorro</strong>
+      (verde) y la estadía por tipo: <strong style="color:var(--amber)">arriendo</strong>,
+      <strong style="color:#FF8A3D">comida</strong> y <strong style="color:#E86AA6">transporte</strong>.
+      <strong>Es interactivo:</strong> toca cualquier parte de una barra para activarla o desactivarla — el total
+      en pesos y dólares se recalcula al instante y la parte desactivada se va arriba, en gris. Encima de cada barra:
+      el total; debajo: el dólar (TRM) de la fecha.</p>
 
     <div class="chart-card">
       <div class="chart-scroll"><svg id="chart" viewBox="0 0 860 560" role="img"
         aria-label="Valor total de cada acuerdo salarial en pesos y dólares, con la TRM y líneas de referencia"></svg></div>
       <div class="legend">
-        <span><i class="cyan"></i> Efectivo libre — lo que ahorro</span>
-        <span><i class="amber"></i> Estadía que cubre el jefe</span>
-        <span><i style="background:#E5484D;box-shadow:0 0 9px rgba(229,72,77,.6)"></i> Estadía que pago yo</span>
+        <span><i style="background:#2FB85F;box-shadow:0 0 9px rgba(47,184,95,.6)"></i> Efectivo libre (ahorro)</span>
+        <span><i style="background:#FFC24B;box-shadow:0 0 9px rgba(255,194,75,.6)"></i> Arriendo</span>
+        <span><i style="background:#FF8A3D;box-shadow:0 0 9px rgba(255,138,61,.6)"></i> Comida</span>
+        <span><i style="background:#E86AA6;box-shadow:0 0 9px rgba(232,106,166,.6)"></i> Transporte</span>
         <span><i class="violet"></i> Dólar (TRM) de la fecha</span>
       </div>
       <div class="legend ref">
@@ -163,10 +167,9 @@
         <span style="color:#5AA0FF"><i class="rl" style="border-color:#3B8CFF"></i> Acuerdo pleno ($1.000)</span>
       </div>
     </div>
-    <p class="undernote">Estadía: arriendo ≈$900.000 + comida ≈$600.000 + transporte ≈$200.000 =
-      <b>$1.700.000</b>/mes (el arriendo se presupuestó en ~$800.000 pero salió en $900.000). En la prueba de
-      $700 el jefe solo cubría el arriendo; en la oferta actual todo sale de mi bolsillo. Cada total se calcula
-      a la TRM de su fecha. Los dos primeros eran remotos desde Popayán (sin estadía).</p>
+    <p class="undernote">Estadía por componentes (comida ≈$600.000 y transporte ≈$200.000 en todos los casos; el
+      arriendo varía): $800.000 en las ofertas de $500 y $1.000, $900.000 en la prueba de $700 y $700.000 en la
+      oferta actual. Cada total se calcula a la TRM de su fecha. Los dos primeros eran remotos desde Popayán (sin estadía).</p>
     <p class="undernote">Las <b>líneas horizontales</b> marcan, a la altura del ahorro, distintos escenarios de
       referencia. La clave: incluso en el peor caso (la línea aguamarina —el acuerdo de $1.000 si por un
       malentendido no entraran comida ni transporte, pero la estadía/arriendo <b>sí</b> estaba clara—) yo
@@ -258,97 +261,125 @@
 
   var svg=document.getElementById("chart"); if(!svg) return;
   var W=860,H=560,mL=64,mR=28,mT=66,mB=122, pw=W-mL-mR, ph=H-mT-mB;
+  var vmax=6000000, base=mT+ph, PXV=ph/vmax;
+  var yV=function(v){return base-(v/vmax)*ph;};   // mapeo proporcional exacto
 
-  // glow filters
-  var defs=el("defs");
-  [["gCyan","#2FB85F",.8],["gAmber","#FFC24B",.75],["gRed","#FF5A6E",.85],["gBarRed","#E5484D",.8],["gGreen","#43E58A",.8],["gViolet","#9B8CFF",.8],
-   ["gLred","#FF3B4E",.95],["gLgreen","#23E06A",.95],["gLaqua","#00E6D2",.95],["gLblue","#3B8CFF",.95]].forEach(function(f){
-    var fl=el("filter",{id:f[0],x:"-60%",y:"-60%",width:"220%",height:"220%"});
-    fl.appendChild(el("feDropShadow",{dx:0,dy:0,stdDeviation:3.4,"flood-color":f[1],"flood-opacity":f[2]}));
-    defs.appendChild(fl);
-  });
-  // hatch pattern for "estadía que pago yo"
-  var pat=el("pattern",{id:"hatch",width:7,height:7,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"});
-  pat.appendChild(el("rect",{width:7,height:7,fill:"#FFC24B","fill-opacity":.16}));
-  pat.appendChild(el("line",{x1:0,y1:0,x2:0,y2:7,stroke:"#FFC24B","stroke-width":3,"stroke-opacity":.95}));
-  defs.appendChild(pat);
-  svg.appendChild(defs);
+  // Categorías (orden de apilado, de abajo hacia arriba)
+  var CATS=[
+    {key:"ahorro",     name:"Efectivo libre (ahorro)", color:"#2FB85F", ink:"#04220F"},
+    {key:"arriendo",   name:"Arriendo",                color:"#FFC24B", ink:"#2A1C00"},
+    {key:"comida",     name:"Comida",                  color:"#FF8A3D", ink:"#2A1400"},
+    {key:"transporte", name:"Transporte",              color:"#E86AA6", ink:"#2A0A18"}
+  ];
+  var ORDER=["ahorro","arriendo","comida","transporte"];
+  var catByKey={}; CATS.forEach(function(c){catByKey[c.key]=c;});
+  var GRAY="#3D4657", GRAYINK="#AEB8C8";
 
-  // a=ahorro(efectivo libre), y=estadía que pago yo, c=estadía que cubre el jefe
   var data=[
-    {sal:"$250",       date:"Oct 2025",        a:975000,  y:0,      c:0,       trm:3900},
-    {sal:"$350",       date:"Feb 2026",        a:1298500, y:0,      c:0,       trm:3710},
-    {sal:"$500 + todo",date:"Abr · 1.ª oferta", a:1820000, y:0,      c:1700000, trm:3640},
-    {sal:"$1.000 + todo",date:"Abr · acordado", a:3640000, y:0,      c:1700000, trm:3640, agree:true},
-    {sal:"$700 + arriendo",date:"Abr–Jun · prueba",a:1748000,y:800000,c:900000, trm:3640},
-    {sal:"$3.000.000", date:"Jun · actual",    a:1300000, y:1700000, c:0,       trm:3444, now:true}
+    {sal:"$250",          date:"Oct 2025",         trm:3900, vals:{ahorro:975000}},
+    {sal:"$350",          date:"Feb 2026",         trm:3710, vals:{ahorro:1298500}},
+    {sal:"$500 + todo",   date:"Abr · 1.ª oferta", trm:3640, vals:{ahorro:1820000, arriendo:800000, comida:600000, transporte:200000}},
+    {sal:"$1.000 + todo", date:"Abr · acordado",   trm:3640, agree:true, vals:{ahorro:3640000, arriendo:800000, comida:600000, transporte:200000}},
+    {sal:"$700 + arriendo",date:"Abr–Jun · prueba",trm:3640, vals:{ahorro:1748000, arriendo:900000, comida:600000, transporte:200000}},
+    {sal:"$3.000.000",    date:"Jun · actual",     trm:3444, now:true, vals:{ahorro:1500000, arriendo:700000, comida:600000, transporte:200000}}
   ];
-  var vmax=6000000, base=mT+ph;
-  var yV=function(v){return base-(v/vmax)*ph;};   // exact proportional mapping
-  var step=pw/data.length, bw=Math.min(72,step*0.54);
+  // estado de activación (todo activo al inicio)
+  var state=data.map(function(d){var s={};ORDER.forEach(function(k){if(d.vals[k]!=null)s[k]=true;});return s;});
 
-  // gridlines + y labels
-  for(var g=0;g<=6;g++){
-    var val=1000000*g, y=yV(val);
-    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:"rgba(255,255,255,.07)","stroke-width":1}));
-    txt(svg,mL-9,y+4,"$"+g+"M",{"font-size":11,fill:"#7C8AA3","text-anchor":"end","font-family":"monospace"});
-  }
-  txt(svg,mL-9,mT-36,"Total mensual (COP)",{"font-size":12,fill:"#B9C6DA","text-anchor":"start","font-weight":"700"});
-
-  // ---- líneas de referencia (a la altura del ahorro). Se definen aquí y se dibujan ENCIMA, finas ----
+  // líneas de referencia (a la altura del ahorro que corresponde a cada escenario)
   var refs=[
-    {v:1298500, color:"#FF3B4E", glow:"url(#gLred)",  label:"Antes ≈$350"},                 // roja
-    {v:1820000, color:"#23E06A", glow:"url(#gLgreen)",label:"1.ª oferta $500"},             // verde
-    {v:2840000, color:"#00E6D2", glow:"url(#gLaqua)", label:"Acuerdo sin comida/transp."},  // aguamarina
-    {v:3640000, color:"#3B8CFF", glow:"url(#gLblue)", label:"Acuerdo pleno $1.000"}         // azul
+    {v:1298500, color:"#FF3B4E", label:"Antes ≈$350"},                 // roja
+    {v:1820000, color:"#23E06A", label:"1.ª oferta $500"},             // verde
+    {v:2840000, color:"#00E6D2", label:"Acuerdo sin comida/transp."},  // aguamarina
+    {v:3640000, color:"#3B8CFF", label:"Acuerdo pleno $1.000"}         // azul
   ];
 
-  function seg(x,vTop,vBottom,fill,filter){
-    var yT=yV(vTop), yB=yV(vBottom), h=yB-yT;
-    var a={x:x,y:yT,width:bw,height:h,fill:fill,opacity:.9}; if(filter)a.filter=filter;
-    svg.appendChild(el("rect",a));
-    return {yT:yT,yB:yB,h:h};
+  var step=pw/data.length, bw=Math.min(74,step*0.56), GAP=2.5;
+
+  function clearChart(){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+  function toggle(i,k){ return function(){ state[i][k]=!state[i][k]; draw(); }; }
+  function segRect(x,yT,h,fill,i,k,strokeC){
+    var a={x:x,y:yT,width:bw,height:Math.max(2,h),rx:3,fill:fill,"data-seg":"1"};
+    if(strokeC){a.stroke=strokeC;a["stroke-opacity"]=.55;a["stroke-width"]=1;}
+    var rc=el("rect",a); rc.style.cursor="pointer"; rc.addEventListener("click",toggle(i,k));
+    var t=el("title"); t.textContent=catByKey[k].name+": $"+gp(data[i].vals[k]); rc.appendChild(t);
+    svg.appendChild(rc); return rc;
   }
-  function segLabel(x,r,val,color){ if(r.h>20) txt(svg,x+bw/2,(r.yT+r.yB)/2+4,"$"+gp(val),{"font-size":11,fill:color,"text-anchor":"middle","font-weight":"700","font-family":"monospace"}); }
+  function inLabel(cx,yT,yB,v,ink,strike){
+    var segH=yB-yT; if(segH<10) return;
+    var fs=segH>=20?10.5:8.5;
+    var a={"font-size":fs,fill:ink,"text-anchor":"middle","font-weight":"700","font-family":"monospace",style:"pointer-events:none"+(strike?";text-decoration:line-through":"")};
+    txt(svg,cx,(yT+yB)/2+fs*0.35,"$"+gp(v),a);
+  }
+  var NOCLICK="pointer-events:none";
 
-  data.forEach(function(d,i){
-    var cx=mL+step*i+step/2, x=cx-bw/2;
-    var total=d.a+d.y+d.c;
-    // 1) ahorro — verde (bueno)
-    var rA=seg(x,d.a,0,"#2FB85F","url(#gCyan)"); segLabel(x,rA,d.a,"#04220F");
-    // 2) estadía que pago yo — rojo (sale de mi bolsillo)
-    if(d.y>0){ var rY=seg(x,d.a+d.y,d.a,"#E5484D","url(#gBarRed)"); segLabel(x,rY,d.y,"#FFFFFF"); }
-    // 3) estadía que cubre el jefe — ámbar (neutral)
-    if(d.c>0){ var rC=seg(x,total,d.a+d.y,"#FFC24B","url(#gAmber)"); segLabel(x,rC,d.c,"#2A1C00"); }
-    // current offer outline
-    if(d.now) svg.appendChild(el("rect",{x:x-3,y:yV(total)-3,width:bw+6,height:base-yV(total)+6,fill:"none",stroke:"#FF5A6E","stroke-width":2,filter:"url(#gRed)"}));
-
-    // total labels — flotantes arriba, salvo en remotos (ahí van dentro para liberar la zona izquierda)
-    if(d.y===0 && d.c===0){
-      txt(svg,cx,(rA.yT+rA.yB)/2+20,"≈ $"+gp(Math.round(total/d.trm)),{"font-size":11,fill:"#04220F","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
-    } else {
-      var ty=yV(total)-14;
-      txt(svg,cx,ty-15,"$"+gp(total),{"font-size":14.5,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
-      txt(svg,cx,ty,"≈ $"+gp(Math.round(total/d.trm)),{"font-size":12.5,fill:(d.agree?"#43E58A":(d.now?"#FF5A6E":"#FFC24B")),"text-anchor":"middle","font-weight":"700","font-family":"monospace"});
+  function draw(){
+    clearChart();
+    // gridlines
+    for(var g=0;g<=6;g++){
+      var gy=yV(1000000*g);
+      svg.appendChild(el("line",{x1:mL,y1:gy,x2:W-mR,y2:gy,stroke:"rgba(255,255,255,.07)","stroke-width":1,style:NOCLICK}));
+      txt(svg,mL-9,gy+4,"$"+g+"M",{"font-size":11,fill:"#7C8AA3","text-anchor":"end","font-family":"monospace",style:NOCLICK});
     }
+    txt(svg,mL-9,mT-40,"Total mensual (COP) · toca una parte de la barra para activarla/desactivarla",{"font-size":12,fill:"#B9C6DA","text-anchor":"start","font-weight":"700",style:NOCLICK});
 
-    // x labels: sueldo / fecha / TRM
-    txt(svg,cx,base+24,d.sal,{"font-size":12.5,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700"});
-    txt(svg,cx,base+41,d.date,{"font-size":11,fill:"#7C8AA3","text-anchor":"middle"});
-    txt(svg,cx,base+62,"Dólar $"+gp(d.trm),{"font-size":12,fill:"#9B8CFF","text-anchor":"middle","font-weight":"700","font-family":"monospace"});
-  });
+    data.forEach(function(d,i){
+      var cx=mL+step*i+step/2, x=cx-bw/2;
+      var actives=[], inactives=[];
+      ORDER.forEach(function(k){ if(d.vals[k]==null) return; (state[i][k]?actives:inactives).push(k); });
+      var isRemote=(d.vals.arriendo==null);
 
-  // ---- líneas de referencia ENCIMA: finas (no tapan), con borde oscuro sutil para verse sobre cualquier barra ----
-  refs.forEach(function(r){
-    var y=yV(r.v);
-    // SIN filtro: un filtro con objectBoundingBox sobre una línea (caja de alto ~0) colapsa la
-    // región y la oculta en visores estrictos. Trazo puro y grueso = visible en todos lados.
-    svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:r.color,"stroke-width":3.4,"stroke-dasharray":"12 8","stroke-linecap":"round"}));
-    // etiqueta a la izquierda (zona despejada sobre las barras cortas)
-    var w=r.label.length*6.6+20;
-    svg.appendChild(el("rect",{x:mL+8,y:y-20,width:w,height:18,rx:5,fill:"#070A11","fill-opacity":.94,stroke:r.color,"stroke-opacity":1,"stroke-width":1.6}));
-    txt(svg,mL+8+w/2,y-7,r.label,{"font-size":11.5,fill:r.color,"text-anchor":"middle","font-weight":"700","font-family":"monospace"});
-  });
+      // segmentos ACTIVOS desde la base
+      var cum=0;
+      actives.forEach(function(k){
+        var v=d.vals[k], cat=catByKey[k], yT=yV(cum+v), yB=yV(cum);
+        segRect(x,yT,(yB-yT)-GAP,cat.color,i,k,null);
+        inLabel(cx,yT,yB,v,cat.ink,false);
+        cum+=v;
+      });
+      var activeTotal=cum;
+
+      // etiquetas de total (se recalculan con lo activo)
+      if(isRemote && actives.length===1){
+        // remoto: el COP ya se ve dentro; el USD va dentro, debajo
+        txt(svg,cx,(yV(activeTotal)+base)/2+18,"≈ $"+gp(Math.round(activeTotal/d.trm)),{"font-size":10.5,fill:"#04220F","text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
+      } else {
+        var ty=yV(activeTotal)-13;
+        txt(svg,cx,ty-15,"$"+gp(activeTotal),{"font-size":14.5,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
+        txt(svg,cx,ty,"≈ $"+gp(Math.round(activeTotal/d.trm)),{"font-size":12.5,fill:(d.agree?"#23E06A":(d.now?"#FF5B6B":"#FFC24B")),"text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
+      }
+
+      // segmentos DESACTIVADOS: en gris, apilados arriba de la barra
+      var iy=yV(activeTotal)-44;
+      inactives.forEach(function(k){
+        var v=d.vals[k], hpx=v*PXV, yT=iy-hpx;
+        segRect(x,yT,hpx-GAP,GRAY,i,k,catByKey[k].color);
+        inLabel(cx,yT,iy,v,GRAYINK,true);
+        iy=yT;
+      });
+
+      // resalte de la oferta actual
+      if(d.now){
+        var topY=inactives.length? iy : yV(activeTotal);
+        svg.appendChild(el("rect",{x:x-3,y:topY-3,width:bw+6,height:base-topY+6,fill:"none",stroke:"#FF5A6E","stroke-width":2,rx:5,style:NOCLICK}));
+      }
+
+      // etiquetas del eje x
+      txt(svg,cx,base+24,d.sal,{"font-size":12.5,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700",style:NOCLICK});
+      txt(svg,cx,base+41,d.date,{"font-size":11,fill:"#7C8AA3","text-anchor":"middle",style:NOCLICK});
+      txt(svg,cx,base+62,"Dólar $"+gp(d.trm),{"font-size":12,fill:"#9B8CFF","text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
+    });
+
+    // líneas de referencia ENCIMA — finas (mitad de grosor), sin capturar clics
+    refs.forEach(function(r){
+      var y=yV(r.v);
+      svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:r.color,"stroke-width":1.7,"stroke-dasharray":"11 8","stroke-linecap":"round",style:NOCLICK}));
+      var w=r.label.length*6.6+20;
+      svg.appendChild(el("rect",{x:mL+8,y:y-20,width:w,height:18,rx:5,fill:"#070A11","fill-opacity":.94,stroke:r.color,"stroke-opacity":1,"stroke-width":1.4,style:NOCLICK}));
+      txt(svg,mL+8+w/2,y-7,r.label,{"font-size":11.5,fill:r.color,"text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
+    });
+  }
+  draw();
 })();
 </script>
 </body>
