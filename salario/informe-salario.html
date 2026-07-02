@@ -68,6 +68,12 @@
   .chart-scroll svg{display:block;min-width:760px;width:100%;height:auto}
   #chart rect[data-seg]{transition:opacity .12s ease}
   #chart rect[data-seg]:hover{opacity:.82}
+  .segmenu{position:fixed;z-index:60;background:#0E1524;border:1px solid var(--line2);border-radius:12px;padding:6px;min-width:214px;box-shadow:0 16px 44px rgba(0,0,0,.65)}
+  .segmenu[hidden]{display:none}
+  .segmenu-h{font-size:11px;color:var(--muted);font-weight:700;padding:6px 8px 6px;border-bottom:1px solid var(--line);margin-bottom:4px}
+  .segmenu button{display:block;width:100%;text-align:left;background:transparent;border:0;color:var(--ink);font-family:inherit;font-size:14px;padding:11px 10px;border-radius:8px;cursor:pointer}
+  .segmenu button:hover{background:rgba(255,255,255,.07)}
+  .segmenu button.active{background:rgba(47,184,95,.16);color:#7DF2AD}
   .legend{display:flex;flex-wrap:wrap;gap:9px 20px;margin:12px 2px 2px;font-size:13px;color:var(--soft)}
   .legend.ref{margin-top:6px;padding-top:10px;border-top:1px solid var(--line)}
   .legend span{display:inline-flex;align-items:center;gap:7px}
@@ -146,13 +152,19 @@
     <p class="headline">Cada barra es un acuerdo, en su fecha, dividido en lo que <strong style="color:var(--cyan)">ahorro</strong>
       (verde) y la estadía por tipo: <strong style="color:var(--amber)">arriendo</strong>,
       <strong style="color:#FF8A3D">comida</strong> y <strong style="color:#E86AA6">transporte</strong>.
-      <strong>Es interactivo:</strong> toca cualquier parte de una barra para activarla o desactivarla — el total
-      en pesos y dólares se recalcula al instante y la parte desactivada se va arriba, en gris. Encima de cada barra:
-      el total; debajo: el dólar (TRM) de la fecha.</p>
+      <strong>Es interactivo:</strong> toca cualquier parte de una barra y elige <strong>sumar</strong>, <strong>restar</strong>
+      o <strong>descartar</strong> ese valor del total — el total neto en pesos y dólares se recalcula al instante. Dentro de
+      cada segmento verás su monto en pesos y su equivalente en dólares. Encima de cada barra: el total; debajo: el dólar (TRM) de la fecha.</p>
 
     <div class="chart-card">
       <div class="chart-scroll"><svg id="chart" viewBox="0 0 860 560" role="img"
         aria-label="Valor total de cada acuerdo salarial en pesos y dólares, con la TRM y líneas de referencia"></svg></div>
+      <div id="segMenu" class="segmenu" hidden>
+        <div class="segmenu-h" id="segMenuTitle"></div>
+        <button data-op="add">➕ Sumar al total</button>
+        <button data-op="sub">➖ Restar del total</button>
+        <button data-op="discard">🚫 Descartar del total</button>
+      </div>
       <div class="legend">
         <span><i style="background:#2FB85F;box-shadow:0 0 9px rgba(47,184,95,.6)"></i> Efectivo libre (ahorro)</span>
         <span><i style="background:#FFC24B;box-shadow:0 0 9px rgba(255,194,75,.6)"></i> Arriendo</span>
@@ -290,10 +302,9 @@
     {sal:"$700 + arriendo",date:"6 abr 2026 · prueba",    trm:3675.81, vals:{ahorro:2573067, retenido:1102743, arriendo:900000, comida:600000, transporte:200000}},
     {sal:"$3.000.000",    date:"30 jun 2026 · actual",    trm:3443.59, now:true, vals:{ahorro:1500000, arriendo:700000, comida:600000, transporte:200000, salud:271410}}
   ];
-  // estado de activación (todo activo al inicio)
-  var state=data.map(function(d){var s={};ORDER.forEach(function(k){if(d.vals[k]!=null)s[k]=true;});return s;});
+  // estado por segmento: 'add' (suma, por defecto), 'sub' (resta) o 'discard' (descarta)
+  var state=data.map(function(d){var s={};ORDER.forEach(function(k){if(d.vals[k]!=null)s[k]="add";});return s;});
 
-  // líneas de referencia (a la altura del ahorro que corresponde a cada escenario)
   var refs=[
     {v:1284665, color:"#FF3B4E", label:"Antes ≈$350"},                 // roja  (350×3670,47)
     {v:1837905, color:"#23E06A", label:"1.ª oferta $500"},             // verde (500×3675,81)
@@ -302,6 +313,7 @@
   ];
 
   var step=pw/data.length, bw=Math.min(74,step*0.56), GAP=2.5;
+  var NOCLICK="pointer-events:none";
 
   function clearChart(){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
   function makeDefs(){
@@ -313,92 +325,98 @@
     });
     svg.appendChild(defs);
   }
-  function toggle(i,k){ return function(){ state[i][k]=!state[i][k]; draw(); }; }
-  function segRect(x,yT,h,fill,i,k,strokeC,glowId){
+  function segRect(x,yT,h,fill,i,k,extra){
     var a={x:x,y:yT,width:bw,height:Math.max(2,h),rx:3,fill:fill,"data-seg":"1"};
-    if(strokeC){a.stroke=strokeC;a["stroke-opacity"]=.55;a["stroke-width"]=1;}
-    if(glowId){a.filter="url(#"+glowId+")";a.stroke="#FFFFFF";a["stroke-opacity"]=.75;a["stroke-width"]=1.5;}
-    var rc=el("rect",a); rc.style.cursor="pointer"; rc.addEventListener("click",toggle(i,k));
-    var t=el("title"); t.textContent=catByKey[k].name+": $"+gp(data[i].vals[k]); rc.appendChild(t);
+    if(extra) for(var p in extra) a[p]=extra[p];
+    var rc=el("rect",a); rc.style.cursor="pointer";
+    rc.addEventListener("click",function(ev){ openMenu(i,k,ev); });
+    var vv=data[i].vals[k];
+    var t=el("title"); t.textContent=catByKey[k].name+": $"+gp(vv)+" (≈$"+gp(Math.round(vv/data[i].trm))+")"; rc.appendChild(t);
     svg.appendChild(rc); return rc;
   }
-  function inLabel(cx,yT,yB,v,ink,strike){
-    var segH=yB-yT; if(segH<10) return;
-    var fs=segH>=20?10.5:8.5;
-    var a={"font-size":fs,fill:ink,"text-anchor":"middle","font-weight":"700","font-family":"monospace",style:"pointer-events:none"+(strike?";text-decoration:line-through":"")};
-    txt(svg,cx,(yT+yB)/2+fs*0.35,"$"+gp(v),a);
+  // etiqueta dentro del segmento: COP y USD (con signo opcional)
+  function segLabel(cx,yT,yB,v,trm,ink,prefix,strike){
+    var segH=yB-yT; if(segH<11) return;
+    var st=NOCLICK+(strike?";text-decoration:line-through":""), pfx=prefix||"";
+    if(segH>=30){
+      txt(svg,cx,(yT+yB)/2-3,pfx+"$"+gp(v),{"font-size":10.5,fill:ink,"text-anchor":"middle","font-weight":"700","font-family":"monospace",style:st});
+      txt(svg,cx,(yT+yB)/2+12,"≈"+pfx+"$"+gp(Math.round(v/trm)),{"font-size":8.5,fill:ink,"text-anchor":"middle","font-weight":"600","font-family":"monospace",style:st});
+    } else {
+      txt(svg,cx,(yT+yB)/2+3.5,pfx+"$"+gp(v),{"font-size":8.5,fill:ink,"text-anchor":"middle","font-weight":"700","font-family":"monospace",style:st});
+    }
   }
-  var NOCLICK="pointer-events:none";
+  function tagLabel(cx,yT,yB,tag,v,trm,ink){
+    var segH=yB-yT;
+    if(segH>=34){
+      txt(svg,cx,(yT+yB)/2-4,tag,{"font-size":12,fill:ink,"text-anchor":"middle","font-weight":"800",style:NOCLICK});
+      txt(svg,cx,(yT+yB)/2+12,"$"+gp(v)+" · ≈$"+gp(Math.round(v/trm)),{"font-size":8,fill:ink,"text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
+    } else if(segH>=9){
+      txt(svg,cx,(yT+yB)/2+4,tag,{"font-size":9.5,fill:ink,"text-anchor":"middle","font-weight":"800",style:NOCLICK});
+    }
+  }
 
   function draw(){
     clearChart();
     makeDefs();
-    // gridlines
     for(var g=0;g<=6;g++){
       var gy=yV(1000000*g);
       svg.appendChild(el("line",{x1:mL,y1:gy,x2:W-mR,y2:gy,stroke:"rgba(255,255,255,.07)","stroke-width":1,style:NOCLICK}));
       txt(svg,mL-9,gy+4,"$"+g+"M",{"font-size":11,fill:"#7C8AA3","text-anchor":"end","font-family":"monospace",style:NOCLICK});
     }
-    txt(svg,mL-9,mT-40,"Total mensual (COP) · toca una parte de la barra para activarla/desactivarla",{"font-size":12,fill:"#B9C6DA","text-anchor":"start","font-weight":"700",style:NOCLICK});
+    txt(svg,mL-9,mT-40,"Total mensual (COP y USD) · toca una parte: sumar (+), restar (−) o descartar",{"font-size":12,fill:"#B9C6DA","text-anchor":"start","font-weight":"700",style:NOCLICK});
 
     data.forEach(function(d,i){
       var cx=mL+step*i+step/2, x=cx-bw/2;
-      var actives=[], inactives=[];
-      ORDER.forEach(function(k){ if(d.vals[k]==null) return; (state[i][k]?actives:inactives).push(k); });
+      var adds=[],subs=[],discs=[];
+      ORDER.forEach(function(k){ if(d.vals[k]==null) return; var s=state[i][k]||"add"; if(s==="sub")subs.push(k); else if(s==="discard")discs.push(k); else adds.push(k); });
       var isRemote=(d.vals.arriendo==null);
 
-      // segmentos ACTIVOS desde la base
+      // SUMAN: desde la base
       var cum=0;
-      actives.forEach(function(k){
-        var v=d.vals[k], cat=catByKey[k], yT=yV(cum+v), yB=yV(cum), segH=yB-yT;
-        segRect(x,yT,(yB-yT)-GAP,cat.color,i,k,null, cat.glow?("glow_"+k):null);
-        if(cat.tag){
-          // segmento con resplandor: etiqueta explícita (y valor si hay espacio)
-          if(segH>=34){
-            txt(svg,cx,(yT+yB)/2-3,cat.tag,{"font-size":12,fill:cat.ink,"text-anchor":"middle","font-weight":"700",style:NOCLICK});
-            txt(svg,cx,(yT+yB)/2+13,"$"+gp(v),{"font-size":9.5,fill:cat.ink,"text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
-          } else if(segH>=9){
-            txt(svg,cx,(yT+yB)/2+4,cat.tag,{"font-size":9.5,fill:cat.ink,"text-anchor":"middle","font-weight":"700",style:NOCLICK});
-          }
-        } else {
-          inLabel(cx,yT,yB,v,cat.ink,false);
-        }
+      adds.forEach(function(k){
+        var v=d.vals[k],cat=catByKey[k],yT=yV(cum+v),yB=yV(cum);
+        segRect(x,yT,(yB-yT)-GAP,cat.color,i,k, cat.glow?{filter:"url(#glow_"+k+")",stroke:"#FFFFFF","stroke-opacity":.75,"stroke-width":1.5}:null);
+        if(cat.tag) tagLabel(cx,yT,yB,cat.tag,v,d.trm,cat.ink); else segLabel(cx,yT,yB,v,d.trm,cat.ink,"",false);
         cum+=v;
       });
-      var activeTotal=cum;
+      var sumAdd=cum;
+      // RESTAN: encima, con borde rojo punteado y signo −
+      subs.forEach(function(k){
+        var v=d.vals[k],yT=yV(cum+v),yB=yV(cum);
+        segRect(x,yT,(yB-yT)-GAP,catByKey[k].color,i,k,{"fill-opacity":.38,stroke:"#FF3B4E","stroke-width":2,"stroke-dasharray":"4 3"});
+        segLabel(cx,yT,yB,v,d.trm,"#FFC2CB","−",false);
+        cum+=v;
+      });
+      var sumSub=cum-sumAdd, net=sumAdd-sumSub, stackTop=cum;
 
-      // etiquetas de total (se recalculan con lo activo)
-      if(isRemote && actives.length===1){
-        // remoto: el COP ya se ve dentro; el USD va dentro, debajo
-        txt(svg,cx,(yV(activeTotal)+base)/2+18,"≈ $"+gp(Math.round(activeTotal/d.trm)),{"font-size":10.5,fill:"#04220F","text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
-      } else {
-        var ty=yV(activeTotal)-13;
-        txt(svg,cx,ty-15,"$"+gp(activeTotal),{"font-size":14.5,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
-        txt(svg,cx,ty,"≈ $"+gp(Math.round(activeTotal/d.trm)),{"font-size":12.5,fill:(d.agree?"#23E06A":(d.now?"#FF5B6B":"#FFC24B")),"text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
+      // total NETO encima (recalculado: suma − resta)
+      var showFloat=!(isRemote && adds.length===1 && subs.length===0 && discs.length===0);
+      if(showFloat){
+        var ty=yV(stackTop)-13, col=(d.agree?"#23E06A":(d.now?"#FF5B6B":"#FFC24B"));
+        if(subs.length) txt(svg,cx,ty-30,"Neto (suma − resta)",{"font-size":9,fill:"#B9C6DA","text-anchor":"middle","font-weight":"700",style:NOCLICK});
+        txt(svg,cx,ty-15,"$"+gp(net),{"font-size":14,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
+        txt(svg,cx,ty,"≈ $"+gp(Math.round(net/d.trm)),{"font-size":12,fill:col,"text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
       }
 
-      // segmentos DESACTIVADOS: en gris, apilados arriba de la barra
-      var iy=yV(activeTotal)-44;
-      inactives.forEach(function(k){
-        var v=d.vals[k], hpx=v*PXV, yT=iy-hpx;
-        segRect(x,yT,hpx-GAP,GRAY,i,k,catByKey[k].color);
-        inLabel(cx,yT,iy,v,GRAYINK,true);
+      // DESCARTADOS: en gris, arriba
+      var iy=yV(stackTop)-44;
+      discs.forEach(function(k){
+        var v=d.vals[k],hpx=v*PXV,yT=iy-hpx;
+        segRect(x,yT,hpx-GAP,GRAY,i,k,{stroke:catByKey[k].color,"stroke-opacity":.5,"stroke-width":1});
+        segLabel(cx,yT,iy,v,d.trm,GRAYINK,"",true);
         iy=yT;
       });
 
-      // resalte de la oferta actual
       if(d.now){
-        var topY=inactives.length? iy : yV(activeTotal);
+        var topY=discs.length? iy : yV(stackTop);
         svg.appendChild(el("rect",{x:x-3,y:topY-3,width:bw+6,height:base-topY+6,fill:"none",stroke:"#FF5A6E","stroke-width":2,rx:5,style:NOCLICK}));
       }
 
-      // etiquetas del eje x
       txt(svg,cx,base+24,d.sal,{"font-size":12.5,fill:"#EAF1FA","text-anchor":"middle","font-weight":"700",style:NOCLICK});
       txt(svg,cx,base+41,d.date,{"font-size":11,fill:"#7C8AA3","text-anchor":"middle",style:NOCLICK});
       txt(svg,cx,base+62,"Dólar $"+gp(d.trm),{"font-size":12,fill:"#9B8CFF","text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
     });
 
-    // líneas de referencia ENCIMA — finas (mitad de grosor), sin capturar clics
     refs.forEach(function(r){
       var y=yV(r.v);
       svg.appendChild(el("line",{x1:mL,y1:y,x2:W-mR,y2:y,stroke:r.color,"stroke-width":1.7,"stroke-dasharray":"11 8","stroke-linecap":"round",style:NOCLICK}));
@@ -407,6 +425,31 @@
       txt(svg,mL+8+w/2,y-7,r.label,{"font-size":11.5,fill:r.color,"text-anchor":"middle","font-weight":"700","font-family":"monospace",style:NOCLICK});
     });
   }
+
+  // ---- menú de acciones: clic (PC) o toque (móvil) ----
+  var menu=document.getElementById("segMenu");
+  var menuTitle=document.getElementById("segMenuTitle");
+  var curSel=null;
+  function openMenu(i,k,ev){
+    ev.stopPropagation();
+    curSel={i:i,k:k};
+    if(menuTitle) menuTitle.textContent=catByKey[k].name+" · "+data[i].sal;
+    var cur=state[i][k]||"add";
+    Array.prototype.forEach.call(menu.querySelectorAll("button"),function(b){ b.classList.toggle("active", b.getAttribute("data-op")===cur); });
+    menu.hidden=false;
+    var mw=menu.offsetWidth||220, mh=menu.offsetHeight||180;
+    var vw=window.innerWidth||900, vh=window.innerHeight||700;
+    menu.style.left=Math.max(8,Math.min(ev.clientX, vw-mw-8))+"px";
+    menu.style.top =Math.max(8,Math.min(ev.clientY, vh-mh-8))+"px";
+  }
+  if(menu){
+    Array.prototype.forEach.call(menu.querySelectorAll("button"),function(b){
+      b.addEventListener("click",function(ev){ ev.stopPropagation(); if(curSel){ state[curSel.i][curSel.k]=b.getAttribute("data-op"); draw(); } menu.hidden=true; });
+    });
+    document.addEventListener("click",function(){ menu.hidden=true; });
+    window.addEventListener("keydown",function(e){ if(e.key==="Escape") menu.hidden=true; });
+  }
+
   draw();
 })();
 </script>
